@@ -1,15 +1,54 @@
-# Node
-node_modules/
-npm-debug.log
+###########################
+#  Frontend (Vue + Vite)
+###########################
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+# Frontend logs
+frontend/logs/
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+
+# Frontend editor configs
+frontend/.vscode/*
+!frontend/.vscode/extensions.json
+frontend/.idea
+frontend/.DS_Store
+frontend/*.suo
+frontend/*.ntvs*
+frontend/*.njsproj
+frontend/*.sln
+frontend/*.sw?
+
+###########################
+# ⚙️ Backend (Node/Express)
+###########################
+backend/node_modules/
+backend/logs/
+backend/*.log
+backend/.env
+
+###########################
+# 🐳 Docker & Misc
+###########################
+docker-compose.override.yml
 .env
+*.env
 
-# Logs
-logs
-*.log
-
-# Editor
+###########################
+# 🧰 General OS / IDE files
+###########################
 .vscode/
 .DS_Store
-
-# Build
-dist/
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
