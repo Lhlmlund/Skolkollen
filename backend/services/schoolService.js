@@ -1,6 +1,6 @@
-const db = require( "../dbConnection.js");
+import db from "../dbConnection.js";
 
-async function getSchools() {
+ export async function getSchools() {
     try {
         const [rows] = await db.query('SELECT * FROM school')
         return rows
@@ -10,6 +10,3 @@ async function getSchools() {
     }
 }
 
-module.exports = {
-    getSchools
-}
