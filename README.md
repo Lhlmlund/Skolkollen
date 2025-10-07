@@ -35,7 +35,7 @@ replace *** with actual values.
 ```bash
 cd backend
 docker compose up
-npm install dotenv mysql
+npm install dotenv mysql2
 npm run dev
 # Backend: http://localhost:3000
 # Health check: http://localhost:3000/health
