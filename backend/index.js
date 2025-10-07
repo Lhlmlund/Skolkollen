@@ -1,13 +1,12 @@
 import express from "express";
-import {connectDB} from "./dbConnection.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+import schoolRouter from './routes/schoolRoutes.js'
 
 app.use(express.json)
 app.use(express.urlencoded( {extended:false}))
-
-connectDB()
+app.use('/',schoolRouter)
 
 
 app.get("/health", (req, res) => {
