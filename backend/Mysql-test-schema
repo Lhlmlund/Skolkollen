@@ -1,0 +1,13 @@
+CREATE TABLE school (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  city VARCHAR(50),
+  programs TEXT,
+  open_house_date DATE,
+  website VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT INTO school (name, city, programs, open_house_date, website)
+VALUES ('Testgymnasiet', 'Göteborg', 'Teknik,Natur', NULL, 'https://exempel.se');
