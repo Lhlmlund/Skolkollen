@@ -1,19 +1,15 @@
-import mysql from 'mysql2';
+import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
-dotenv.config()
+dotenv.config();
 
-// creates a pool instead of a connection every query
-const connection = mysql.createPool({
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-})
-
-const db = connection.promise()
-
-export default db
+export const pool = mysql.createPool({
+  host: process.env.DB_HOST ?? 'localhost',
+  port: Number(process.env.DB_PORT ?? 3306),
+  user: process.env.DB_USER ?? 'sk_user',
+  password: process.env.DB_PASSWORD ?? 'sk_pwd',
+  database: process.env.DB_NAME ?? 'skolkollen',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});

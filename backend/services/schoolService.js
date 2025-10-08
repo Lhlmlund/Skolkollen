@@ -1,17 +1,10 @@
-import db from "../dbConnection.js";
+import { pool } from '../dbConnection.js';
 
 /**
  * Retrieves all schools from the database.
- * @returns {Promise<Array<object>>} A list of schools.
- * @throws {Error} If the database query fails.
+ * @returns {Promise<Array<object>>}
  */
- export async function getSchools() {
-    try {
-        const [rows] = await db.query('SELECT * FROM school')
-        return rows
-    } catch (err) {
-        console.error('Database error:', err)
-        throw err
-    }
+export async function getSchools() {
+  const [rows] = await pool.query('SELECT * FROM school');
+  return rows;
 }
-

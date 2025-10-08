@@ -1,24 +1,15 @@
-const schoolService = require('../services/schoolService.js')
+import { getSchools as getSchoolsSvc } from '../services/schoolService.js';
 
 /**
- * Retrieves all schools from the database.
- * @param req
- * @param res
- * @returns {Promise<*>} json with [schools] or error message
+ * GET /api/schools
  */
-async function getSchools(req, res){
-    try {
-        const result = await schoolService.getSchools()
-        return res.json({result})
-    } catch (error) {
-        return res.json({
-            error: error.message
-        })
-    }
-
-}
-
-
-module.exports = {
-    getSchools
+export async function getSchools(req, res) {
+  try {
+    const rows = await getSchoolsSvc();
+    // return array directly; frontend typically expects an array
+    return res.json(rows);
+  } catch (err) {
+    console.error('getSchools error:', err);
+    return res.status(500).json({ error: 'Failed to fetch schools' });
+  }
 }
