@@ -19,8 +19,6 @@ git clone https://github.com/Lhlmlund/Skolkollen.git
 cd Skolkollen
 
 ```
-
-
 ## Backend setup
 
 ```bash
@@ -43,10 +41,7 @@ npm run dev
 ```
 
 
-🛑 Start/Stop ( Terminal ) 
-
-Starta frontend: npm run dev (i frontend/)
-Starta backend: npm run dev (i backend/)
+🛑 Stop ( Terminal ) 
 Stoppa: Ctrl + C i respektive terminal
 
 
@@ -56,6 +51,36 @@ GitHub: https://github.com/Lhlmlund/Skolkollen
 Trello: https://trello.com/b/2HwHeAad/skolkollen-gruppovning-del-1
 
 
+
+# Database & Adminer
+
+The project uses MySQL (via Docker) as the database.
+A lightweight admin tool called Adminer is also included for easy access to the data. 
+
+Adminer lets you:
+
+View, edit, and delete records directly in the database
+
+Check that your backend CRUD operations are working
+
+Manually test queries during development
+
+## Accessing Adminer
+
+```bash
+docker compose up -d
+```
+
+And after open http://localhost:8080
+
+Login info:
+
+Field	    Value
+System	    MySQL
+Server	    mysql
+Username	sk_user
+Password	sk_pwd
+Database	skolkollen
 
 
 ## Test backend health and database connectivity - US2
@@ -67,3 +92,6 @@ Test in browser:
 http://localhost:3000/health → OK
 
 http://localhost:3000/health/db → { "db": "OK" } 
+
+
+
