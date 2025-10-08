@@ -6,6 +6,11 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+import schoolRouter from './routes/schoolRoutes.js'
+
+app.use(express.json())
+app.use('/',schoolRouter)
+
 
 // shared pool for queries
 const pool = mysql.createPool({

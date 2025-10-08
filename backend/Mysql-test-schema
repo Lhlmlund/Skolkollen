@@ -1,0 +1,8 @@
+create table school(
+    schoolId INT NOT NULL AUTO_INCREMENT,
+    schoolName VARCHAR(50) NOT NULL,
+    PRIMARY KEY (schoolId)
+);
+
+insert into school(schoolName)
+value ('test')
