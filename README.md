@@ -54,3 +54,16 @@ Stoppa: Ctrl + C i respektive terminal
 
 GitHub: https://github.com/Lhlmlund/Skolkollen
 Trello: https://trello.com/b/2HwHeAad/skolkollen-gruppovning-del-1
+
+
+
+
+## Test backend health and database connectivity - US2
+
+cd backend
+npm run dev
+Test in browser:
+
+http://localhost:3000/health → OK
+
+http://localhost:3000/health/db → { "db": "OK" } 
