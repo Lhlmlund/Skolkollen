@@ -4,7 +4,8 @@
       <h1>Skolkollen</h1>
       <nav>
         <router-link to="/">Hem</router-link> |
-        <router-link to="/about">Om</router-link>
+        <router-link to="/about">Om</router-link> |
+        <router-link to="/add-school">Lägg till skola</router-link>
       </nav>
     </header>
 
