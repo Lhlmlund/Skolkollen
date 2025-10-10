@@ -16,9 +16,6 @@ router.post('/schools', createSchool);
 router.get('/schools/:id', getSchoolByID);
 router.put('/schools/:id', updateSchoolByID);
 
-// /api/schools/{city}
-router.get('/schools/:city', getSchoolsByCity);
-
 // simple ping
 router.get('/ok', (_req, res) => res.send('ok'));
 

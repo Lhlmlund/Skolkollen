@@ -1,11 +1,12 @@
 import { pool } from '../dbConnection.js';
 
 /**
- * Retrieves all schools from the database.
+ * Retrieves all schools from the database if no filter is applied.
+ * @param {string} city
  * @returns {Promise<Array<object>>}
  */
-export async function getSchools() {
-  const [rows] = await pool.query('SELECT * FROM school WHERE 1=1');
+export async function getSchools(sql, params) {
+  const [rows] = await pool.query('SELECT * FROM school WHERE 1=1'+ sql, params);
   return rows;
 }
 

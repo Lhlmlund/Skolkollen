@@ -12,7 +12,14 @@ import {
  */
 export async function getSchools(req, res) {
   try {
-    const rows = await getSchoolsSvc();
+    const {city} = req.query
+    let sql =''
+    const params = []
+
+    if (city) {sql += 'AND city = ?'; params.push(city)}
+
+
+    const rows = await getSchoolsSvc(sql, params);
     // return array directly; frontend typically expects an array
     return res.json(rows);
   } catch (err) {
