@@ -9,6 +9,7 @@ import {
 
 /**
  * GET /api/schools
+ * GET /api/schools?city={city}
  */
 export async function getSchools(req, res) {
   try {
