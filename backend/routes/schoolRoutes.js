@@ -5,12 +5,14 @@ import {
   createSchool,
   updateSchoolByID,
 } from '../controllers/schoolController.js';
+import {validate} from "../middleware/validate.js";
+import {schoolSchema} from "../schema/schoolShema.js"
 
 const router = Router();
 
 // /api/schools
 router.get('/schools', getSchools);
-router.post('/schools', createSchool);
+router.post('/schools', validate(schoolSchema), createSchool);
 
 // /api/schools/{id}
 router.get('/schools/:id', getSchoolByID);

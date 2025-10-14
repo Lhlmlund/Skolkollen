@@ -6,7 +6,7 @@ import { pool } from '../dbConnection.js';
  * @returns {Promise<Array<object>>}
  */
 export async function getSchools(sql, params) {
-  const [rows] = await pool.query('SELECT * FROM school WHERE 1=1 ' + sql, params);
+  const [rows] = await pool.query('SELECT * FROM school WHERE 1=1' + sql, params);
   return rows;
 }
 

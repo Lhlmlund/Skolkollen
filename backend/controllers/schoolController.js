@@ -17,11 +17,10 @@ export async function getSchools(req, res) {
     let sql =''
     const params = []
 
-    if (city) {sql += 'AND city = ?'; params.push(city)}
-
+    if (city) {sql += ' AND city = ?'; params.push(city)}
+    //Room for more Filters
 
     const rows = await getSchoolsSvc(sql, params);
-    // return array directly; frontend typically expects an array
     return res.json(rows);
   } catch (err) {
     console.error('getSchools error:', err);
@@ -53,11 +52,7 @@ export async function getSchoolByID(req, res) {
  * POST /api/schools
  */
 export async function createSchool(req, res) {
-  const { name, city, programs, open_house_date, website } = req.body ?? {};
-  if (!name) {
-    return res.status(400).json({ error: 'Field "name" is required' });
-  }
-
+  const { name, city, programs, open_house_date, website } = req.validateData
   try {
     const created = await createSchoolSvc({
       name,
