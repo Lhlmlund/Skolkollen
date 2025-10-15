@@ -8,12 +8,14 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const ORIGIN = process.env.FRONTEND_ORIGIN || 'http://localhost:5173';
 
 // Enable CORS so frontend can talk to backend
 app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type']
+  origin: ORIGIN,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false // we set true only if you use cookies/auth later
 }));
 
 app.use(express.json());
