@@ -1,0 +1,119 @@
+// ---------- Generators & datasource ----------
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Core domain ----------
+
+model Program {
+  id          Int      @id @default(autoincrement())
+  name        String
+  category    String?  @db.VarChar(50)
+  description String?
+
+  // relations
+  schools     SchoolProgram[]
+  // backrefs from quiz
+  suggestedIn QuizSubmission[] @relation("SuggestedProgram")
+
+  created_at  DateTime @default(now())
+
+  @@map("program")
+}
+
+model School {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(120)
+  city       String?  @db.VarChar(60)
+  website    String?  @db.VarChar(255)
+  created_at DateTime @default(now())
+
+  // relations
+  programs   SchoolProgram[]
+  events     OpenHouseEvent[]
+
+  @@map("school")
+}
+
+model SchoolProgram {
+  school_id Int
+  program_id Int
+
+  // relations
+  school  School  @relation(fields: [school_id],  references: [id], onDelete: Cascade)
+  program Program @relation(fields: [program_id], references: [id], onDelete: Cascade)
+
+  @@id([school_id, program_id])
+  @@map("school_program")
+}
+
+// ---------- Open house ----------
+
+model OpenHouseEvent {
+  id        Int      @id @default(autoincrement())
+  school_id Int
+  starts_at DateTime
+  info_url  String?  @db.VarChar(255)
+  notes     String?  @db.VarChar(255)
+
+  school    School   @relation(fields: [school_id], references: [id], onDelete: Cascade)
+
+  @@index([starts_at])
+  @@map("open_house_event")
+}
+
+// ---------- Quiz content ----------
+
+model QuizQuestion {
+  id          Int      @id @default(autoincrement())
+  prompt      String   @db.VarChar(255)
+  order_index Int
+
+  options     QuizOption[]
+
+  @@map("quiz_question")
+}
+
+model QuizOption {
+  id           Int      @id @default(autoincrement())
+  question_id  Int
+  label        String   @db.VarChar(255)
+  program_hint String?  @db.VarChar(50)
+  weight       Int      @default(1)
+
+  question     QuizQuestion @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  answers      SubmissionAnswer[]
+
+  @@map("quiz_option")
+}
+
+// ---------- Quiz submissions ----------
+
+model QuizSubmission {
+  id                    String   @id @db.Char(36) @default(uuid())
+  created_at            DateTime @default(now())
+  suggested_program_id  Int?
+
+  suggestedProgram      Program? @relation("SuggestedProgram", fields: [suggested_program_id], references: [id])
+  answers               SubmissionAnswer[]
+
+  @@map("quiz_submission")
+}
+
+model SubmissionAnswer {
+  submission_id String   @db.Char(36)
+  question_id   Int
+  option_id     Int
+
+  submission QuizSubmission @relation(fields: [submission_id], references: [id], onDelete: Cascade)
+  question   QuizQuestion   @relation(fields: [question_id],   references: [id], onDelete: Cascade)
+  option     QuizOption     @relation(fields: [option_id],     references: [id], onDelete: Cascade)
+
+  @@id([submission_id, question_id])
+  @@map("submission_answer")
+}

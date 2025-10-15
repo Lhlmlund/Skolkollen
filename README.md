@@ -1,14 +1,18 @@
 # Skolkollen
-Vi ska utveckla en hemsida med inlärning som fokus, riktad mot gymnasieval för högstadieelever.
-
+Vi ska utveckla en hemsida med inlärning som fokus, riktad mot gymnasieval för högstadieelever.  
+Syftet är att hjälpa niondeklassare att fatta ett välgrundat beslut inför gymnasievalet.
 
 
 ## Project Structure
 
 Skolkollen/
-├─ backend/     # Node.js + Express API
-├─ frontend/    # Vue 3 + Vite
-└─ .gitignore   # Ignores node_modules, dist, env, etc.
+├─ backend/ # Node.js + Express API
+│ ├─ sql/ # Auto-run SQL (schema + seed) for MySQL container
+│ ├─ routes/ # API endpoints
+│ ├─ services/ # Database logic (MySQL / Prisma)
+│ └─ .env # Local DB credentials (ignored in Git)
+├─ frontend/ # Vue 3 + Vite
+└─ docker-compose.yml # Starts MySQL + Adminer
 
 
 ##  Setup Instructions
@@ -40,7 +44,42 @@ npm run dev
 
 ```
 
-## Frontend setup
+# Step 2: Start MySQL + Adminer (auto-initialized)
+
+When in the root of the project in terminal:
+
+```bash
+
+docker compose up -d
+
+```
+This will: 
+
+* Start a MySQL container and runs the schema + seed SQL through:
+
+    sql/01_schema.sql → creates tables
+
+    sql/02_seed.sql → inserts example data
+
+* Adminer (a database editor) or (DB UI) runs on http://localhost:8080
+
+
+
+
+# Step 3: Run(use) the backend 
+
+```bash
+
+cd backend
+npm install
+npm run dev
+
+
+```
+
+
+
+## Frontend setup and run(use)
 
 ```bash
 
@@ -51,12 +90,15 @@ npm run dev
 ```
 
 
+
+# *OBS* All team members only need to run docker compose up -d
+for an instantly ready, pre-seeded MySQL database. 
+
 🛑 Stop ( Terminal ) 
 Stoppa: Ctrl + C i respektive terminal
 
 
 📌 Links
-
 GitHub: https://github.com/Lhlmlund/Skolkollen
 Trello: https://trello.com/b/2HwHeAad/skolkollen-gruppovning-del-1
 
@@ -76,14 +118,15 @@ Check that your backend CRUD operations are working
 Manually test queries during development
 
 ## Accessing Adminer
+after 
 
 ```bash
 docker compose up -d
 ```
 
-And after open http://localhost:8080
+ open http://localhost:8080
 
-Login info:
+Login info:(or the environment variables you choose in .env)
 
 Field	    Value
 System	    MySQL
@@ -91,6 +134,14 @@ Server	    mysql
 Username	sk_user
 Password	sk_pwd
 Database	skolkollen
+
+### You can:
+
+* View and edit data directly
+
+* Verify CRUD operations
+
+* Run custom SQL queries for debugging
 
 
 ## Test backend health and database connectivity - US2
