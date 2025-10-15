@@ -11,6 +11,7 @@ const routes = [
   { path: '/add-school', name: 'addSchool', component: AddSchool },
   { path: '/school-list', name: 'schoolList', component: SchoolList },
   { path: '/login', name: 'login', component: login }
+
 ]
 
 export default createRouter({
