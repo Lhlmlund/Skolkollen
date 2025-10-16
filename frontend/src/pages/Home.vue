@@ -50,21 +50,29 @@
       <!-- Right column: open house card -->
       <aside class="openhouse-card">
         <h3>Öppet hus</h3>
+
         <ul>
-          <li v-for="(event, index) in openHouses" :key="index">
-            <strong>{{ event.school }}</strong><br />
-            {{ event.date }} – {{ event.time }}
-          </li>
+          <transition-group name="fold" tag="li">
+            <li v-for="event in visibleOpenHouses" :key="event.school + event.date">
+              <strong>{{ event.school }}</strong><br />
+              {{ event.date }} – {{ event.time }}
+            </li>
+          </transition-group>
         </ul>
-        <router-link to="/openhouse" class="more-link">Visa alla</router-link>
+
+        <button class="toggle-btn" @click="toggleOpenHouses">
+          {{ showAllOpenHouses ? 'Visa färre' : 'Visa alla' }}
+        </button>
       </aside>
+
     </div>
   </main>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { getSchools } from '../api/clients.js'
+import { ref, onMounted, computed } from 'vue'
+
+import { getSchools, getOpenHouses } from '../api/clients.js' // 👈 Add this
 
 const schools = ref([])
 const filteredSchools = ref([])
@@ -75,19 +83,39 @@ const filters = ['Alla', 'Natur', 'El', 'Samhäll', 'Fordon']
 const loading = ref(true)
 const error = ref(null)
 
+// Default placeholders (visible until real data is fetched)
 const openHouses = ref([
   { school: 'Tekniska Gymnasiet', date: '25 okt', time: '17:00–19:00' },
   { school: 'Samhällsakademin', date: '2 nov', time: '18:00–20:00' },
   { school: 'Fordonscollege', date: '5 nov', time: '16:30–18:30' }
 ])
+const showAllOpenHouses = ref(false)
+
+const visibleOpenHouses = computed(() => {
+  return showAllOpenHouses.value
+      ? openHouses.value
+      : openHouses.value.slice(0, 3) // only first 3 initially
+})
+
+function toggleOpenHouses() {
+  showAllOpenHouses.value = !showAllOpenHouses.value
+}
+
 
 onMounted(async () => {
   try {
-    const data = await getSchools()
-    schools.value = data
-    filteredSchools.value = data
+    // Load schools
+    const schoolData = await getSchools()
+    schools.value = schoolData
+    filteredSchools.value = schoolData
+
+    // Try to load open house data from the backend
+    const openHouseData = await getOpenHouses()
+    if (openHouseData && openHouseData.length > 0) {
+      openHouses.value = openHouseData
+    }
   } catch (err) {
-    error.value = err.message || 'Kunde inte hämta skolor.'
+    error.value = err.message || 'Kunde inte hämta data.'
   } finally {
     loading.value = false
   }
@@ -199,7 +227,6 @@ function filterSchools() {
   transform: translateY(-2px);
 }
 
-/* Layout: main content + sidebar */
 .content-layout {
   display: grid;
   grid-template-columns: 1fr 300px;
@@ -240,29 +267,26 @@ function filterSchools() {
   color: #ff8a00;
 }
 
-/* Full gradient border around the card */
 .openhouse-card {
   position: relative;
   border-radius: 20px;
   padding: 1.8rem;
-  background: linear-gradient(90deg, #ff8a00, #e52e71); /* outer gradient border */
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
   height: fit-content;
   transform: translateY(-10px);
   transition: all 0.3s ease;
   box-shadow: 0 8px 20px rgba(229, 46, 113, 0.15);
 }
 
-/* Inner white layer */
 .openhouse-card::before {
   content: "";
   position: absolute;
-  inset: 2px; /* thickness of the border */
+  inset: 2px;
   border-radius: 18px;
   background: linear-gradient(180deg, #ffffff 0%, #fff7f9 100%);
   z-index: 0;
 }
 
-/* Actual content container inside */
 .openhouse-card > * {
   position: relative;
   z-index: 1;
@@ -273,7 +297,6 @@ function filterSchools() {
   box-shadow: 0 12px 30px rgba(229, 46, 113, 0.25);
 }
 
-/* Title */
 .openhouse-card h3 {
   background: linear-gradient(90deg, #ff8a00, #e52e71);
   -webkit-background-clip: text;
@@ -283,7 +306,6 @@ function filterSchools() {
   text-align: center;
 }
 
-/* List */
 .openhouse-card ul {
   list-style: none;
   padding: 0;
@@ -306,22 +328,50 @@ function filterSchools() {
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* Link */
-.more-link {
+/* Vue transition classes – keep, used dynamically */
+.fold-enter-active,
+.fold-leave-active {
+  transition: all 0.4s ease;
   display: block;
-  text-align: center;
-  text-decoration: none;
-  color: #e52e71;
+  overflow: hidden;
+}
+
+.fold-enter-from,
+.fold-leave-to {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.fold-enter-to,
+.fold-leave-from {
+  max-height: 500px;
+  opacity: 1;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+  margin-bottom: 0.7rem;
+}
+
+.toggle-btn {
+  display: block;
+  width: 100%;
+  border: none;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  color: white;
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
   font-weight: 500;
+  cursor: pointer;
   transition: 0.3s;
 }
 
-.more-link:hover {
-  color: #ff8a00;
+.toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 46, 113, 0.3);
 }
 
-
-/* Responsive adjustments */
 @media (max-width: 900px) {
   .content-layout {
     grid-template-columns: 1fr;
@@ -349,4 +399,5 @@ function filterSchools() {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 </style>

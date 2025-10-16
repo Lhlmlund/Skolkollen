@@ -4,3 +4,9 @@ export async function getSchools() {
   if (!res.ok) throw new Error('Failed to fetch schools')
   return res.json()
 }
+// NEW: Fetch open house events
+export async function getOpenHouses() {
+  const res = await fetch(`${BASE}/api/openhouses`)
+  if (!res.ok) throw new Error('Failed to fetch open houses')
+  return res.json()
+}
