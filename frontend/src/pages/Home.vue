@@ -1,6 +1,5 @@
 <template>
   <main class="home">
-
     <section class="tagline">
       <p>Välj rätt, börja rätt – din väg till gymnasiet</p>
     </section>
@@ -26,30 +25,45 @@
       </button>
     </section>
 
-    <section class="school-list">
-      <div
-          v-for="school in filteredSchools"
-          :key="school.id"
-          class="school-card"
-      >
-        <h3>{{ school.name }}</h3>
-        <p><strong>Program:</strong> {{ school.program || 'Ingen information' }}</p>
-        <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
-        <a :href="school.website" target="_blank" class="school-link">Besök hemsida</a>
-      </div>
+    <div class="content-layout">
+      <!-- Left column: school list -->
+      <section class="school-list">
+        <div
+            v-for="school in filteredSchools"
+            :key="school.id"
+            class="school-card"
+        >
+          <h3>{{ school.name }}</h3>
+          <p><strong>Program:</strong> {{ school.program || 'Ingen information' }}</p>
+          <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
+          <a :href="school.website" target="_blank" class="school-link">Besök hemsida</a>
+        </div>
 
-      <div v-if="!loading && filteredSchools.length === 0" class="no-results">
-        Inga skolor matchar din sökning.
-      </div>
+        <div v-if="!loading && filteredSchools.length === 0" class="no-results">
+          Inga skolor matchar din sökning.
+        </div>
 
-      <div v-if="loading" class="loading">Laddar skolor...</div>
-      <div v-if="error" class="error">{{ error }}</div>
-    </section>
+        <div v-if="loading" class="loading">Laddar skolor...</div>
+        <div v-if="error" class="error">{{ error }}</div>
+      </section>
+
+      <!-- Right column: open house card -->
+      <aside class="openhouse-card">
+        <h3>Öppet hus</h3>
+        <ul>
+          <li v-for="(event, index) in openHouses" :key="index">
+            <strong>{{ event.school }}</strong><br />
+            {{ event.date }} – {{ event.time }}
+          </li>
+        </ul>
+        <router-link to="/openhouse" class="more-link">Visa alla</router-link>
+      </aside>
+    </div>
   </main>
 </template>
 
 <script setup>
-import { ref, onMounted, } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getSchools } from '../api/clients.js'
 
 const schools = ref([])
@@ -60,6 +74,12 @@ const filters = ['Alla', 'Natur', 'El', 'Samhäll', 'Fordon']
 
 const loading = ref(true)
 const error = ref(null)
+
+const openHouses = ref([
+  { school: 'Tekniska Gymnasiet', date: '25 okt', time: '17:00–19:00' },
+  { school: 'Samhällsakademin', date: '2 nov', time: '18:00–20:00' },
+  { school: 'Fordonscollege', date: '5 nov', time: '16:30–18:30' }
+])
 
 onMounted(async () => {
   try {
@@ -179,11 +199,18 @@ function filterSchools() {
   transform: translateY(-2px);
 }
 
+/* Layout: main content + sidebar */
+.content-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
 .school-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.2rem;
-  padding: 0 1rem;
 }
 
 .school-card {
@@ -211,6 +238,98 @@ function filterSchools() {
 
 .school-link:hover {
   color: #ff8a00;
+}
+
+/* Full gradient border around the card */
+.openhouse-card {
+  position: relative;
+  border-radius: 20px;
+  padding: 1.8rem;
+  background: linear-gradient(90deg, #ff8a00, #e52e71); /* outer gradient border */
+  height: fit-content;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(229, 46, 113, 0.15);
+}
+
+/* Inner white layer */
+.openhouse-card::before {
+  content: "";
+  position: absolute;
+  inset: 2px; /* thickness of the border */
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #fff7f9 100%);
+  z-index: 0;
+}
+
+/* Actual content container inside */
+.openhouse-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.openhouse-card:hover {
+  transform: translateY(-14px);
+  box-shadow: 0 12px 30px rgba(229, 46, 113, 0.25);
+}
+
+/* Title */
+.openhouse-card h3 {
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* List */
+.openhouse-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.2rem 0;
+  color: #444;
+}
+
+.openhouse-card li {
+  background: #ffffff;
+  border: 1px solid rgba(229, 46, 113, 0.1);
+  border-radius: 12px;
+  padding: 0.9rem;
+  margin-bottom: 0.7rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: 0.2s ease;
+}
+
+.openhouse-card li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Link */
+.more-link {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  color: #e52e71;
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.more-link:hover {
+  color: #ff8a00;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .content-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .openhouse-card {
+    order: 2;
+  }
 }
 
 .loading,
