@@ -15,14 +15,33 @@
     </section>
 
     <section class="filters">
-      <button
-          v-for="filter in filters"
-          :key="filter"
-          :class="{ active: activeFilter === filter }"
-          @click="setFilter(filter)"
+      <!-- First 4 filters as buttons -->
+      <div
+          v-for="filter in visibleFilters"
+          :key="filter.name"
+          class="filter-wrapper"
       >
-        {{ filter }}
-      </button>
+        <button
+            :class="{ active: activeFilter === filter.name }"
+            @click="setFilter(filter.name)"
+        >
+          {{ filter.name }}
+        </button>
+      </div>
+
+      <!-- Dropdown for remaining filters -->
+      <div class="filter-wrapper">
+        <select @change="setFilter($event.target.value)" class="program-dropdown">
+          <option disabled selected>Fler program</option>
+          <option
+              v-for="filter in dropdownFilters"
+              :key="filter.name"
+              :value="filter.name"
+          >
+            {{ filter.name }}
+          </option>
+        </select>
+      </div>
     </section>
 
     <div class="content-layout">
@@ -71,14 +90,82 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-
 import { getSchools, getOpenHouses } from '../api/clients.js' // 👈 Add this
 
 const schools = ref([])
 const filteredSchools = ref([])
 const searchQuery = ref('')
 const activeFilter = ref('Alla')
-const filters = ['Alla', 'Natur', 'El', 'Samhäll', 'Fordon']
+const filters = [
+  {
+    name: 'Alla',
+    programs: []
+  },
+  {
+    name: 'Natur',
+    programs: ['Naturvetenskapsprogrammet']
+  },
+  {
+    name: 'Teknik',
+    programs: ['Teknikprogrammet']
+  },
+  {
+    name: 'Samhäll',
+    programs: ['Samhällsvetenskapsprogrammet', 'Ekonomiprogrammet', 'Humanistiska programmet']
+  },
+  {
+    name: 'Estet',
+    programs: ['Estetiska programmet']
+  },
+  {
+    name: 'Barn och fritid',
+    programs: ['Barn- och fritidsprogrammet']
+  },
+  {
+    name: 'Bygg',
+    programs: ['Bygg- och anläggningsprogrammet']
+  },
+  {
+    name: 'El',
+    programs: ['El- och energiprogrammet', 'Industritekniska programmet']
+  },
+  {
+    name: 'Fordon',
+    programs: ['Fordons- och transportprogrammet']
+  },
+  {
+    name: 'Försäljning & service',
+    programs: ['Försäljnings- och serviceprogrammet']
+  },
+  {
+    name: 'Frisör & stylist',
+    programs: ['Frisör- och stylistprogrammet']
+  },
+  {
+    name: 'Hotell & turism',
+    programs: ['Hotell- och turismprogrammet']
+  },
+  {
+    name: 'Naturbruk',
+    programs: ['Naturbruksprogrammet']
+  },
+  {
+    name: 'Restaurang',
+    programs: ['Restaurang- och livsmedelsprogrammet']
+  },
+  {
+    name: 'Vård & omsorg',
+    programs: ['Vård- och omsorgsprogrammet']
+  },
+  {
+    name: 'VVS',
+    programs: ['VVS- och fastighetsprogrammet']
+  },
+];
+const visibleFilters = [filters[0], ...filters.slice(1, 4)] // "Alla" + 3 programs
+const dropdownFilters = filters.slice(4)
+
+
 
 const loading = ref(true)
 const error = ref(null)
@@ -121,8 +208,8 @@ onMounted(async () => {
   }
 })
 
-function setFilter(filter) {
-  activeFilter.value = filter
+function setFilter(filterOrProgram) {
+  activeFilter.value = filterOrProgram
   filterSchools()
 }
 
@@ -225,6 +312,19 @@ function filterSchools() {
 
 .filters button:hover {
   transform: translateY(-2px);
+}
+.filter-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.program-dropdown {
+  margin-top: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #e52e71;
+  cursor: pointer;
 }
 
 .content-layout {
