@@ -67,6 +67,7 @@
   color: #555;
   font-weight: 500;
   margin-bottom: 2rem;
+  font-size: 1rem;
 }
 
 .content h3 {
@@ -82,6 +83,7 @@
   color: #444;
   line-height: 1.7;
   margin-bottom: 1.2rem;
+  font-size: 1rem;
 }
 
 .content ul {
@@ -117,6 +119,54 @@ blockquote {
 
 .back-link:hover {
   color: #ff8a00;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .about-page {
+    padding: 1.5rem;
+    margin: 1.5rem;
+  }
+
+  .about-page h2 {
+    font-size: 1.7rem;
+  }
+
+  .content h3 {
+    font-size: 1.2rem;
+  }
+
+  .content p,
+  .content li,
+  .intro {
+    font-size: 0.95rem;
+  }
+
+  blockquote {
+    padding: 1rem 1.2rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-page {
+    padding: 1.2rem;
+    margin: 1rem;
+    border-radius: 14px;
+  }
+
+  .about-page h2 {
+    font-size: 1.5rem;
+  }
+
+  .content h3 {
+    font-size: 1.1rem;
+  }
+
+  .content p,
+  .intro {
+    font-size: 0.9rem;
+  }
 }
 
 @keyframes fadeIn {
