@@ -1,3 +1,5 @@
+SET NAMES utf8mb4 COLLATE utf8mb4_swedish_ci;
+
 INSERT INTO program (name, category, description) VALUES
 ('Teknikprogrammet', 'Teknik', 'Fokus på teknik, programmering och design.'),
 ('Naturvetenskapsprogrammet', 'Naturvetenskap', 'Studera biologi, fysik, kemi och matematik.'),
