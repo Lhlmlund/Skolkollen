@@ -25,7 +25,7 @@ export async function getSchools(req, res) {
  * GET /api/schools/{id}
  */
 export async function getSchoolByID(req, res) {
-  const id = Number(req.params.id)
+  const id = Number(req.params.id);
 
   try {
     const row = await getSchoolByIDSvc(id);
@@ -42,16 +42,21 @@ export async function getSchoolByID(req, res) {
  * POST /api/schools
  */
 export async function createSchool(req, res) {
-  const { name, city, programs, open_house_date, website } = req.validateData
+  const { name, city, website, programIds = [] } = req.body
   try {
-    const created = await createSchoolSvc({
+
+    const row = await createSchoolSvc(
       name,
       city,
-      programs,
-      open_house_date,
       website,
-    });
-    return res.status(201).json(created);
+      programIds
+    );
+
+    return res.status(201).json({
+          success: true,
+          row
+        });
+
   } catch (err) {
     console.error('createSchool error:', err);
     return res.status(500).json({ error: 'Failed to create school' });
@@ -95,14 +100,13 @@ export async function updateSchoolByID(req, res) {
  * DELETE /api/schools/{id}
  */
 export async function deleteSchoolByID(req, res) {
-  const id = req.params.id;
-  if (Number.isNaN(id)) {
-    return res.status(400).json({ error: 'Invalid id' });
-  }
+  const id = Number(req.params.id);
+
   try {
-    await deleteSchoolByIDScv(id);
+    const row = await deleteSchoolByIDScv(id);
     return res.status(200).json({
-      Success: true
+      Success: true,
+      row
     })
   } catch (err) {
     console.log('deleteSchoolByID error:', err);

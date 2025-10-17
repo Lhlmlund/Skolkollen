@@ -2,6 +2,7 @@ import { prisma } from '../lib/prisma.js';
 
 export async function getSchools() {
   return await prisma.school.findMany();
+  //Reformat filtering to Prisma later
 }
 
 
@@ -13,11 +14,12 @@ export async function getSchoolByID(id) {
   })
 }
 
-export async function createSchool(name, city, programIds) {
+export async function createSchool(name, city, website, programIds = []) {
   return await prisma.school.create({
     data: {
       name,
       city,
+      website,
       programs: {
         create: programIds.map((id) => ({
           program: { connect: { id } },
@@ -61,7 +63,7 @@ export async function updateSchoolByID(id, fields) {
 export async function deleteSchoolByID(id) {
   return await prisma.school.delete({
     where: {
-      id: id
+      id
     }
   })
 }
