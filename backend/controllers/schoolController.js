@@ -68,22 +68,25 @@ export async function createSchool(req, res) {
  */
 export async function updateSchoolByID(req, res) {
   const id = Number(req.params.id);
-  if (Number.isNaN(id)) {
-    return res.status(400).json({ error: 'Invalid id' });
+
+  const { name, city, website, programIds = [] } = req.body
+
+  const data = {}
+
+  if (name !== undefined) data.name = name;
+  if (city !== undefined) data.city = city;
+  if (website !== undefined) data.website = website;
+
+  if (programIds){
+    data.programs = {
+      set: [], // clear all current connections
+      connect: programIds.map((programId) => ({ program_id: programId })),
+    }
   }
 
-  const { name, city, programs, open_house_date, website } = req.body ?? {};
-  const payload = { name, city, programs, open_house_date, website };
-  const hasAnyField = Object.values(payload).some(v => v !== undefined);
-
-  if (!hasAnyField) {
-    return res
-      .status(400)
-      .json({ error: 'Provide at least one field to update' });
-  }
 
   try {
-    const updated = await updateSchoolByIDSvc(id, payload);
+    const updated = await updateSchoolByIDSvc(id, data);
     if (!updated) {
       return res.status(404).json({ error: `School not found with id:${id}` });
     }
