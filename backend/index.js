@@ -1,6 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { pool } from './dbConnection.js';
 import schoolRouter from './routes/schoolRoutes.js';
 
 dotenv.config();
@@ -13,14 +12,6 @@ app.use(express.json());
 // Health checks
 app.get('/health', (_req, res) => res.send('OK'));
 app.get('/health/db', async (_req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT 1 AS ok');
-    if (rows?.[0]?.ok === 1) return res.json({ db: 'OK' });
-    return res.status(500).json({ db: 'Unexpected result' });
-  } catch (e) {
-    console.error('DB health error:', e);
-    return res.status(500).json({ db: 'ERROR', message: e.message });
-  }
 });
 
 // API routes under /api

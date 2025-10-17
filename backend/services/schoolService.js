@@ -1,30 +1,18 @@
-import { pool } from '../dbConnection.js';
+import { prisma } from '../lib/prisma.js';
 
-/**
- * Retrieves all schools from the database if no filter is applied.
- * @param {string} city
- * @returns {Promise<Array<object>>}
- */
-export async function getSchools(sql, params) {
-  const [rows] = await pool.query('SELECT * FROM school WHERE 1=1' + sql, params);
-  return rows;
+export async function getSchools() {
+  return await prisma.school.findMany();
 }
 
-/**
- * Retrieves a single school by ID.
- * @param {number|string} id
- * @returns {Promise<object|null>}
- */
+
 export async function getSchoolByID(id) {
-  const [rows] = await pool.query('SELECT * FROM school WHERE id = ?', [id]);
-  return rows[0] ?? null;
+  return await prisma.school.findUnique({
+    where: {
+      id: id
+    }
+  })
 }
 
-/**
- * Creates a new school.
- * @param {{name:string, city?:string, programs?:string, open_house_date?:string|Date, website?:string}} school
- * @returns {Promise<object>}
- */
 export async function createSchool(school) {
   const {
     name,
@@ -45,13 +33,6 @@ export async function createSchool(school) {
   return getSchoolByID(result.insertId);
 }
 
-/**
- * Updates an existing school by ID.
- * Only provided fields will be updated.
- * @param {number} id
- * @param {{name?:string, city?:string, programs?:string, open_house_date?:string|Date, website?:string}} fields
- * @returns {Promise<object|null>} Updated row or null if not found/no change
- */
 export async function updateSchoolByID(id, fields) {
   const allowed = ['name', 'city', 'programs', 'open_house_date', 'website'];
   const setParts = [];
@@ -82,12 +63,10 @@ export async function updateSchoolByID(id, fields) {
   return getSchoolByID(id);
 }
 
-/**
- * Delete a school by ID.
- * @param {number|string} id
- * @returns {Promise<number>} affected rows
- */
 export async function deleteSchoolByID(id) {
-  const [result] = await pool.query('DELETE FROM school WHERE id = ?', [id]);
-  return result.affectedRows;
+  return await prisma.school.delete({
+    where: {
+      id: id
+    }
+  })
 }
