@@ -8,29 +8,24 @@ export async function getSchools() {
 export async function getSchoolByID(id) {
   return await prisma.school.findUnique({
     where: {
-      id: id
+      id
     }
   })
 }
 
-export async function createSchool(school) {
-  const {
-    name,
-    city = null,
-    programs = null,
-    open_house_date = null,
-    website = null,
-  } = school;
-
-  const [result] = await pool.query(
-    `
-    INSERT INTO school (name, city, programs, open_house_date, website)
-    VALUES (?, ?, ?, ?, ?)
-    `,
-    [name, city, programs, open_house_date, website]
-  );
-
-  return getSchoolByID(result.insertId);
+export async function createSchool(name, city, programIds) {
+  return await prisma.school.create({
+    data: {
+      name,
+      city,
+      programs: {
+        create: programIds.map((id) => ({
+          program: { connect: { id } },
+        })),
+      },
+    },
+    include: { programs: { include: { program: true } } },
+  });
 }
 
 export async function updateSchoolByID(id, fields) {

@@ -13,14 +13,7 @@ import {
  */
 export async function getSchools(req, res) {
   try {
-    const {city} = req.query
-    let sql =''
-    const params = []
-
-    if (city) {sql += ' AND city = ?'; params.push(city)}
-    //Room for more Filters
-
-    const rows = await getSchoolsSvc(sql, params);
+    const rows = await getSchoolsSvc();
     return res.json(rows);
   } catch (err) {
     console.error('getSchools error:', err);
@@ -32,10 +25,7 @@ export async function getSchools(req, res) {
  * GET /api/schools/{id}
  */
 export async function getSchoolByID(req, res) {
-  const id = req.params.id;
-  if (Number.isNaN(id)) {
-    return res.status(400).json({ error: 'Invalid id' });
-  }
+  const id = Number(req.params.id)
 
   try {
     const row = await getSchoolByIDSvc(id);
