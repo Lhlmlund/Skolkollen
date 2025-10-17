@@ -11,6 +11,7 @@ npm run dev
 
 ## Project Structure
 
+```
 Skolkollen/
 ├─ backend/ # Node.js + Express API
 │ ├─ sql/ # Auto-run SQL (schema + seed) for MySQL container
@@ -20,6 +21,7 @@ Skolkollen/
 ├─ frontend/ # Vue 3 + Vite
 └─ docker-compose.yml # Starts MySQL + Adminer
 
+```
 
 ##  Setup Instructions
 
