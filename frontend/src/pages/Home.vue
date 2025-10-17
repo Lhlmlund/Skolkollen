@@ -90,7 +90,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { getSchools, getOpenHouses } from '../api/clients.js' // 👈 Add this
+import { getSchools, getOpenHouses } from '../api/clients.js'
 
 const schools = ref([])
 const filteredSchools = ref([])
@@ -162,7 +162,7 @@ const filters = [
     programs: ['VVS- och fastighetsprogrammet']
   },
 ];
-const visibleFilters = [filters[0], ...filters.slice(1, 4)] // "Alla" + 3 programs
+const visibleFilters = [filters[0], ...filters.slice(1, 4)]
 const dropdownFilters = filters.slice(4)
 
 
@@ -172,16 +172,17 @@ const error = ref(null)
 
 // Default placeholders (visible until real data is fetched)
 const openHouses = ref([
-  { school: 'Tekniska Gymnasiet', date: '25 okt', time: '17:00–19:00' },
-  { school: 'Samhällsakademin', date: '2 nov', time: '18:00–20:00' },
-  { school: 'Fordonscollege', date: '5 nov', time: '16:30–18:30' }
+  { school: 'Södra Gymnasiet', date: '25 okt', time: '17:00–19:00' },
+  { school: 'Karlstad Kunskapsgymnasiet', date: '2 nov', time: '18:00–20:00' },
+  { school: 'Östra Real', date: '5 nov', time: '16:30–18:30' },
+  {school: "gymnasiet", date: '17 nov', time: '17:00–19:00'}
 ])
 const showAllOpenHouses = ref(false)
 
 const visibleOpenHouses = computed(() => {
   return showAllOpenHouses.value
       ? openHouses.value
-      : openHouses.value.slice(0, 3) // only first 3 initially
+      : openHouses.value.slice(0, 3)
 })
 
 function toggleOpenHouses() {
