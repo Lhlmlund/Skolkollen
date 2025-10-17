@@ -12,8 +12,7 @@ const router = Router();
 
 // /api/schools
 router.get('/schools', getSchools);
-//validate(schoolSchema),
-router.post('/schools', createSchool);
+router.post('/schools',validate(schoolSchema), createSchool);
 
 // /api/schools/{id}
 router.get('/schools/:id', getSchoolByID);
