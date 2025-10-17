@@ -26,21 +26,7 @@ cd Skolkollen
 ## Backend setup
 Create a *.env* in the backend directory
 ```.env
-MYSQL_HOST= ***
-MYSQL_ROOT_PASSWORD: ***
-MYSQL_DATABASE: ***
-MYSQL_USER: ***
-MYSQL_PASSWORD: ***
-```
-replace *** with actual values.
-
-```bash
-cd backend
-docker compose up
-npm install dotenv mysql2 zod
-npm run dev
-# Backend: http://localhost:3000
-# Health check: http://localhost:3000/health
+DATABASE_URL="mysql://sk_user:sk_pwd@localhost:3306/skolkollen"
 
 ```
 
