@@ -7,6 +7,7 @@ import {
 } from '../controllers/schoolController.js';
 import {validate} from "../middleware/validate.js";
 import {schoolSchema} from "../zodSchema/schoolShema.js"
+import {updateSchoolSchema} from "../zodSchema/updateSchoolSchema.js";
 
 const router = Router();
 
@@ -15,8 +16,8 @@ router.get('/schools', getSchools);
 router.post('/schools',validate(schoolSchema), createSchool);
 
 // /api/schools/{id}
-router.get('/schools/:id', getSchoolByID);
-router.put('/schools/:id', updateSchoolByID);
+router.get('/schools/:id',getSchoolByID);
+router.put('/schools/:id',validate(updateSchoolSchema), updateSchoolByID);
 router.delete('/schools/:id', deleteSchoolByID);
 
 // simple ping
