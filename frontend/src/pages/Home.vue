@@ -31,8 +31,13 @@
 
       <!-- Dropdown for remaining filters -->
       <div class="filter-wrapper">
-        <select @change="setFilter($event.target.value)" class="program-dropdown">
-          <option disabled selected>Fler program</option>
+        <select
+            v-model="dropdownValue"
+            @change="handleDropdownChange"
+            class="program-dropdown"
+            :class="{ active: dropdownFilters.some(f => f.name === activeFilter) }"
+        >
+          <option disabled value="">Fler program</option>
           <option
               v-for="filter in dropdownFilters"
               :key="filter.name"
@@ -42,6 +47,7 @@
           </option>
         </select>
       </div>
+
     </section>
 
     <div class="content-layout">
@@ -96,6 +102,7 @@ const schools = ref([])
 const filteredSchools = ref([])
 const searchQuery = ref('')
 const activeFilter = ref('Alla')
+const dropdownValue = ref('') // was null
 const filters = [
   {
     name: 'Alla',
@@ -165,7 +172,16 @@ const filters = [
 const visibleFilters = [filters[0], ...filters.slice(1, 4)]
 const dropdownFilters = filters.slice(4)
 
+function handleDropdownChange(event) {
+  const selected = event.target.value
+  setFilter(selected)
+}
 
+function resetDropdown() {
+  if (dropdownValue.value) {
+    dropdownValue.value = ''
+  }
+}
 
 const loading = ref(true)
 const error = ref(null)
@@ -321,12 +337,53 @@ function filterSchools() {
 }
 
 .program-dropdown {
-  margin-top: 0.3rem;
-  padding: 0.3rem 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #e52e71;
+  padding: 0.4rem 1.2rem;
+  border: 2px solid #e52e71;
+  border-radius: 9999px;
+  font-weight: 500;
+  background-color: white;
+  color: #2b2b2b;
+  transition: all 0.3s;
+  appearance: none;
+  -webkit-appearance: none;
   cursor: pointer;
+  font-size: 1rem;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg width='14' height='10' viewBox='0 0 14 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23e52e71' d='M7 10L0 0h14z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 0.6rem;
+  padding-right: 2.5rem;
 }
+
+.program-dropdown:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.program-dropdown:focus {
+  outline: none;
+  border-color: #ff8a00;
+  box-shadow: 0 0 10px #ffd1dc;
+}
+.program-dropdown.active {
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  color: white;
+  border-color: transparent;
+}
+.program-dropdown option {
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: #2b2b2b;
+}
+.program-dropdown option:checked {
+  background-color: #ffd1dc; /* Light pink or something that fits */
+  color: #2b2b2b;
+}
+.program-dropdown option[disabled][selected] {
+  color: #e52e71; /* or #999 or a color matching your design */
+  font-weight: 500;
+}
+
 
 .content-layout {
   display: grid;
