@@ -1,9 +1,23 @@
 ###########################
-#  Frontend (Vue + Vite)
+# Root-level ignores
+###########################
+/node_modules/
+package-lock.json
+/.env
+/.cache/
+/.vercel/
+/dist/
+/.vite/
+
+###########################
+# Frontend (Vue + Vite)
 ###########################
 frontend/node_modules/
 frontend/dist/
 frontend/dist-ssr/
+frontend/.env
+frontend/.cache/
+frontend/.vite/
 frontend/*.local
 
 # Frontend logs
@@ -27,24 +41,35 @@ frontend/*.sln
 frontend/*.sw?
 
 ###########################
-# ⚙️ Backend (Node/Express)
+# Backend (Node/Express)
 ###########################
 backend/node_modules/
-backend/logs/
-backend/*.log
+backend/dist/
 backend/.env
+backend/.env.*        # e.g. .env.local
+backend/*.log
+backend/logs/
+backend/coverage/
+backend/.cache/
+
+# Prisma (generated + artifacts)
+backend/prisma/dev.db*
+backend/prisma/*.db-journal
+backend/prisma/migrations/*/shadow-database*  # when using shadow DB
 
 ###########################
-# 🐳 Docker & Misc
+# Docker & Misc
 ###########################
 docker-compose.override.yml
-.env
 *.env
+*.env.*
+*.local
 
 ###########################
-# 🧰 General OS / IDE files
+# OS / IDE junk
 ###########################
 .vscode/
+!.vscode/extensions.json
 .DS_Store
 Thumbs.db
 *.suo
