@@ -22,9 +22,7 @@ app.use(cors({
 app.use(express.json());
 
 // Health checks
-app.get('/health', (_req, res) => res.send('OK'));
-app.get('/health/db', async (_req, res) => {
-});
+app.get('/health', (_req, res) => res.send('OK')); 
 
 // API routes under /api
 app.use('/api', schoolRouter);
