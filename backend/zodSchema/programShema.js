@@ -1,4 +1,4 @@
-import {z} from 'prisma'
+import {z} from 'zod';
 
 export const programSchema = {
     name: z.string().nonempty(),

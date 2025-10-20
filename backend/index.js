@@ -29,6 +29,7 @@ app.get('/health/db', async (_req, res) => {
 
 // API routes under /api
 app.use('/api', schoolRouter);
+app.use('/api',programRouter)
 
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
