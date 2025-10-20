@@ -3,9 +3,8 @@ import dotenv from 'dotenv';
 
 
 import cors from 'cors'
-import { pool } from './dbConnection.js';
 import schoolRouter from './routes/schoolRoutes.js';
-
+import programRouter from './routes/programRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -29,7 +28,7 @@ app.get('/health/db', async (_req, res) => {
 
 // API routes under /api
 app.use('/api', schoolRouter);
-app.use('/api',programRouter)
+app.use('/api', programRouter)
 
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
