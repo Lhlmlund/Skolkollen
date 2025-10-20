@@ -1,9 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import cors from 'cors'
-import { pool } from './dbConnection.js';
-import schoolRouter from './routes/schoolRoutes.js';
 
+
+import cors from 'cors'
+import schoolRouter from './routes/schoolRoutes.js';
+import programRouter from './routes/programRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -21,20 +22,11 @@ app.use(cors({
 app.use(express.json());
 
 // Health checks
-app.get('/health', (_req, res) => res.send('OK'));
-app.get('/health/db', async (_req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT 1 AS ok');
-    if (rows?.[0]?.ok === 1) return res.json({ db: 'OK' });
-    return res.status(500).json({ db: 'Unexpected result' });
-  } catch (e) {
-    console.error('DB health error:', e);
-    return res.status(500).json({ db: 'ERROR', message: e.message });
-  }
-});
+app.get('/health', (_req, res) => res.send('OK')); 
 
 // API routes under /api
 app.use('/api', schoolRouter);
+app.use('/api', programRouter)
 
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);

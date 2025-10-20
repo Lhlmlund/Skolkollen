@@ -77,3 +77,6 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Local JSON data (not for version control)
+backend/scripts/schools.json
