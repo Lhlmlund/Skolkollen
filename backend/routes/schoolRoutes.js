@@ -6,8 +6,7 @@ import {
   updateSchoolByID, deleteSchoolByID,
 } from '../controllers/schoolController.js';
 import {validate} from "../middleware/validate.js";
-import {schoolSchema} from "../zodSchema/schoolShema.js"
-import {updateSchoolSchema} from "../zodSchema/updateSchoolSchema.js";
+import {schoolSchema, updateSchoolSchema} from "../zodSchema/schoolShema.js"
 
 const router = Router();
 
