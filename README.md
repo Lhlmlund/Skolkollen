@@ -3,8 +3,15 @@ Vi ska utveckla en hemsida med inlärning som fokus, riktad mot gymnasieval för
 Syftet är att hjälpa niondeklassare att fatta ett välgrundat beslut inför gymnasievalet.
 
 
+
+
+# OBS → You can now start both backend and frontend at once using:
+npm run dev
+
+
 ## Project Structure
 
+```
 Skolkollen/
 ├─ backend/ # Node.js + Express API
 │ ├─ sql/ # Auto-run SQL (schema + seed) for MySQL container
@@ -14,6 +21,7 @@ Skolkollen/
 ├─ frontend/ # Vue 3 + Vite
 └─ docker-compose.yml # Starts MySQL + Adminer
 
+```
 
 ##  Setup Instructions
 
@@ -26,7 +34,27 @@ cd Skolkollen
 ## Backend setup
 Create a *.env* in the backend directory
 ```.env
+
 DATABASE_URL="mysql://sk_user:sk_pwd@localhost:3306/skolkollen"
+
+MYSQL_HOST=3306
+MYSQL_ROOT_PASSWORD:rootpwd
+MYSQL_DATABASE:skolkollen
+MYSQL_USER:sk_user
+MYSQL_PASSWORD:k_pwd
+
+
+```
+replace *** with actual values.
+
+```bash
+cd backend
+docker compose up
+npm install dotenv mysql2
+npm run dev:backend
+# Backend: http://localhost:3000
+# Health check: http://localhost:3000/health
+
 
 ```
 
@@ -58,7 +86,7 @@ This will:
 
 cd backend
 npm install
-npm run dev
+npm run dev:backend
 
 
 ```
@@ -71,7 +99,7 @@ npm run dev
 
 cd ../frontend
 npm install
-npm run dev
+npm run dev:frontend
 
 ```
 
