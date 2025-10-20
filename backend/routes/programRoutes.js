@@ -1,20 +1,28 @@
+// backend/routes/programRoutes.js
 import { Router } from 'express';
-import {validate} from "../middleware/validate.js";
-import {programSchema, updateProgramSchema} from "../zodSchema/programShema.js";
 import {
-    createProgram,
-    deleteProgramById,
-    getProgramById,
-    getPrograms,
-    updateProgramById
-} from "../controllers/ProgramController.js";
+  validateBody,
+  validateParams
+} from "../middleware/validateRequest.js";
+import {
+  programSchema,
+  updateProgramSchema,
+  idParamSchema
+} from "../zodSchema/programSchema.js";
+import {
+  createProgram,
+  deleteProgramById,
+  getProgramById,
+  getPrograms,
+  updateProgramById
+} from "../controllers/programController.js";
 
 const router = Router();
 
-router.get('/programs',getPrograms)
-router.get('/programs/:id', getProgramById)
-router.delete('/programs/:id', deleteProgramById)
-router.post('/programs',validate(programSchema),createProgram)
-router.put('/programs/:id',validate(updateProgramSchema),updateProgramById)
+router.get('/programs', getPrograms);
+router.get('/programs/:id', validateParams(idParamSchema), getProgramById);
+router.delete('/programs/:id', validateParams(idParamSchema), deleteProgramById);
+router.post('/programs', validateBody(programSchema), createProgram);
+router.put('/programs/:id', validateParams(idParamSchema), validateBody(updateProgramSchema), updateProgramById);
 
 export default router;
