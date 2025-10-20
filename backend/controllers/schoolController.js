@@ -2,14 +2,14 @@
 import {
   listSchools,
   getSchoolById,
-  createSchool,
-  updateSchoolById,
-  deleteSchoolById,
+  createSchool as createSchoolSvc,
+  updateSchoolById as updateSchoolByIdSvc,
+  deleteSchoolById as deleteSchoolByIdSvc,
 } from '../services/schoolService.js';
 
 export async function getSchools(req, res) {
   try {
-    const { city } = req.query;         // Zod already validated/coerced
+    const { city } = req.validated?.query;
     const rows = await listSchools({ city });
     return res.json(rows);
   } catch (err) {
@@ -20,7 +20,7 @@ export async function getSchools(req, res) {
 
 export async function getSchoolByID(req, res) {
   try {
-    const id = Number(req.params.id);
+    const id = Number(req.validated?.params.id);
     const row = await getSchoolById(id);
     if (!row) return res.status(404).json({ error: `School not found with id: ${id}` });
     return res.json(row);
@@ -30,9 +30,10 @@ export async function getSchoolByID(req, res) {
   }
 }
 
-export async function createSchoolController(req, res) {
+export async function createSchool(req, res) {
   try {
-    const created = await createSchool(req.body); // {name, city, website, programIds}
+    const body = req.validated?.body ?? req.body;
+    const created = await createSchoolSvc(body);
     return res.status(201).json(created);
   } catch (err) {
     console.error('createSchool error:', err);
@@ -42,8 +43,10 @@ export async function createSchoolController(req, res) {
 
 export async function updateSchoolByID(req, res) {
   try {
-    const id = Number(req.params.id);
-    const updated = await updateSchoolById(id, req.body); // service handles programIds replacement
+    const idStr = (req.validated?.params ?? req.params).id;
+    const id = Number(idStr);
+    const body = req.validated?.body ?? req.body;
+    const updated = await updateSchoolByIdSvc(id, body);
     return res.json(updated);
   } catch (err) {
     console.error('updateSchoolByID error:', err);
@@ -54,7 +57,7 @@ export async function updateSchoolByID(req, res) {
 export async function deleteSchoolByID(req, res) {
   try {
     const id = Number(req.params.id);
-    await deleteSchoolById(id);
+    await deleteSchoolByIdSvc(id);
     return res.status(204).send();
   } catch (err) {
     console.error('deleteSchoolByID error:', err);

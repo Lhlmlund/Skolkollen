@@ -24,7 +24,7 @@ import {
   idParamSchema,
   schoolCreateSchema,
   schoolUpdateSchema
-} from '../zod/schoolSchema.js';
+} from '../zodSchema/schoolSchema.js';
 
 const router = express.Router();
 
