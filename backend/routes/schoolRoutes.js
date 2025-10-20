@@ -1,25 +1,51 @@
-import { Router } from 'express';
+// backend/routes/schoolRoutes.js
+import express from 'express';
 import {
   getSchools,
   getSchoolByID,
   createSchool,
-  updateSchoolByID, deleteSchoolByID,
+  updateSchoolByID,
+  deleteSchoolByID
 } from '../controllers/schoolController.js';
+<<<<<<< HEAD
 import {validate} from "../middleware/validate.js";
 import {schoolSchema, updateSchoolSchema} from "../zodSchema/schoolShema.js"
+=======
+>>>>>>> 3c2525c (align school routes with updated controller and import script)
 
-const router = Router();
+import {
+  validateBody,
+  validateQuery,
+  validateParams
+} from '../middleware/validateRequest.js';
 
-// /api/schools
-router.get('/schools', getSchools);
-router.post('/schools',validate(schoolSchema), createSchool);
+import {
+  listQuerySchema,
+  idParamSchema,
+  schoolCreateSchema,
+  schoolUpdateSchema
+} from '../zod/schoolSchema.js';
 
-// /api/schools/{id}
-router.get('/schools/:id',getSchoolByID);
-router.put('/schools/:id',validate(updateSchoolSchema), updateSchoolByID);
-router.delete('/schools/:id', deleteSchoolByID);
+const router = express.Router();
 
-// simple ping
-router.get('/ok', (_req, res) => res.send('ok'));
+// GET /api/schools?city=Göteborg
+router.get('/schools', validateQuery(listQuerySchema), getSchools);
+
+// GET /api/schools/:id
+router.get('/schools/:id', validateParams(idParamSchema), getSchoolByID);
+
+// POST /api/schools
+router.post('/schools', validateBody(schoolCreateSchema), createSchool);
+
+// PUT /api/schools/:id
+router.put(
+  '/schools/:id',
+  validateParams(idParamSchema),
+  validateBody(schoolUpdateSchema),
+  updateSchoolByID
+);
+
+// DELETE /api/schools/:id
+router.delete('/schools/:id', validateParams(idParamSchema), deleteSchoolByID);
 
 export default router;
