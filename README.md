@@ -170,3 +170,44 @@ http://localhost:3000/health/db → { "db": "OK" }
 
 
 
+## Loading JSON data from file:
+
+npm run import:schools (make sure: docker compose up -d)
+
+By default, the script loads data from:
+```bash
+backend/scripts/schools.json 
+
+```
+(if the file doesn't exist you must create it) 
+
+You can also specify your own path:
+
+```bash
+npm run import:schools -- ./path/to/custom-schools.json
+```
+
+### Sample JSON file
+
+```bash
+[
+  {
+    "name": "Göteborg Tekniska Gymnasium",
+    "city": "Göteborg",
+    "website": "https://gtg.example",
+    "programIds": [1, 2]
+  },
+  {
+    "name": "Årsta Gymnasium",
+    "city": "Stockholm",
+    "website": "https://arsta.example"
+  },
+  {
+    "name": "Malmö Fria Läroverk",
+    "city": "Malmö",
+    "website": "https://mfl.example",
+    "programIds": [3]
+  }
+]
+
+```
