@@ -7,11 +7,6 @@ import {
   updateSchoolByID,
   deleteSchoolByID
 } from '../controllers/schoolController.js';
-<<<<<<< HEAD
-import {validate} from "../middleware/validate.js";
-import {schoolSchema, updateSchoolSchema} from "../zodSchema/schoolShema.js"
-=======
->>>>>>> 3c2525c (align school routes with updated controller and import script)
 
 import {
   validateBody,
