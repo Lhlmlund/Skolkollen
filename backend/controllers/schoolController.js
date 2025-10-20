@@ -1,19 +1,16 @@
+// backend/controllers/schoolController.js
 import {
-  getSchools as getSchoolsSvc,
-  getSchoolByID as getSchoolByIDSvc,
-  deleteSchoolByID as deleteSchoolByIDScv,
-  createSchool as createSchoolSvc,
-  updateSchoolByID as updateSchoolByIDSvc,
+  listSchools,
+  getSchoolById,
+  createSchool,
+  updateSchoolById,
+  deleteSchoolById,
 } from '../services/schoolService.js';
 
-
-/**
- * GET /api/schools
- * GET /api/schools?city={city}
- */
 export async function getSchools(req, res) {
   try {
-    const rows = await getSchoolsSvc();
+    const { city } = req.query;         // Zod already validated/coerced
+    const rows = await listSchools({ city });
     return res.json(rows);
   } catch (err) {
     console.error('getSchools error:', err);
@@ -21,100 +18,46 @@ export async function getSchools(req, res) {
   }
 }
 
-/**
- * GET /api/schools/{id}
- */
 export async function getSchoolByID(req, res) {
-  const id = Number(req.params.id);
-
   try {
-    const row = await getSchoolByIDSvc(id);
+    const id = Number(req.params.id);
+    const row = await getSchoolById(id);
+    if (!row) return res.status(404).json({ error: `School not found with id: ${id}` });
     return res.json(row);
   } catch (err) {
     console.error('getSchoolByID error:', err);
-    return res.status(500).json({
-      error: `Failed to fetch school by id:${id}`,
-    });
+    return res.status(500).json({ error: 'Failed to fetch school' });
   }
 }
 
-/**
- * POST /api/schools
- */
-export async function createSchool(req, res) {
-  const { name, city, website, programIds = [] } = req.body
+export async function createSchoolController(req, res) {
   try {
-
-    const row = await createSchoolSvc(
-      name,
-      city,
-      website,
-      programIds
-    );
-
-    return res.status(201).json({
-          success: true,
-          row
-        });
-
+    const created = await createSchool(req.body); // {name, city, website, programIds}
+    return res.status(201).json(created);
   } catch (err) {
     console.error('createSchool error:', err);
     return res.status(500).json({ error: 'Failed to create school' });
   }
 }
 
-/**
- * PUT /api/schools/{id}
- */
 export async function updateSchoolByID(req, res) {
-  const id = Number(req.params.id);
-
-  const { name, city, website, programIds = [] } = req.body
-
-  const data = {}
-
-  if (name !== undefined) data.name = name;
-  if (city !== undefined) data.city = city;
-  if (website !== undefined) data.website = website;
-
-  if (programIds){
-    data.programs = {
-      set: [], // clear all current connections
-      connect: programIds.map((programId) => ({ program_id: programId })),
-    }
-  }
-
-
   try {
-    const updated = await updateSchoolByIDSvc(id, data);
-    if (!updated) {
-      return res.status(404).json({ error: `School not found with id:${id}` });
-    }
+    const id = Number(req.params.id);
+    const updated = await updateSchoolById(id, req.body); // service handles programIds replacement
     return res.json(updated);
   } catch (err) {
     console.error('updateSchoolByID error:', err);
-    return res.status(500).json({
-      error: `Failed to update school by id:${id}`,
-    });
+    return res.status(500).json({ error: 'Failed to update school' });
   }
 }
 
-/**
- * DELETE /api/schools/{id}
- */
 export async function deleteSchoolByID(req, res) {
-  const id = Number(req.params.id);
-
   try {
-    const row = await deleteSchoolByIDScv(id);
-    return res.status(200).json({
-      Success: true,
-      row
-    })
+    const id = Number(req.params.id);
+    await deleteSchoolById(id);
+    return res.status(204).send();
   } catch (err) {
-    console.log('deleteSchoolByID error:', err);
-    return res.status(500).json({
-      error: `Failed to delete school by id:${id}`,
-    });
+    console.error('deleteSchoolByID error:', err);
+    return res.status(500).json({ error: 'Failed to delete school' });
   }
 }
