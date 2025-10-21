@@ -19,14 +19,14 @@ export async function getPrograms(req, res){
 }
 
 
-export async function getProgramById(req, res){
-    const id = Number(req.validated?.params.id)
+export async function getProgramByID(req, res){
+    const id = Number(req.validated?.params.id);
     try {
-        const row = await getProgramByIdSvc(id)
-        res.status(200).json(row)
+        const row = await getProgramByIdSvc(id);
+        res.status(200).json(row);
     }catch(err){
-        console.error('getProgramById error:', err)
-        res.status(500).send('failed to fetch program by Id:', id)
+        console.error('getProgramById error:', err);
+        res.status(500).send('failed to fetch program by Id:', id);
     }
 }
 
@@ -71,7 +71,7 @@ export async function updateProgramById (req, res){
 
 }
 
-export async function deleteProgramById (req, res){
+export async function deleteProgramByID (req, res){
     const id = Number(req.validated?.params.id)
     try{
         const row = await deleteProgramByIdSvc(id)
