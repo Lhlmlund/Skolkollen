@@ -1,9 +1,10 @@
+// backend/controllers/programController.js
 import {
     listPrograms,
     getProgramsById as getProgramByIdSvc,
     createProgram as creatProgramSvc,
     deleteProgramById as deleteProgramByIdSvc,
-updateProgramById as updateProgramByIdSvc
+    updateProgramById as updateProgramByIdSvc
 } from "../services/programService.js";
 
 
