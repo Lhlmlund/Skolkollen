@@ -20,7 +20,7 @@ export async function getPrograms(req, res){
 
 
 export async function getProgramById(req, res){
-    const id = Number(req.params.id)
+    const id = Number(req.validated?.params.id)
     try {
         const row = await getProgramByIdSvc(id)
         res.status(200).json(row)
@@ -32,7 +32,8 @@ export async function getProgramById(req, res){
 
 
 export async function createProgram(req, res){
-    const {name, category, description } = res.body
+    const body = req.validated?.body ?? req.body;
+    const {name, category, description } = body
     try {
         const program = await creatProgramSvc(name, category, description)
         res.status(200).json({
@@ -47,8 +48,10 @@ export async function createProgram(req, res){
 
 
 export async function updateProgramById (req, res){
-    const id = Number(req.params.id);
-    const {name, category, description} = req.body;
+    const idStr = (req.validated?.params ?? req.params).id;
+    const id = Number(idStr);
+    const body = req.validated?.body ?? req.body;
+    const {name, category, description} = body
     const data = {};
 
     if (name !== undefined) data.name = name;
@@ -68,11 +71,8 @@ export async function updateProgramById (req, res){
 
 }
 
-/**
- * DELETE /api/programs/{id}
- */
 export async function deleteProgramById (req, res){
-    const id = Number(req.params.id)
+    const id = Number(req.validated?.params.id)
     try{
         const row = await deleteProgramByIdSvc(id)
         res.status(200).json({
