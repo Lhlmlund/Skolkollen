@@ -62,7 +62,7 @@ export async function updateProgramById (req, res){
 export async function deleteProgramByID (req, res){
     const id = Number(req.validated?.params.id);
     try{
-        const row = await deleteProgramByIdSvc(id);
+        await deleteProgramByIdSvc(id);
         return res.status(204).send();
     }catch (err) {
         console.error('getDeleteProgramById error:', err)
