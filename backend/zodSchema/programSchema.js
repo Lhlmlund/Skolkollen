@@ -7,7 +7,7 @@ export const programSchema = z.object({
 });
 
 export const updateProgramSchema = z.object({
-  name: z.string().nonempty(),
+  name: z.string().nonempty().optional(),
   category: z.string().max(50).optional(),
   description: z.string().max(255).optional()
 });
