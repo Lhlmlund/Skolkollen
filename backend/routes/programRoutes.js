@@ -19,10 +19,24 @@ import {
 
 const router = Router();
 
+// GET /api/programs
 router.get('/programs', getPrograms);
+
+// GET /api/programs/:id
 router.get('/programs/:id', validateParams(idParamSchema), getProgramByID);
-router.delete('/programs/:id', validateParams(idParamSchema), deleteProgramByID);
+
+// POST /api/programs
 router.post('/programs', validateBody(programSchema), createProgram);
-router.put('/programs/:id', validateParams(idParamSchema), validateBody(updateProgramSchema), updateProgramById);
+
+// PUT /api/programs/:id
+router.put(
+    '/programs/:id',
+    validateParams(idParamSchema),
+    validateBody(updateProgramSchema),
+    updateProgramById
+);
+
+// DELETE /api/programs/:id
+router.delete('/programs/:id', validateParams(idParamSchema), deleteProgramByID);
 
 export default router;
