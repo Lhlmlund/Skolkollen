@@ -56,7 +56,7 @@ export async function updateSchoolByID(req, res) {
 
 export async function deleteSchoolByID(req, res) {
   try {
-    const id = Number(req.params.id);
+    const id = Number(req.validated?.params.id);
     await deleteSchoolByIdSvc(id);
     return res.status(204).send();
   } catch (err) {
