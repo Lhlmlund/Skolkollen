@@ -41,6 +41,8 @@
 </template>
 
 <script>
+import { login } from '../api/clients.js'
+
 export default {
   name: 'Login',
   data() {
@@ -52,6 +54,8 @@ export default {
   methods: {
     handleLogin() {
       console.log('Login with', this.email, this.password)
+      login(this.email, this.password)
+      this.$router.push('/')
     }
   }
 }
