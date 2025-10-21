@@ -43,6 +43,7 @@ export async function updateSchoolById(id, { name, city, website, programIds }) 
   if (name !== undefined) data.name = name;
   if (city !== undefined) data.city = city;
   if (website !== undefined) data.website = website;
+  // This logic could be placed in controller
 
   // Replace all links when programIds provided
   if (Array.isArray(programIds)) {

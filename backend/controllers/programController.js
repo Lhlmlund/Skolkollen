@@ -4,9 +4,7 @@ createProgram as creatProgramSvc,
 deleteProgramById as deleteProgramByIdSvc,
 updateProgramById as updateProgramByIdSvc} from "../services/programService.js";
 
-/**
-* GET /api/programs
- */
+
 export async function getPrograms(req, res){
     try {
         const rows = await getProgramsSvc()
@@ -17,9 +15,7 @@ export async function getPrograms(req, res){
     }
 }
 
-/**
- * GET /api/programs/{id}
- */
+
 export async function getProgramById(req, res){
     const id = Number(req.params.id)
     try {
@@ -31,9 +27,7 @@ export async function getProgramById(req, res){
     }
 }
 
-/**
- * POST /api/programs/
- */
+
 export async function createProgram(req, res){
     const {name, category, description } = res.body
     try {
@@ -48,9 +42,7 @@ export async function createProgram(req, res){
     }
 }
 
-/**
- * PUT /api/programs/{id}
- */
+
 export async function updateProgramById (req, res){
     const id = Number(req.params.id);
     const {name, category, description} = req.body;
