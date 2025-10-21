@@ -1,4 +1,4 @@
-import {getPrograms as getProgramsSvc,
+import {listPrograms,
 getProgramsById as getProgramByIdSvc,
 createProgram as creatProgramSvc,
 deleteProgramById as deleteProgramByIdSvc,
@@ -7,7 +7,7 @@ updateProgramById as updateProgramByIdSvc} from "../services/programService.js";
 
 export async function getPrograms(req, res){
     try {
-        const rows = await getProgramsSvc()
+        const rows = await listPrograms()
         res.status(200).json(rows)
     }catch (error) {
         console.error('getPrograms error:', error)

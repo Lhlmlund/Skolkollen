@@ -1,7 +1,9 @@
 import {prisma} from "../lib/prisma.js";
 
-export async function getPrograms(){
-    return await prisma.program.findMany()
+export async function listPrograms(){
+    return await prisma.program.findMany({
+        orderBy:{ name: 'asc'}
+    })
 }
 
 export async function getProgramsById(id){
