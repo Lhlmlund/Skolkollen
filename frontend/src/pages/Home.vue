@@ -59,7 +59,12 @@
             class="school-card"
         >
           <h3>{{ school.name }}</h3>
-          <p><strong>Program:</strong> {{ school.program || 'Ingen information' }}</p>
+          <div v-if="school.programs" class="program"><p><strong>Program:</strong></p>
+            <ul>
+              <li v-for="program in school.programs">{{ program }}</li>
+            </ul>
+          </div>
+          <p v-else class="program"><strong>Program:</strong> Ingen information</p>
           <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
           <a :href="school.website" target="_blank" class="school-link">Besök hemsida</a>
         </div>
@@ -96,7 +101,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { getSchools, getOpenHouses } from '../api/clients.js'
+import { getSchoolsWithPrograms, getOpenHouses } from '../api/clients.js'
 
 const schools = ref([])
 const filteredSchools = ref([])
@@ -209,7 +214,7 @@ function toggleOpenHouses() {
 onMounted(async () => {
   try {
     // Load schools
-    const schoolData = await getSchools()
+    const schoolData = await getSchoolsWithPrograms()
     schools.value = schoolData
     filteredSchools.value = schoolData
 
