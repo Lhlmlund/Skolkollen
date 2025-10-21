@@ -77,8 +77,7 @@ export async function deleteProgramByID (req, res){
 }
 
 function checkRequestBody(req) {
-    const body = req.validated?.body ?? req.body;
-    const {name, category, description} = body;
+    const {name, category, description} = req.validated?.body ?? req.body;
     const data = {};
 
     if (name !== undefined) data.name = name;
