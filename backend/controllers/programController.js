@@ -11,10 +11,10 @@ import {
 export async function getPrograms(req, res){
     try {
         const rows = await listPrograms();
-        res.status(200).json(rows);
+        return res.status(200).json(rows);
     }catch (err) {
         console.error('getPrograms error:', err);
-        res.status(500).json({ error: 'failed to fetch programs'});
+        return res.status(500).json({ error: 'failed to fetch programs'});
     }
 }
 
@@ -24,10 +24,10 @@ export async function getProgramByID(req, res){
         const id = Number(req.validated?.params.id);
         const row = await getProgramByIdSvc(id);
         if(!row) return res.status(404).json({ error: `Program not found with id: ${id}`});
-        res.status(200).json(row);
+        return res.json(row);
     }catch(err){
         console.error('getProgramById error:', err);
-        res.status(500).json({ error: 'failed to fetch program'});
+        return res.status(500).json({ error: 'failed to fetch program'});
     }
 }
 
@@ -35,11 +35,11 @@ export async function getProgramByID(req, res){
 export async function createProgram(req, res){
     try {
         const data = checkRequestBody(req);
-        const created = await creatProgramSvc(data)
-        res.status(201).json(created)
+        const created = await creatProgramSvc(data);
+        return res.status(201).json(created);
     } catch (err) {
-        console.error('createProgram error:', err)
-        res.status(500).json({ error: 'failed to create program'})
+        console.error('createProgram error:', err);
+        return res.status(500).json({ error: 'failed to create program'});
     }
 }
 
@@ -50,29 +50,23 @@ export async function updateProgramById (req, res){
         const idStr = (req.validated?.params ?? req.params).id;
         const id = Number(idStr);
         const data = checkRequestBody(req);
-        const row = await updateProgramByIdSvc(id, data)
-        res.status(200).json({
-            success: true,
-            row
-        })
+        const updated = await updateProgramByIdSvc(id, data);
+        return res.json(updated);
     } catch (err) {
-        console.error('updateProgramById error', err)
-        res.status(500).json({ error: 'failed to update program'})
+        console.error('updateProgramById error', err);
+        return res.status(500).json({ error: 'failed to update program'});
     }
 
 }
 
 export async function deleteProgramByID (req, res){
-    const id = Number(req.validated?.params.id)
+    const id = Number(req.validated?.params.id);
     try{
-        const row = await deleteProgramByIdSvc(id)
-        res.status(200).json({
-            success: true,
-            row
-        })
+        const row = await deleteProgramByIdSvc(id);
+        return res.status(204).send();
     }catch (err) {
         console.error('getDeleteProgramById error:', err)
-        res.status(500).json({ error: 'failed to delete program'})
+        return res.status(500).json({ error: 'failed to delete program'})
     }
 }
 
