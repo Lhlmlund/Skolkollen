@@ -34,13 +34,9 @@ export async function getProgramByID(req, res){
 
 export async function createProgram(req, res){
     try {
-        const body = req.validated?.body ?? req.body;
-        const {name, category, description } = body
-        const program = await creatProgramSvc(name, category, description)
-        res.status(200).json({
-            success: true,
-            program
-        })
+        const data = checkRequestBody(req);
+        const created = await creatProgramSvc(data)
+        res.status(201).json(created)
     } catch (err) {
         console.error('createProgram error:', err)
         res.status(500).json({ error: 'failed to create program'})
@@ -48,17 +44,12 @@ export async function createProgram(req, res){
 }
 
 
+
 export async function updateProgramById (req, res){
     try {
         const idStr = (req.validated?.params ?? req.params).id;
         const id = Number(idStr);
-        const body = req.validated?.body ?? req.body;
-        const {name, category, description} = body
-        const data = {};
-
-        if (name !== undefined) data.name = name;
-        if (category !== undefined) data.category = category;
-        if (description !== undefined) date.description = description;
+        const data = checkRequestBody(req);
         const row = await updateProgramByIdSvc(id, data)
         res.status(200).json({
             success: true,
@@ -82,6 +73,16 @@ export async function deleteProgramByID (req, res){
     }catch (err) {
         console.error('getDeleteProgramById error:', err)
         res.status(500).json({ error: 'failed to delete program'})
-
     }
+}
+
+function checkRequestBody(req) {
+    const body = req.validated?.body ?? req.body;
+    const {name, category, description} = body
+    const data = {};
+
+    if (name !== undefined) data.name = name;
+    if (category !== undefined) data.category = category;
+    if (description !== undefined) date.description = description;
+    return data;
 }

@@ -10,13 +10,9 @@ export async function getProgramsById(id){
     return await prisma.program.find(id)
 }
 
-export async function createProgram(name, category, description){
+export async function createProgram(data){
     return await prisma.program.create({
-        data: {
-            name,
-            category,
-            description
-        }
+        data
     })
 }
 
