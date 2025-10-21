@@ -1,6 +1,7 @@
 // backend/controllers/schoolController.js
 import {
   listSchools,
+  listSchoolsWithPrograms,
   getSchoolById,
   createSchool as createSchoolSvc,
   updateSchoolById as updateSchoolByIdSvc,
@@ -11,6 +12,16 @@ export async function getSchools(req, res) {
   try {
     const { city } = req.validated?.query;
     const rows = await listSchools({ city });
+    return res.json(rows);
+  } catch (err) {
+    console.error('getSchools error:', err);
+    return res.status(500).json({ error: 'Failed to fetch schools' });
+  }
+}
+
+export async function getSchoolsWithPrograms(req, res) {
+  try {
+    const rows = await listSchoolsWithPrograms();
     return res.json(rows);
   } catch (err) {
     console.error('getSchools error:', err);

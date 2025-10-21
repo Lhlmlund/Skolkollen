@@ -7,6 +7,14 @@ export async function getSchools() {
   return res.json()
 }
 
+export async function getSchoolsWithPrograms() {
+  const res = await fetch(`${BASE}/api/schools-with-programs`)
+  if (!res.ok) {
+    throw new Error('Failed to fetch schools with programs')
+  }
+  return res.json()
+}
+
 export async function getOpenHouses() {
   const res = await fetch(`${BASE}/api/openhouses`)
   if (!res.ok) {
