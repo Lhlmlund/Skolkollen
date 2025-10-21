@@ -1,17 +1,19 @@
-import {listPrograms,
-getProgramsById as getProgramByIdSvc,
-createProgram as creatProgramSvc,
-deleteProgramById as deleteProgramByIdSvc,
-updateProgramById as updateProgramByIdSvc} from "../services/programService.js";
+import {
+    listPrograms,
+    getProgramsById as getProgramByIdSvc,
+    createProgram as creatProgramSvc,
+    deleteProgramById as deleteProgramByIdSvc,
+updateProgramById as updateProgramByIdSvc
+} from "../services/programService.js";
 
 
 export async function getPrograms(req, res){
     try {
-        const rows = await listPrograms()
-        res.status(200).json(rows)
-    }catch (error) {
-        console.error('getPrograms error:', error)
-        res.status(500).send('failed to fetch programs')
+        const rows = await listPrograms();
+        res.status(200).json(rows);
+    }catch (err) {
+        console.error('getPrograms error:', err);
+        res.status(500).json({error: 'failed to fetch programs'});
     }
 }
 
@@ -21,8 +23,8 @@ export async function getProgramById(req, res){
     try {
         const row = await getProgramByIdSvc(id)
         res.status(200).json(row)
-    }catch(error){
-        console.error('getProgramById error:', error)
+    }catch(err){
+        console.error('getProgramById error:', err)
         res.status(500).send('failed to fetch program by Id:', id)
     }
 }
