@@ -32,8 +32,9 @@ export async function getSchoolByID(req, res) {
 
 export async function createSchool(req, res) {
   try {
-    const body = req.validated?.body ?? req.body;
-    const created = await createSchoolSvc(body);
+    const data = checkRequestBody(req);
+    const programIds = checkProgramIds(req)
+    const created = await createSchoolSvc(data, programIds);
     return res.status(201).json(created);
   } catch (err) {
     console.error('createSchool error:', err);
@@ -45,8 +46,9 @@ export async function updateSchoolByID(req, res) {
   try {
     const idStr = (req.validated?.params ?? req.params).id;
     const id = Number(idStr);
-    const body = req.validated?.body ?? req.body;
-    const updated = await updateSchoolByIdSvc(id, body);
+    const data = checkRequestBody(req);
+    const programIds = checkProgramIds(req);
+    const updated = await updateSchoolByIdSvc(id, data, programIds);
     return res.json(updated);
   } catch (err) {
     console.error('updateSchoolByID error:', err);
@@ -63,4 +65,22 @@ export async function deleteSchoolByID(req, res) {
     console.error('deleteSchoolByID error:', err);
     return res.status(500).json({ error: 'Failed to delete school' });
   }
+}
+
+function checkRequestBody(req) {
+  const {name, city, website} = req.validated?.body ?? req.body;
+  const data = {};
+
+  if (name !== undefined) data.name = name;
+  if (city !== undefined) data.city = city;
+  if (website !== undefined) data.website = website;
+
+  return data;
+}
+
+function checkProgramIds(req){
+  const programIds = req.validated?.body ?? req.body;
+  let checkedProgramIds = [];
+  if (programIds !== undefined) checkedProgramIds = programIds
+  return checkedProgramIds
 }
