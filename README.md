@@ -211,3 +211,8 @@ npm run import:schools -- ./path/to/custom-schools.json
 ]
 
 ```
+
+
+
+### 🧪 API Testing with Postman
+You can find ready-to-use Postman requests for Schools and Programs APIs in [`docs/postman/`](docs/postman/README.md).
