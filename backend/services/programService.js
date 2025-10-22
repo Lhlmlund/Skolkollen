@@ -6,7 +6,7 @@ export async function listPrograms(){
     })
 }
 
-export async function getProgramsById(id){
+export async function getProgramById(id){
     return await prisma.program.findUnique({
         where: { id }
     })

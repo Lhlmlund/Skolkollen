@@ -11,8 +11,8 @@ import {
 } from "../zodSchema/programSchema.js";
 import {
   createProgram,
-  deleteProgramByID,
-  getProgramByID,
+  deleteProgramById,
+  getProgramById,
   getPrograms,
   updateProgramById
 } from "../controllers/programController.js";
@@ -23,7 +23,7 @@ const router = Router();
 router.get('/programs', getPrograms);
 
 // GET /api/programs/:id
-router.get('/programs/:id', validateParams(idParamSchema), getProgramByID);
+router.get('/programs/:id', validateParams(idParamSchema), getProgramById);
 
 // POST /api/programs
 router.post('/programs', validateBody(programSchema), createProgram);
@@ -37,6 +37,6 @@ router.put(
 );
 
 // DELETE /api/programs/:id
-router.delete('/programs/:id', validateParams(idParamSchema), deleteProgramByID);
+router.delete('/programs/:id', validateParams(idParamSchema), deleteProgramById);
 
 export default router;
