@@ -1,6 +1,7 @@
 // backend/controllers/schoolController.js
 import {
   listSchools,
+  listSchoolsWithPrograms as listSchoolsWithProgramsSvc,
   getSchoolById as getSchoolByIdSvc,
   createSchool as createSchoolSvc,
   updateSchoolById as updateSchoolByIdSvc,
@@ -83,4 +84,14 @@ function checkProgramIds(req){
   let checkedProgramIds = [];
   if (programIds !== undefined) checkedProgramIds = programIds
   return checkedProgramIds
+}
+
+export async function getSchoolsWithPrograms(_req, res) {
+  try {
+    const schools = await listSchoolsWithProgramsSvc();
+    res.json(schools);
+  } catch (error) {
+    console.error("Error fetching schools with programs:", error);
+    res.status(500).json({ error: "Failed to fetch schools with programs" });
+  }
 }

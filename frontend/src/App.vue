@@ -5,13 +5,15 @@
       <nav>
         <router-link to="/">Hem</router-link> |
         <router-link to="/about">Om</router-link> |
-        <router-link to="/add-school">Lägg till skola</router-link> |
-        <router-link to="/school-list">Alla skolor</router-link>
+        <router-link to="/school-list">Alla skolor</router-link> |
         <router-link to="/login">Logga in</router-link>
       </nav>
     </header>
 
-    <router-view />
+    <!-- Main content area that grows -->
+    <main>
+      <router-view />
+    </main>
 
     <footer>
       <p>© 2025 Skolkollen</p>
@@ -20,7 +22,9 @@
 </template>
 
 <script>
-export default { name: 'App' }
+export default {
+  name: 'App',
+}
 </script>
 
 <style>
@@ -30,6 +34,12 @@ body {
   padding: 0;
   background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
   color: #2b2b2b;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 /* Header */
@@ -73,30 +83,31 @@ nav a:hover {
   transform: scale(1.05);
 }
 
-/* Footer */
+/* Main content grows to fill space */
+main {
+  flex: 1;
+  padding: 2rem;
+}
+
+/* Sticky Footer */
 footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   background: linear-gradient(90deg, #e52e71, #ff8a00);
   color: white;
   text-align: center;
   padding: 1rem;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
-  margin-top: 2rem;
   font-size: 0.95rem;
+  z-index: 10;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
 }
 
 footer p {
   margin: 0;
   opacity: 0.9;
-}
-
-#app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-router-view {
-  flex-grow: 1;
 }
 </style>

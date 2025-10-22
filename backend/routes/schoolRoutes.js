@@ -5,7 +5,8 @@ import {
   getSchoolById,
   createSchool,
   updateSchoolById,
-  deleteSchoolById
+  deleteSchoolById,
+  getSchoolsWithPrograms
 } from '../controllers/schoolController.js';
 
 import {
@@ -25,6 +26,9 @@ const router = express.Router();
 
 // GET /api/schools?city=Göteborg
 router.get('/schools', validateQuery(listQuerySchema), getSchools);
+
+// GET /api/schools/with-programs?query=some-url-encoded-string
+router.get('/schools-with-programs', getSchoolsWithPrograms);
 
 // GET /api/schools/:id
 router.get('/schools/:id', validateParams(idParamSchema), getSchoolById);

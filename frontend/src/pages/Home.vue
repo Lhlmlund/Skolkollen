@@ -1,6 +1,5 @@
 <template>
   <main class="home">
-
     <section class="tagline">
       <p>Välj rätt, börja rätt – din väg till gymnasiet</p>
     </section>
@@ -16,65 +15,223 @@
     </section>
 
     <section class="filters">
-      <button
-          v-for="filter in filters"
-          :key="filter"
-          :class="{ active: activeFilter === filter }"
-          @click="setFilter(filter)"
-      >
-        {{ filter }}
-      </button>
-    </section>
-
-    <section class="school-list">
+      <!-- First 4 filters as buttons -->
       <div
-          v-for="school in filteredSchools"
-          :key="school.id"
-          class="school-card"
+          v-for="filter in visibleFilters"
+          :key="filter.name"
+          class="filter-wrapper"
       >
-        <h3>{{ school.name }}</h3>
-        <p><strong>Program:</strong> {{ school.program || 'Ingen information' }}</p>
-        <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
-        <a :href="school.website" target="_blank" class="school-link">Besök hemsida</a>
+        <button
+            :class="{ active: activeFilter === filter.name }"
+            @click="setFilter(filter.name)"
+        >
+          {{ filter.name }}
+        </button>
       </div>
 
-      <div v-if="!loading && filteredSchools.length === 0" class="no-results">
-        Inga skolor matchar din sökning.
+      <!-- Dropdown for remaining filters -->
+      <div class="filter-wrapper">
+        <select
+            v-model="dropdownValue"
+            @change="handleDropdownChange"
+            class="program-dropdown"
+            :class="{ active: dropdownFilters.some(f => f.name === activeFilter) }"
+        >
+          <option disabled value="">Fler program</option>
+          <option
+              v-for="filter in dropdownFilters"
+              :key="filter.name"
+              :value="filter.name"
+          >
+            {{ filter.name }}
+          </option>
+        </select>
       </div>
 
-      <div v-if="loading" class="loading">Laddar skolor...</div>
-      <div v-if="error" class="error">{{ error }}</div>
     </section>
+
+    <div class="content-layout">
+      <!-- Left column: school list -->
+      <section class="school-list">
+        <div
+            v-for="school in filteredSchools"
+            :key="school.id"
+            class="school-card"
+        >
+          <h3>{{ school.name }}</h3>
+          <div v-if="school.programs" class="program"><p><strong>Program:</strong></p>
+            <ul>
+              <li v-for="program in school.programs">{{ program }}</li>
+            </ul>
+          </div>
+          <p v-else class="program"><strong>Program:</strong> Ingen information</p>
+          <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
+          <a :href="school.website" target="_blank" class="school-link">Besök hemsida</a>
+        </div>
+
+        <div v-if="!loading && filteredSchools.length === 0" class="no-results">
+          Inga skolor matchar din sökning.
+        </div>
+
+        <div v-if="loading" class="loading">Laddar skolor...</div>
+        <div v-if="error" class="error">{{ error }}</div>
+      </section>
+
+      <!-- Right column: open house card -->
+      <aside class="openhouse-card">
+        <h3>Öppet hus</h3>
+
+        <ul>
+          <transition-group name="fold" tag="li">
+            <li v-for="event in visibleOpenHouses" :key="event.school + event.date">
+              <strong>{{ event.school }}</strong><br />
+              {{ event.date }} – {{ event.time }}
+            </li>
+          </transition-group>
+        </ul>
+
+        <button class="toggle-btn" @click="toggleOpenHouses">
+          {{ showAllOpenHouses ? 'Visa färre' : 'Visa alla' }}
+        </button>
+      </aside>
+
+    </div>
   </main>
 </template>
 
 <script setup>
-import { ref, onMounted, } from 'vue'
-import { getSchools } from '../api/clients.js'
+import { ref, onMounted, computed } from 'vue'
+import { getSchoolsWithPrograms, getOpenHouses } from '../api/clients.js'
 
 const schools = ref([])
 const filteredSchools = ref([])
 const searchQuery = ref('')
 const activeFilter = ref('Alla')
-const filters = ['Alla', 'Natur', 'El', 'Samhäll', 'Fordon']
+const dropdownValue = ref('') // was null
+const filters = [
+  {
+    name: 'Alla',
+    programs: []
+  },
+  {
+    name: 'Natur',
+    programs: ['Naturvetenskapsprogrammet']
+  },
+  {
+    name: 'Teknik',
+    programs: ['Teknikprogrammet']
+  },
+  {
+    name: 'Samhäll',
+    programs: ['Samhällsvetenskapsprogrammet', 'Ekonomiprogrammet', 'Humanistiska programmet']
+  },
+  {
+    name: 'Estet',
+    programs: ['Estetiska programmet']
+  },
+  {
+    name: 'Barn och fritid',
+    programs: ['Barn- och fritidsprogrammet']
+  },
+  {
+    name: 'Bygg',
+    programs: ['Bygg- och anläggningsprogrammet']
+  },
+  {
+    name: 'El',
+    programs: ['El- och energiprogrammet', 'Industritekniska programmet']
+  },
+  {
+    name: 'Fordon',
+    programs: ['Fordons- och transportprogrammet']
+  },
+  {
+    name: 'Försäljning & service',
+    programs: ['Försäljnings- och serviceprogrammet']
+  },
+  {
+    name: 'Frisör & stylist',
+    programs: ['Frisör- och stylistprogrammet']
+  },
+  {
+    name: 'Hotell & turism',
+    programs: ['Hotell- och turismprogrammet']
+  },
+  {
+    name: 'Naturbruk',
+    programs: ['Naturbruksprogrammet']
+  },
+  {
+    name: 'Restaurang',
+    programs: ['Restaurang- och livsmedelsprogrammet']
+  },
+  {
+    name: 'Vård & omsorg',
+    programs: ['Vård- och omsorgsprogrammet']
+  },
+  {
+    name: 'VVS',
+    programs: ['VVS- och fastighetsprogrammet']
+  },
+];
+const visibleFilters = [filters[0], ...filters.slice(1, 4)]
+const dropdownFilters = filters.slice(4)
+
+function handleDropdownChange(event) {
+  const selected = event.target.value
+  setFilter(selected)
+}
+
+function resetDropdown() {
+  if (dropdownValue.value) {
+    dropdownValue.value = ''
+  }
+}
 
 const loading = ref(true)
 const error = ref(null)
 
+// Default placeholders (visible until real data is fetched)
+const openHouses = ref([
+  { school: 'Södra Gymnasiet', date: '25 okt', time: '17:00–19:00' },
+  { school: 'Karlstad Kunskapsgymnasiet', date: '2 nov', time: '18:00–20:00' },
+  { school: 'Östra Real', date: '5 nov', time: '16:30–18:30' },
+  {school: "gymnasiet", date: '17 nov', time: '17:00–19:00'}
+])
+const showAllOpenHouses = ref(false)
+
+const visibleOpenHouses = computed(() => {
+  return showAllOpenHouses.value
+      ? openHouses.value
+      : openHouses.value.slice(0, 3)
+})
+
+function toggleOpenHouses() {
+  showAllOpenHouses.value = !showAllOpenHouses.value
+}
+
+
 onMounted(async () => {
   try {
-    const data = await getSchools()
-    schools.value = data
-    filteredSchools.value = data
+    // Load schools
+    const schoolData = await getSchoolsWithPrograms()
+    schools.value = schoolData
+    filteredSchools.value = schoolData
+
+    // Try to load open house data from the backend
+    const openHouseData = await getOpenHouses()
+    if (openHouseData && openHouseData.length > 0) {
+      openHouses.value = openHouseData
+    }
   } catch (err) {
-    error.value = err.message || 'Kunde inte hämta skolor.'
+    error.value = err.message || 'Kunde inte hämta data.'
   } finally {
     loading.value = false
   }
 })
 
-function setFilter(filter) {
-  activeFilter.value = filter
+function setFilter(filterOrProgram) {
+  activeFilter.value = filterOrProgram
   filterSchools()
 }
 
@@ -178,12 +335,72 @@ function filterSchools() {
 .filters button:hover {
   transform: translateY(-2px);
 }
+.filter-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.program-dropdown {
+  padding: 0.4rem 1.2rem;
+  border: 2px solid #e52e71;
+  border-radius: 9999px;
+  font-weight: 500;
+  background-color: white;
+  color: #2b2b2b;
+  transition: all 0.3s;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  font-size: 1rem;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg width='14' height='10' viewBox='0 0 14 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23e52e71' d='M7 10L0 0h14z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 0.6rem;
+  padding-right: 2.5rem;
+}
+
+.program-dropdown:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.program-dropdown:focus {
+  outline: none;
+  border-color: #ff8a00;
+  box-shadow: 0 0 10px #ffd1dc;
+}
+.program-dropdown.active {
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  color: white;
+  border-color: transparent;
+}
+.program-dropdown option {
+  padding: 0.5rem;
+  font-size: 1rem;
+  color: #2b2b2b;
+}
+.program-dropdown option:checked {
+  background-color: #ffd1dc; /* Light pink or something that fits */
+  color: #2b2b2b;
+}
+.program-dropdown option[disabled][selected] {
+  color: #e52e71; /* or #999 or a color matching your design */
+  font-weight: 500;
+}
+
+
+.content-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
 
 .school-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.2rem;
-  padding: 0 1rem;
 }
 
 .school-card {
@@ -213,6 +430,121 @@ function filterSchools() {
   color: #ff8a00;
 }
 
+.openhouse-card {
+  position: relative;
+  border-radius: 20px;
+  padding: 1.8rem;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  height: fit-content;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(229, 46, 113, 0.15);
+}
+
+.openhouse-card::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ffffff 0%, #fff7f9 100%);
+  z-index: 0;
+}
+
+.openhouse-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.openhouse-card:hover {
+  transform: translateY(-14px);
+  box-shadow: 0 12px 30px rgba(229, 46, 113, 0.25);
+}
+
+.openhouse-card h3 {
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.openhouse-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.2rem 0;
+  color: #444;
+}
+
+.openhouse-card li {
+  background: #ffffff;
+  border: 1px solid rgba(229, 46, 113, 0.1);
+  border-radius: 12px;
+  padding: 0.9rem;
+  margin-bottom: 0.7rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: 0.2s ease;
+}
+
+.openhouse-card li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Vue transition classes – keep, used dynamically */
+.fold-enter-active,
+.fold-leave-active {
+  transition: all 0.4s ease;
+  display: block;
+  overflow: hidden;
+}
+
+.fold-enter-from,
+.fold-leave-to {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.fold-enter-to,
+.fold-leave-from {
+  max-height: 500px;
+  opacity: 1;
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+  margin-bottom: 0.7rem;
+}
+
+.toggle-btn {
+  display: block;
+  width: 100%;
+  border: none;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  color: white;
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 46, 113, 0.3);
+}
+
+@media (max-width: 900px) {
+  .content-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .openhouse-card {
+    order: 2;
+  }
+}
+
 .loading,
 .error,
 .no-results {
@@ -230,4 +562,5 @@ function filterSchools() {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 </style>
