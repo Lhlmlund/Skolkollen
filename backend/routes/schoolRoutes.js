@@ -5,7 +5,8 @@ import {
   getSchoolById,
   createSchool,
   updateSchoolById,
-  deleteSchoolById
+  deleteSchoolById,
+  getSchoolsWithPrograms
 } from '../controllers/schoolController.js';
 
 import {
