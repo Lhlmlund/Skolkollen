@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   mysql:
     image: mysql:8.0
@@ -7,11 +5,10 @@ services:
     container_name: skolkollen-mysql
     restart: unless-stopped
 
-    # Expose MySQL on your host (defaults to 3306 unless overridden by .env)
+    # Expose MySQL on your host
     ports:
-      - "${MYSQL_PORT:-3306}:3306"
+      - "3307:3306"
 
-    # Use env vars from your root .env (or fallback defaults here)
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpwd}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-skolkollen}
@@ -19,9 +16,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sk_pwd}
 
     volumes:
-      # Persistent MySQL data lives in this named volume (survives restarts)
       - mysql_data:/var/lib/mysql
-      # 🔑 Auto-init: any *.sql in this folder runs ONCE on first init of the volume
       - ./backend/sql:/docker-entrypoint-initdb.d:ro
 
     healthcheck:
