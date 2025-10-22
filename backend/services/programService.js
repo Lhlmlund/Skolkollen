@@ -1,36 +1,32 @@
-import {prisma} from "../lib/prisma.js";
+import { prisma } from '../prismaClient.js';
 
-export async function getPrograms(){
-    return await prisma.program.findMany()
-}
-
-export async function getProgramsById(id){
-    return await prisma.program.find(id)
-}
-
-export async function createProgram(name, category, description){
-    return await prisma.program.create({
-        data: {
-            name,
-            category,
-            description
-        }
+export async function listPrograms(){
+    return await prisma.program.findMany({
+        orderBy:{ name: 'asc'}
     })
 }
 
-export async function updateProgramById(id, data){
-    return await prisma.program.update({
-        where: {
-            id
-        },
+export async function getProgramById(id){
+    return await prisma.program.findUnique({
+        where: { id }
+    })
+}
+
+export async function createProgram(data){
+    return await prisma.program.create({
         data
     })
 }
 
-export async function deleteProgramById(id){
-    return await prisma.program.delete({
-        where: {
-            id
-        }
-    })
+export function updateProgramById(id, data) {
+  return prisma.program.update({
+    where: { id: Number(id) },
+    data,
+  });
+}
+
+export function deleteProgramById(id) {
+  return prisma.program.delete({
+    where: { id: Number(id) },
+  });
 }

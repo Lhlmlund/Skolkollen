@@ -1,0 +1,232 @@
+{
+  "info": {
+    "name": "Skolkollen Backend (Schools + Programs)",
+    "_postman_id": "f6bde1fd-6d2e-4e25-9e6f-5b2a7a1c9a11",
+    "description": "CRUD requests with tests for Schools and Programs APIs. Uses {{base_url}}. POST requests store created ids into variables for follow-up requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/api" },
+    { "key": "schoolId", "value": "1" },
+    { "key": "programId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Programs",
+      "item": [
+        {
+          "name": "GET Programs",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/programs", "host": ["{{base_url}}"], "path": ["programs"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "pm.test('Returns JSON array', () => Array.isArray(pm.response.json()));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Program",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/programs", "host": ["{{base_url}}"], "path": ["programs"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"TE\",\n  \"category\": \"Tech\",\n  \"description\": \"Teknikprogrammet\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Created (201)', () => pm.response.code === 201);",
+                  "const body = pm.response.json();",
+                  "pm.expect(body).to.have.property('id');",
+                  "// Save id for chained requests",
+                  "pm.collectionVariables.set('programId', body.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Program by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/programs/{{programId}}", "host": ["{{base_url}}"], "path": ["programs", "{{programId}}"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "pm.test('Has matching id', () => pm.response.json().id == pm.collectionVariables.get('programId'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT Program (update)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/programs/{{programId}}", "host": ["{{base_url}}"], "path": ["programs", "{{programId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated via Postman\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "pm.test('Description updated', () => pm.response.json().description === 'Updated via Postman');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE Program",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/programs/{{programId}}", "host": ["{{base_url}}"], "path": ["programs", "{{programId}}"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('No Content (204)', () => pm.response.code === 204);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Schools",
+      "item": [
+        {
+          "name": "GET Schools",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/schools", "host": ["{{base_url}}"], "path": ["schools"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "pm.test('Returns JSON array', () => Array.isArray(pm.response.json()));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST School",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/schools", "host": ["{{base_url}}"], "path": ["schools"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Årsta Gymnasium\",\n  \"city\": \"Stockholm\",\n  \"website\": \"https://arsta.example\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Created (201)', () => pm.response.code === 201);",
+                  "const body = pm.response.json();",
+                  "pm.expect(body).to.have.property('id');",
+                  "pm.collectionVariables.set('schoolId', body.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET School by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/schools/{{schoolId}}", "host": ["{{base_url}}"], "path": ["schools", "{{schoolId}}"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "pm.test('Has matching id', () => pm.response.json().id == pm.collectionVariables.get('schoolId'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT School (update)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/schools/{{schoolId}}", "host": ["{{base_url}}"], "path": ["schools", "{{schoolId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"website\": \"https://updated.example\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.code === 200);",
+                  "pm.test('Website updated', () => pm.response.json().website === 'https://updated.example');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE School",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/schools/{{schoolId}}", "host": ["{{base_url}}"], "path": ["schools", "{{schoolId}}"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('No Content (204)', () => pm.response.code === 204);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
