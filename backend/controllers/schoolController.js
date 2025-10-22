@@ -1,7 +1,7 @@
 // backend/controllers/schoolController.js
 import {
   listSchools,
-  getSchoolById,
+  getSchoolById as getSchoolByIdSvc,
   createSchool as createSchoolSvc,
   updateSchoolById as updateSchoolByIdSvc,
   deleteSchoolById as deleteSchoolByIdSvc,
@@ -18,14 +18,14 @@ export async function getSchools(req, res) {
   }
 }
 
-export async function getSchoolByID(req, res) {
+export async function getSchoolById(req, res) {
   try {
     const id = Number(req.validated?.params.id);
-    const row = await getSchoolById(id);
+    const row = await getSchoolByIdSvc(id);
     if (!row) return res.status(404).json({ error: `School not found with id: ${id}` });
     return res.json(row);
   } catch (err) {
-    console.error('getSchoolByID error:', err);
+    console.error('getSchoolById error:', err);
     return res.status(500).json({ error: 'Failed to fetch school' });
   }
 }
@@ -42,7 +42,7 @@ export async function createSchool(req, res) {
   }
 }
 
-export async function updateSchoolByID(req, res) {
+export async function updateSchoolById(req, res) {
   try {
     const idStr = (req.validated?.params ?? req.params).id;
     const id = Number(idStr);
@@ -56,7 +56,7 @@ export async function updateSchoolByID(req, res) {
   }
 }
 
-export async function deleteSchoolByID(req, res) {
+export async function deleteSchoolById(req, res) {
   try {
     const id = Number(req.validated?.params.id);
     await deleteSchoolByIdSvc(id);

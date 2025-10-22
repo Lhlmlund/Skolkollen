@@ -2,10 +2,10 @@
 import express from 'express';
 import {
   getSchools,
-  getSchoolByID,
+  getSchoolById,
   createSchool,
-  updateSchoolByID,
-  deleteSchoolByID
+  updateSchoolById,
+  deleteSchoolById
 } from '../controllers/schoolController.js';
 
 import {
@@ -27,7 +27,7 @@ const router = express.Router();
 router.get('/schools', validateQuery(listQuerySchema), getSchools);
 
 // GET /api/schools/:id
-router.get('/schools/:id', validateParams(idParamSchema), getSchoolByID);
+router.get('/schools/:id', validateParams(idParamSchema), getSchoolById);
 
 // POST /api/schools
 router.post('/schools', validateBody(schoolCreateSchema), createSchool);
@@ -37,10 +37,10 @@ router.put(
   '/schools/:id',
   validateParams(idParamSchema),
   validateBody(schoolUpdateSchema),
-  updateSchoolByID
+  updateSchoolById
 );
 
 // DELETE /api/schools/:id
-router.delete('/schools/:id', validateParams(idParamSchema), deleteSchoolByID);
+router.delete('/schools/:id', validateParams(idParamSchema), deleteSchoolById);
 
 export default router;
