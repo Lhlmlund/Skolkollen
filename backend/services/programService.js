@@ -1,4 +1,4 @@
-import {prisma} from "../lib/prisma.js";
+import { prisma } from '../prismaClient.js';
 
 export async function listPrograms(){
     return await prisma.program.findMany({
