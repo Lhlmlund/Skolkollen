@@ -18,9 +18,7 @@ export function getSchoolById(id) {
   });
 }
 
-export async function createSchool({ name, city = null, website = null, programIds = [] }) {
-  const data = { name, city, website };
-
+export async function createSchool(data, programIds) {
   // If School.programs is the JOIN model, create join rows that connect to Program
   if (programIds.length) {
     data.programs = {
@@ -38,12 +36,7 @@ export async function createSchool({ name, city = null, website = null, programI
   });
 }
 
-export async function updateSchoolById(id, { name, city, website, programIds }) {
-  const data = {};
-  if (name !== undefined) data.name = name;
-  if (city !== undefined) data.city = city;
-  if (website !== undefined) data.website = website;
-
+export async function updateSchoolById(id, data, programIds) {
   // Replace all links when programIds provided
   if (Array.isArray(programIds)) {
     data.programs = {
