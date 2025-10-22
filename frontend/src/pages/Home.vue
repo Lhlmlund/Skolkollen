@@ -389,7 +389,6 @@ function filterSchools() {
   font-weight: 500;
 }
 
-
 .content-layout {
   display: grid;
   grid-template-columns: 1fr 300px;
@@ -401,6 +400,7 @@ function filterSchools() {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.2rem;
+  align-items: stretch;
 }
 
 .school-card {
@@ -411,6 +411,12 @@ function filterSchools() {
   border: none;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  word-wrap: break-word;        /* allows long text to wrap */
+  overflow-wrap: break-word;    /* ensures wrapping works in all browsers */
+  hyphens: auto;                /* optional: adds hyphenation if needed */
 }
 
 .school-card:hover {
@@ -428,6 +434,22 @@ function filterSchools() {
 
 .school-link:hover {
   color: #ff8a00;
+}
+.program {
+  text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.program ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  text-align: left;
+  list-style-type: disc;
+}
+.program li {
+  white-space: normal;          /* ensures multi-line wrapping */
+  line-height: 1.4;
 }
 
 .openhouse-card {
