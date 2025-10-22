@@ -66,7 +66,7 @@
           </div>
           <p v-else class="program"><strong>Program:</strong> Ingen information</p>
           <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
-          <a :href="school.website" target="_blank" class="school-link">Besök hemsida</a>
+<!--          <a :href="school.website" target="_blank" class="school-link">Besök hemsida</a>-->
         </div>
 
         <div v-if="!loading && filteredSchools.length === 0" class="no-results">
@@ -74,7 +74,7 @@
         </div>
 
         <div v-if="loading" class="loading">Laddar skolor...</div>
-        <div v-if="error" class="error">{{ error }}</div>
+<!--        <div v-if="error" class="error">{{ error }}</div>-->
       </section>
 
       <!-- Right column: open house card -->
@@ -236,18 +236,29 @@ function setFilter(filterOrProgram) {
 }
 
 function filterSchools() {
-  const query = searchQuery.value.toLowerCase()
+  const query = searchQuery.value.toLowerCase();
+  const selectedFilter = filters.find(f => f.name === activeFilter.value);
+
   filteredSchools.value = schools.value.filter((school) => {
+    const schoolPrograms = (school.programs || []).map(p => p.toLowerCase());
+
+    // Match the chosen filter (if not "Alla")
     const matchesFilter =
         activeFilter.value === 'Alla' ||
-        (school.program && school.program.toLowerCase().includes(activeFilter.value.toLowerCase()))
+        schoolPrograms.some(p =>
+            selectedFilter.programs.some(fp => p.includes(fp.toLowerCase()))
+        );
+
+    // Match the search input
     const matchesSearch =
         school.name.toLowerCase().includes(query) ||
         (school.city && school.city.toLowerCase().includes(query)) ||
-        (school.program && school.program.toLowerCase().includes(query))
-    return matchesFilter && matchesSearch
-  })
+        schoolPrograms.some(p => p.includes(query));
+
+    return matchesFilter && matchesSearch;
+  });
 }
+
 </script>
 
 <style scoped>
@@ -398,7 +409,7 @@ function filterSchools() {
 
 .school-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 1.2rem;
   align-items: stretch;
 }
@@ -450,6 +461,7 @@ function filterSchools() {
 .program li {
   white-space: normal;          /* ensures multi-line wrapping */
   line-height: 1.4;
+  word-break: keep-all; /* prevents breaking in the middle of long words */
 }
 
 .openhouse-card {
