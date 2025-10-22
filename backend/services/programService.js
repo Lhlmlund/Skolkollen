@@ -7,7 +7,9 @@ export async function listPrograms(){
 }
 
 export async function getProgramsById(id){
-    return await prisma.program.find(id)
+    return await prisma.program.findUnique({
+        where: { id }
+    })
 }
 
 export async function createProgram(data){
@@ -16,19 +18,15 @@ export async function createProgram(data){
     })
 }
 
-export async function updateProgramById(id, data){
-    return await prisma.program.update({
-        where: {
-            id
-        },
-        data
-    })
+export function updateProgramById(id, data) {
+  return prisma.program.update({
+    where: { id: Number(id) },
+    data,
+  });
 }
 
-export async function deleteProgramById(id){
-    return await prisma.program.delete({
-        where: {
-            id
-        }
-    })
+export function deleteProgramById(id) {
+  return prisma.program.delete({
+    where: { id: Number(id) },
+  });
 }
