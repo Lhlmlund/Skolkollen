@@ -1,18 +1,18 @@
-// backend/index.js
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from './prismaClient.js';
 
 // Routers
-import schoolRouter from "./routes/schoolRoutes.js";
+
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors'
+
 import quizRoutes from "./routes/quizRoutes.js";
+import schoolRouter from './routes/schoolRoutes.js';
+import programRouter from './routes/programRoutes.js';
 
 dotenv.config();
 
-const prisma = new PrismaClient();
 const app = express();
-
 const PORT = process.env.PORT || 3000;
 const ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
@@ -30,9 +30,8 @@ app.use(
 
 app.use(express.json());
 
-// --- Health checks ---
-app.get("/api/ok", (_req, res) => res.send("ok"));
 
+// --- Health checks ---
 app.get("/health", (_req, res) => res.send("OK"));
 app.get("/health/db", async (_req, res) => {
   try {
@@ -50,6 +49,8 @@ app.get("/health/db", async (_req, res) => {
 // --- API routes ---
 app.use("/api", schoolRouter);    // /api/schools
 app.use("/api/quiz", quizRoutes); // /api/quiz/questions, /api/quiz/submit
+app.use('/api', programRouter)
+
 
 // --- Error handler (JSON) ---
 app.use((err, _req, res, _next) => {

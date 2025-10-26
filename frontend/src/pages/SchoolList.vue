@@ -13,7 +13,12 @@
           class="school-card"
       >
         <h3>{{ school.name }}</h3>
-        <p class="program"><strong>Program:</strong> {{ school.program || 'Ingen information' }}</p>
+        <div v-if="school.programs" class="program"><p><strong>Program:</strong></p>
+          <ul>
+            <li v-for="program in school.programs">{{ program }}</li>
+          </ul>
+        </div>
+        <p v-else class="program"><strong>Program:</strong> Ingen information</p>
         <p class="city"><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
         <p class="desc">{{ school.description || 'Ingen beskrivning tillgänglig.' }}</p>
       </div>
@@ -24,9 +29,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { getSchools } from '../api/clients.js'
-
+import {onMounted, ref} from 'vue'
+import {getSchoolsWithPrograms} from '../api/clients.js'
 
 const schools = ref<any[]>([])
 const loading = ref(true)
@@ -34,8 +38,7 @@ const error = ref<string | null>(null)
 
 onMounted(async () => {
   try {
-    const data = await getSchools()
-    schools.value = data
+    schools.value = await getSchoolsWithPrograms()
   } catch (err: any) {
     error.value = err.message || 'Kunde inte hämta skolor.'
   } finally {
@@ -51,7 +54,7 @@ onMounted(async () => {
   padding: 2rem;
   background: white;
   border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   font-family: 'Poppins', sans-serif;
   animation: fadeIn 0.6s ease-in;
 }
@@ -82,13 +85,13 @@ onMounted(async () => {
   background: linear-gradient(135deg, #fdfbfb 0%, #f1f1f1 100%);
   border-radius: 16px;
   padding: 1.2rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s;
 }
 
 .school-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .school-card h3 {
@@ -137,7 +140,13 @@ onMounted(async () => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

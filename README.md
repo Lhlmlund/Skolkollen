@@ -34,6 +34,9 @@ cd Skolkollen
 ## Backend setup
 Create a *.env* in the backend directory
 ```.env
+
+DATABASE_URL="mysql://sk_user:sk_pwd@localhost:3306/skolkollen"
+
 MYSQL_HOST=3306
 MYSQL_ROOT_PASSWORD:rootpwd
 MYSQL_DATABASE:skolkollen
@@ -51,6 +54,7 @@ npm install dotenv mysql2
 npm run dev:backend
 # Backend: http://localhost:3000
 # Health check: http://localhost:3000/health
+
 
 ```
 
@@ -166,3 +170,49 @@ http://localhost:3000/health/db → { "db": "OK" }
 
 
 
+## Loading JSON data from file:
+
+npm run import:schools (make sure: docker compose up -d)
+
+By default, the script loads data from:
+```bash
+backend/scripts/schools.json 
+
+```
+(if the file doesn't exist you must create it) 
+
+You can also specify your own path:
+
+```bash
+npm run import:schools -- ./path/to/custom-schools.json
+```
+
+### Sample JSON file
+
+```bash
+[
+  {
+    "name": "Göteborg Tekniska Gymnasium",
+    "city": "Göteborg",
+    "website": "https://gtg.example",
+    "programIds": [1, 2]
+  },
+  {
+    "name": "Årsta Gymnasium",
+    "city": "Stockholm",
+    "website": "https://arsta.example"
+  },
+  {
+    "name": "Malmö Fria Läroverk",
+    "city": "Malmö",
+    "website": "https://mfl.example",
+    "programIds": [3]
+  }
+]
+
+```
+
+
+
+### 🧪 API Testing with Postman
+You can find ready-to-use Postman requests for Schools and Programs APIs in [`docs/postman/`](docs/postman/README.md).
