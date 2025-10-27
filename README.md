@@ -32,8 +32,11 @@ cd Skolkollen
 
 ```
 ## Backend setup
-Create a *.env* in the backend directory
+
+# OBS never do this in live production!!!
+Create a *.env* in the backend directory 
 ```.env
+
 
 DATABASE_URL="mysql://sk_user:sk_pwd@localhost:3306/skolkollen"
 
