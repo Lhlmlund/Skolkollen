@@ -10,6 +10,16 @@ DROP TABLE IF EXISTS program;
 
 SET NAMES utf8mb4 COLLATE utf8mb4_swedish_ci;
 
+CREATE TABLE user (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('STUDENT','ADMIN') DEFAULT 'STUDENT',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci;
+
+
 CREATE TABLE program (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
@@ -62,7 +72,8 @@ CREATE TABLE quiz_submission (
   id CHAR(36) PRIMARY KEY,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   suggested_program_id INT NULL,
-  FOREIGN KEY (suggested_program_id) REFERENCES program(id)
+  FOREIGN KEY (suggested_program_id) REFERENCES program(id),
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE SET NULL
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci;
 
 CREATE TABLE submission_answer (
