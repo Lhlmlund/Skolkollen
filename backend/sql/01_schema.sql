@@ -5,13 +5,12 @@ DROP TABLE IF EXISTS quiz_option;
 DROP TABLE IF EXISTS quiz_question;
 DROP TABLE IF EXISTS open_house_event;
 DROP TABLE IF EXISTS school_program;
+DROP TABLE IF EXISTS user_favorite_school;
 DROP TABLE IF EXISTS school;
 DROP TABLE IF EXISTS program;
+DROP TABLE IF EXISTS user;
 
 SET NAMES utf8mb4 COLLATE utf8mb4_swedish_ci;
-
-
-
 
 CREATE TABLE user (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -22,13 +21,6 @@ CREATE TABLE user (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci;
 
-CREATE TABLE user_favorite_school (
-  user_id   INT NOT NULL,
-  school_id INT NOT NULL,
-  PRIMARY KEY (user_id, school_id),
-  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-  FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
-);
 
 CREATE TABLE program (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -45,6 +37,14 @@ CREATE TABLE school (
   website VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci;  
+
+CREATE TABLE user_favorite_school (
+  user_id   INT NOT NULL,
+  school_id INT NOT NULL,
+  PRIMARY KEY (user_id, school_id),
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+  FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci;
 
 CREATE TABLE school_program (
   school_id INT NOT NULL,
@@ -82,9 +82,10 @@ CREATE TABLE quiz_submission (
   id CHAR(36) PRIMARY KEY,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   suggested_program_id INT NULL,
+  user_id INT NULL,
   FOREIGN KEY (suggested_program_id) REFERENCES program(id),
   FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE SET NULL
-)CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci;
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci;
 
 CREATE TABLE submission_answer (
   submission_id CHAR(36) NOT NULL,
