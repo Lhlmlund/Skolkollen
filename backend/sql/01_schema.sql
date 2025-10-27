@@ -10,6 +10,9 @@ DROP TABLE IF EXISTS program;
 
 SET NAMES utf8mb4 COLLATE utf8mb4_swedish_ci;
 
+
+
+
 CREATE TABLE user (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100),
@@ -19,6 +22,13 @@ CREATE TABLE user (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci;
 
+CREATE TABLE user_favorite_school (
+  user_id   INT NOT NULL,
+  school_id INT NOT NULL,
+  PRIMARY KEY (user_id, school_id),
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+  FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE
+);
 
 CREATE TABLE program (
   id INT AUTO_INCREMENT PRIMARY KEY,

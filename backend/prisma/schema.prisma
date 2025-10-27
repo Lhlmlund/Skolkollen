@@ -20,6 +20,17 @@ model User {
   @@map("user")
 }
 
+model UserFavoriteSchool {
+  user_id   Int
+  school_id Int
+
+  user   User   @relation(fields: [user_id], references: [id])
+  school School @relation(fields: [school_id], references: [id])
+
+  @@id([user_id, school_id])
+  @@map("user_favorite_school")
+}
+
 model Program {
   id          Int              @id @default(autoincrement())
   name        String           @db.VarChar(100)
@@ -40,6 +51,7 @@ model School {
   created_at DateTime?        @default(now()) @db.Timestamp(0)
   events     OpenHouseEvent[]
   programs   SchoolProgram[]
+  favoritedBy UserFavoriteSchool[]
 
   @@map("school")
 }
