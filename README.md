@@ -13,13 +13,44 @@ npm run dev
 
 ```
 Skolkollen/
-├─ backend/ # Node.js + Express API
-│ ├─ sql/ # Auto-run SQL (schema + seed) for MySQL container
-│ ├─ routes/ # API endpoints
-│ ├─ services/ # Database logic (MySQL / Prisma)
-│ └─ .env # Local DB credentials (ignored in Git)
-├─ frontend/ # Vue 3 + Vite
-└─ docker-compose.yml # Starts MySQL + Adminer
+│
+├── backend/                     # Node.js + Express + Prisma backend
+│   ├── controllers/             # Route logic and request handling
+│   ├── data/                    # Static or mock data (if applicable)
+│   ├── lib/                     # Utility libraries or custom helpers
+│   ├── middleware/              # Express middlewares (auth, logging, etc.)
+│   ├── prisma/                  # Prisma schema and generated client
+│   │   └── schema.prisma
+│   ├── routes/                  # Express route definitions
+│   ├── scripts/                 # Optional automation or maintenance scripts
+│   ├── services/                # Business logic and data access layers
+│   ├── sql/                     # SQL schema + seed files (auto-run via Docker)
+│   │   ├── 01_schema.sql        # Table definitions (ordered for FKs)
+│   │   └── 02_seed.sql          # Default data seeding
+│   ├── zodSchema/               # Request validation schemas (Zod)
+│   ├── index.js                 # Application entrypoint
+│   ├── package.json
+│   └── .env                     # Backend environment variables
+│
+├── frontend/                    # Vue 3 + Vite frontend
+│   ├── public/                  # Static assets
+│   ├── src/
+│   │   ├── api/                 # Axios or fetch API utilities
+│   │   ├── assets/              # Images, icons, and styles
+│   │   ├── components/          # Reusable Vue components
+│   │   ├── pages/               # Page views (Login, Quiz, Profile, etc.)
+│   │   ├── router/              # Vue Router setup
+│   │   └── main.js              # Frontend entrypoint
+│   ├── package.json
+│   └── .env                     # Frontend environment variables (VITE_*)
+│
+├── docs/                        # Documentation and developer resources
+│   └── postman/                 # Postman collections for testing endpoints
+│
+├── docker-compose.yml            # Defines MySQL + Adminer containers
+├── README.md                     # You’re here!
+└── .gitignore
+
 
 ```
 
