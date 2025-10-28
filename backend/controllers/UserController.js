@@ -4,7 +4,6 @@ registerUser as registerUserSvc,
 updateUserById as updateUserByIdSvc,
 deleteUserById as deleteUserByIdSvc} from "../services/userService.js";
 import {hashPassword} from "../middleware/passHash.js";
-import {deleteProgramById as deleteProgramByIdSvc} from "../services/programService.js";
 
 
 export async function getUsers(req, res){
