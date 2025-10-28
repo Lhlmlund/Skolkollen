@@ -1,9 +1,10 @@
 import {listUsers,
 getUserById as getUserByIdSvc,
-registerUser,
+registerUser as registerUserSvc,
 updateUserById as updateUserByIdSvc,
 deleteUserById as deleteUserByIdSvc} from "../services/userService.js";
-
+import {hashPassword} from "../middleware/passHash.js";
+import {deleteProgramById as deleteProgramByIdSvc} from "../services/programService.js";
 
 
 export async function getUsers(req, res){
@@ -28,14 +29,46 @@ export async function getUserById(req, res){
     }
 }
 
-export async function registerUserById(req, res){
-
+export async function registerUser(req, res){
+    try {
+        const data = buildUserBody(req);
+        const created = await registerUserSvc(data);
+        return res.status(201).json(created);
+    } catch (err) {
+        console.error('registerUser error:', err);
+        return res.status(500).json({ error: 'Failed to register user'});
+    }
 }
 
 export async function updateUserById(req, res){
-
+    try {
+        const id = Number(req.validated?.params?.id ?? req.params.id);
+        const data = buildUserBody(req);
+        const updated = await updateUserByIdSvc(id, data);
+        return res.json(updated);
+    } catch (err) {
+        console.error('updateUserById error:', err);
+        return res.status(500).json({ error: 'Failed to update user' });
+    }
 }
 
 export async function deleteUserById(req, res){
+    try {
+        const id = Number(req.validated?.params?.id ?? req.params.id);
+        await deleteUserByIdSvc(id);
+        return res.status(204).send();
+    } catch (err) {
+        console.error('deleteUserById error:', err);
+        return res.status(500).json({ error: 'Failed to delete user' });
+    }
 
+}
+
+function buildUserBody(req){
+    const {name, email, password} = req.validated?.body ?? req.body;
+    const data = {};
+    if (name !== undefined) data.name = name;
+    if (email !== undefined) data.email = email;
+    if (password !== undefined) data.password_hash = hashPassword(password);
+    return data;
 }
