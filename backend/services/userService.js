@@ -28,3 +28,9 @@ export function deleteUserById(id) {
         where: { id: Number(id) },
     });
 }
+
+export function getUserByEmail(email){
+    return prisma.user.findUnique({
+        where : {email}
+    });
+}

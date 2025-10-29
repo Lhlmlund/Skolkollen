@@ -28,6 +28,15 @@ export async function getUserById(req, res){
     }
 }
 
+export async function getUserByEmail(req, res) {
+    try {
+
+    } catch (error){
+        console.error('getUserByEmail', error)
+        return res.status(500).json({ error: 'Failed to fetch user'})
+    }
+}
+
 export async function registerUser(req, res){
     try {
         const data = buildUserBody(req);
@@ -70,4 +79,11 @@ function buildUserBody(req){
     if (email !== undefined) data.email = email;
     if (password !== undefined) data.password_hash = hashPassword(password);
     return data;
+}
+
+function lookForDuplicateEmail (req) {
+    const {email} = req.validated?.body ?? req.body;
+    const user = getUserByEmail(email);
+    if(user) return res.status(500).json({'Email already in use'})
+    return false
 }
