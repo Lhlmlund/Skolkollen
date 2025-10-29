@@ -96,3 +96,8 @@ CREATE TABLE submission_answer (
   FOREIGN KEY (question_id) REFERENCES quiz_question(id) ON DELETE CASCADE,
   FOREIGN KEY (option_id) REFERENCES quiz_option(id) ON DELETE CASCADE
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_swedish_ci;
+ALTER TABLE school
+    ADD COLUMN image_url VARCHAR(255),
+    ADD COLUMN student_count INT,
+    ADD COLUMN merit_value FLOAT,
+    ADD COLUMN description TEXT;
