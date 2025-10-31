@@ -7,34 +7,20 @@
     <div v-else-if="error" class="error">{{ error }}</div>
 
     <section v-else class="school-list">
-      <div v-for="school in schools" :key="school.id" class="school-card">
-        <img
-            v-if="school.image_url"
-            :src="school.image_url"
-            alt="Skolbild"
-            class="school-image"
-        />
-        <h3>{{ school.name }}</h3>
-
-        <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
-        <p><strong>Elever:</strong> {{ school.student_count || 'Ingen data' }}</p>
-        <p><strong>Meritvärde:</strong> {{ school.merit_value || 'Ingen data' }}</p>
-        <p v-if="school.website">
-          <strong>Webb:</strong>
-          <a :href="school.website" target="_blank">{{ school.website }}</a>
-        </p>
-
-        <div v-if="school.programs && school.programs.length" class="program">
-          <p><strong>Program:</strong></p>
-          <ul>
-            <li v-for="program in school.programs" :key="program">{{ program }}</li>
-          </ul>
+      <router-link
+          v-for="school in schools"
+          :key="school.id"
+          :to="{ name: 'school-detail', params: { id: school.id } }"
+          class="school-card-link"
+      >
+        <div class="school-card">
+          <h3>{{ school.name }}</h3>
+          <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
         </div>
-        <p v-else class="program"><strong>Program:</strong> Ingen information</p>
-
-        <p class="desc">{{ school.description || 'Ingen beskrivning tillgänglig.' }}</p>
-      </div>
+      </router-link>
     </section>
+
+
 
     <router-link to="/" class="back-link">⬅ Till startsidan</router-link>
   </main>
@@ -90,7 +76,7 @@ onMounted(async () => {
 
 .school-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
@@ -106,10 +92,35 @@ onMounted(async () => {
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
+.school-card * {
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
 
 .school-card h3 {
   margin-top: 0;
-  color: #e52e71;
+  color: black;
+  border-bottom: 2px solid #e52e71!important;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+.school-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.school-card,
+.school-card * {
+  border: none !important;
+  box-shadow: none !important;
+}
+.school-card a {
+  color: #3366cc !important;
+}
+.school-card a:hover {
+  color: #e52e71 !important;
+  text-decoration: underline !important;
 }
 
 .school-card p {
