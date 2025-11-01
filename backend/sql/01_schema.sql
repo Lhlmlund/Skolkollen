@@ -101,3 +101,6 @@ ALTER TABLE school
     ADD COLUMN student_count INT,
     ADD COLUMN merit_value FLOAT,
     ADD COLUMN description TEXT;
+UPDATE school
+SET image_url = '/assets/SodraLatin.jpeg'
+WHERE id = 1;

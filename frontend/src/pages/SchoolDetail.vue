@@ -1,7 +1,13 @@
 <template>
   <main class="school-detail-page" v-if="!loading && school">
+    <img
+        v-if="school.image_url"
+        :src="school.image_url"
+        alt="Skolbild"
+        class="school-image"
+    />
+
     <h2>{{ school.name }}</h2>
-    <img v-if="school.image_url" :src="school.image_url" alt="Skolbild" class="school-image"/>
 
     <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
     <p><strong>Elever:</strong> {{ school.student_count || 'Ingen data' }}</p>
@@ -25,6 +31,7 @@
 
     <router-link to="/" class="back-link">⬅ Tillbaka till alla skolor</router-link>
   </main>
+
 
   <div v-else-if="loading" class="loading">Laddar skolinformation...</div>
   <div v-else-if="error" class="error">{{ error }}</div>
