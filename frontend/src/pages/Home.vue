@@ -71,7 +71,7 @@
               <strong>Program:</strong> Ingen information
             </p>
 
-            <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
+            <p class="school-city"><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
 
             <p class="school-link">Klicka för mer info</p>
           </div>
@@ -460,6 +460,10 @@ function filterSchools() {
 .school-card-link .school-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+.school-city {
+  text-align: left;
+  margin-top: 0.5rem;
 }
 
 .openhouse-card {
