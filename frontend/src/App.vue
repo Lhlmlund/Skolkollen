@@ -3,14 +3,15 @@
     <header>
       <h1>Skolkollen</h1>
       <nav>
-        <router-link to="/">Hem</router-link> |
-        <router-link to="/about">Om</router-link> |
-        <router-link to="/school-list">Alla skolor</router-link> |
+        <router-link to="/">Hem</router-link>
+        <router-link to="/about">Om</router-link>
+        <router-link to="/school-list">Alla skolor</router-link>
+        <router-link to="/quiz">Quiz</router-link>
         <router-link to="/login">Logga in</router-link>
       </nav>
     </header>
 
-    <!-- Main content area that grows -->
+    <!-- Main content area -->
     <main>
       <router-view />
     </main>
@@ -23,13 +24,13 @@
 
 <script>
 export default {
-  name: 'App',
-}
+  name: "App",
+};
 </script>
 
 <style>
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   margin: 0;
   padding: 0;
   background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
@@ -48,7 +49,7 @@ header {
   color: white;
   text-align: center;
   padding: 1.2rem 0;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
 }
@@ -65,7 +66,7 @@ nav {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.7rem;
 }
 
 nav a {
@@ -83,13 +84,13 @@ nav a:hover {
   transform: scale(1.05);
 }
 
-/* Main content grows to fill space */
+/* Main content layout */
 main {
   flex: 1;
   padding: 2rem;
 }
 
-/* Sticky Footer */
+/* Footer */
 footer {
   position: fixed;
   bottom: 0;

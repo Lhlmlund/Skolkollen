@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const loading = ref(true)
 const submitting = ref(false)
 const questions = ref([])
@@ -40,6 +42,19 @@ async function submitQuiz() {
     })
     if (!res.ok) throw new Error('Kunde inte skicka quiz-svar')
     result.value = await res.json()
+
+// 🔹 Spara i localStorage så Results-sidan kan visa senaste
+if (result.value?.suggestedProgram) {
+  localStorage.setItem('skolkollen_last_suggested', JSON.stringify({
+    suggestedProgram: result.value.suggestedProgram,
+    submissionId: result.value.submissionId,
+    savedAt: new Date().toISOString()
+  }))
+}
+
+// 🔹 Navigera till /results
+router.push({ name: 'results' })
+
   } catch (e) {
     errorMsg.value = e.message
   } finally {

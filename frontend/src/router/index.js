@@ -8,6 +8,10 @@ import SchoolList from "../pages/SchoolList.vue";
 import Login from "../pages/Login.vue";
 import Register from "../pages/Register.vue";
 import QuizView from '../pages/QuizView.vue';
+import ResultsView from '../pages/ResultsView.vue';
+
+
+
 
 // Definiera routes
 const routes = [
@@ -17,7 +21,8 @@ const routes = [
   { path: '/school-list', name: 'schoolList', component: SchoolList },
   { path: '/Login', name: 'login', component: Login },
   { path: '/Register', name: 'register', component: Register },
-  { path: '/quiz', name: 'quiz', component: QuizView }
+  { path: '/quiz', name: 'quiz', component: QuizView },
+  { path: '/results', name: 'results', component: ResultsView },
 
 ]
 
