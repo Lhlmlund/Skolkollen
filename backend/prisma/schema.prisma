@@ -49,10 +49,6 @@ model School {
   name       String           @db.VarChar(120)
   city       String?          @db.VarChar(60)
   website    String?          @db.VarChar(255)
-  image_url    String?        @db.VarChar(255)   // NEW: image for frontend cards
-  student_count Int?          // NEW: number of students
-  merit_value  Float?         // NEW: average merit score
-  description  String?          @db.Text
   created_at DateTime?        @default(now()) @db.Timestamp(0)
   events     OpenHouseEvent[]
   programs   SchoolProgram[]
