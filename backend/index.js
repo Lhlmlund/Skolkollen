@@ -1,4 +1,6 @@
 import { prisma } from './prismaClient.js';
+import adminRouter from "./routes/adminRoutes.js";
+
 
 // Routers
 
@@ -29,6 +31,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use("/admin", adminRouter);
 
 
 // --- Health checks ---
