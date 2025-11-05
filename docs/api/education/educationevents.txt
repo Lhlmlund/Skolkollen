@@ -1,0 +1,51 @@
+Key data points:
+
+identifier – Unique ID of the education event
+
+education – Linked education info ID
+
+provider – Linked provider ID
+
+examiningBody, orderer – Organizations involved
+
+lastEdited, expires – Metadata timestamps
+
+title – Localized title
+
+url – Localized external URL
+
+location[] – Physical location info:
+
+country, municipalityCode, town, postCode, streetAddress, position
+
+languageOfInstruction[] – Language(s) of instruction
+
+execution – Timeframe of the course:
+
+condition, start, end
+
+fee[] – Course fee:
+
+amount, currency, condition (with localization)
+
+places[] – Places info:
+
+selectionGroup, plannedPlaces, actualPlaces
+
+timeOfStudy, paceOfStudy – Time/pacing structure
+
+isApprenticeship – Boolean flag
+
+distance – Mandatory/optional/net remote learning components (very detailed structure with frames and durations)
+
+application – How to apply:
+
+code, instruction, first/last application dates, email, address block
+
+applicationHistory – Past admissions data:
+
+year, semester, selectionGroup, tariffPoints
+
+extension[] – Custom extensions (key-value pairs)
+
+links[] – Self + relations to educationInfo and educationProvider
