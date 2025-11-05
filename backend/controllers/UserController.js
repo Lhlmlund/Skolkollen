@@ -25,11 +25,13 @@ export async function loginUser(req, res){
         const row = await getUserByEmailSvc(email)
         if (!row) return res.status(401).json({ error: "Invalid credentials"})
         const password = req.body
-        if (checkPassword(password, row.password_hash)) sendToken()
-
-
+        if (checkPassword(password, row.password_hash)) {
+            return res.json({getToken(row)});
+        }
+        return res.status(401).json({error: "Invalid credentials"})
     } catch (err) {
-        
+        console.error('loginUser error:', err);
+        return res.status(500).json({error: ' Failed to login user'})
     }
 }
 
@@ -109,6 +111,6 @@ function lookForDuplicateEmail (req, res) {
     if(user) return res.status(500).json({error: 'Email already in use'})
 }
 
-function sendToken() {
+function getToken(row) {
 
 }
