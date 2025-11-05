@@ -9,7 +9,8 @@ import cors from 'cors'
 import quizRoutes from "./routes/quizRoutes.js";
 import schoolRouter from './routes/schoolRoutes.js';
 import programRouter from './routes/programRoutes.js';
-import userRoutes from "./routes/userRoutes.js";
+import userRoutes from "./routes/authRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -51,7 +52,8 @@ app.get("/health/db", async (_req, res) => {
 app.use("/api", schoolRouter);    // /api/schools
 app.use("/api/quiz", quizRoutes); // /api/quiz/questions, /api/quiz/submit
 app.use('/api', programRouter)
-app.use("/api/auth", userRoutes)
+app.use("/api/auth", authRoutes)
+app.use("/api", userRoutes) // for dev purposes
 
 // --- Error handler (JSON) ---
 app.use((err, _req, res, _next) => {
