@@ -6,31 +6,52 @@
     <div v-if="loading" class="loading">Laddar skolor...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
 
-    <section v-else class="school-list">
-      <div
-          v-for="school in schools"
-          :key="school.id"
-          class="school-card"
-      >
-        <h3>{{ school.name }}</h3>
-        <div v-if="school.programs" class="program"><p><strong>Program:</strong></p>
-          <ul>
-            <li v-for="program in school.programs">{{ program }}</li>
-          </ul>
-        </div>
-        <p v-else class="program"><strong>Program:</strong> Ingen information</p>
-        <p class="city"><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
-        <p class="desc">{{ school.description || 'Ingen beskrivning tillgänglig.' }}</p>
-      </div>
-    </section>
+<section v-else class="school-list">
+  <div
+    v-for="school in schools"
+    :key="school.id"
+    class="school-card"
+  >
+    <h3>{{ school.name }}</h3>
+
+    <!-- Flatten nested programs to names -->
+    <div
+      v-if="Array.isArray(school.programs) &&
+            school.programs.some(sp => sp?.program?.name)"
+      class="program"
+    >
+      <p><strong>Program:</strong></p>
+      <ul>
+        <li
+          v-for="sp in school.programs"
+          :key="sp.program?.id || sp.program?.name"
+          v-if="sp?.program?.name"
+        >
+          {{ sp.program.name }}
+        </li>
+      </ul>
+    </div>
+    <p v-else class="program"><strong>Program:</strong> Ingen information</p>
+
+    <p class="city"><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
+
+    <!-- Try to show the first non-empty program description if school.description is empty -->
+    <p class="desc">
+      {{
+        school.description
+          || (school.programs?.find(sp => sp?.program?.description)?.program?.description ?? 'Ingen beskrivning tillgänglig.')
+      }}
+    </p>
+  </div>
+</section>
 
     <router-link to="/" class="back-link">⬅ Till startsidan</router-link>
   </main>
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
-import {getSchoolsWithPrograms} from '../api/clients.js'
+import { ref, onMounted } from 'vue'
+import { fetchGymnasiumSchools } from '../api/clients.js' //keep relative path
 
 const schools = ref<any[]>([])
 const loading = ref(true)
@@ -38,9 +59,11 @@ const error = ref<string | null>(null)
 
 onMounted(async () => {
   try {
-    schools.value = await getSchoolsWithPrograms()
-  } catch (err: any) {
-    error.value = err.message || 'Kunde inte hämta skolor.'
+    const res = await fetchGymnasiumSchools()
+    // safety client-side filter in case backend returns extra
+    schools.value = (Array.isArray(res) ? res : []).filter(s => s.is_gymnasium === true)
+  } catch (e) {
+    error.value = e?.message ?? 'Kunde inte hämta skolor.'
   } finally {
     loading.value = false
   }
