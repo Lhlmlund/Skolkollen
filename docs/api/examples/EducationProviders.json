@@ -1,0 +1,125 @@
+{
+  "links": [
+    {
+      "rel": "first",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationProviders?page=0&size=20"
+    },
+    {
+      "rel": "self",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationProviders"
+    },
+    {
+      "rel": "next",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationProviders?page=1&size=20"
+    },
+    {
+      "rel": "last",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationProviders?page=360&size=20"
+    }
+  ],
+  "content": [
+    {
+      "identifier": "string",
+      "lastEdited": "2024-10-25T14:41:33.226Z",
+      "expires": "2024-10-25T14:41:33.226Z",
+      "name": {
+        "string": [
+          {
+            "lang": "string",
+            "value": "string"
+          }
+        ]
+      },
+      "description": {
+        "string": [
+          {
+            "lang": "string",
+            "value": "string"
+          }
+        ]
+      },
+      "url": {
+        "url": [
+          {
+            "lang": "string",
+            "value": "string"
+          }
+        ]
+      },
+      "visitAddress": {
+        "country": "string",
+        "municipalityCode": "string",
+        "town": "string",
+        "postCode": "string",
+        "streetAddress": "string",
+        "position": "string"
+      },
+      "contactAddress": {
+        "country": "string",
+        "town": "string",
+        "postCode": "string",
+        "postBox": "string",
+        "streetAddress": "string",
+        "organization": "string",
+        "department": "string"
+      },
+      "emailAddress": "string",
+      "phone": {
+        "function": {
+          "string": [
+            {
+              "lang": "string",
+              "value": "string"
+            }
+          ]
+        },
+        "number": "string"
+      },
+      "responsibleBody": {
+        "type": {
+          "type": "string",
+          "code": "string"
+        },
+        "name": {
+          "string": [
+            {
+              "lang": "string",
+              "value": "string"
+            }
+          ]
+        }
+      },
+      "accreditation": {
+        "type": "string",
+        "code": "string"
+      },
+      "year": {
+        "type": "string",
+        "code": "string"
+      },
+      "extension": [
+        {
+          "type": "string",
+          "id": "string",
+          "mapExtension": {
+            "additionalProp1": "string",
+            "additionalProp2": "string",
+            "additionalProp3": "string"
+          }
+        }
+      ],
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://susanavet.skolverket.se/api/1.1/educationProviders/string"
+        }
+      ]
+    }
+  ],
+  "page": {
+    "size": 0,
+    "totalElements": 0,
+    "totalPages": 0,
+    "number": 0
+  }
+}
