@@ -2,8 +2,9 @@ import {listUsers,
 getUserById as getUserByIdSvc,
 registerUser as registerUserSvc,
 updateUserById as updateUserByIdSvc,
-deleteUserById as deleteUserByIdSvc} from "../services/userService.js";
-import {hashPassword} from "../middleware/passHash.js";
+deleteUserById as deleteUserByIdSvc,
+getUserByEmail as getUserByEmailSvc } from "../services/userService.js";
+import {checkPassword, hashPassword} from "../middleware/passHash.js";
 
 
 export async function getUsers(req, res){
@@ -13,6 +14,22 @@ export async function getUsers(req, res){
     } catch (err) {
         console.error('getUsers error:', err);
         return res.status(500).json({ error: 'Failed to fetch users' });
+    }
+}
+
+
+
+export async function loginUser(req, res){
+    try {
+        const email = eq.validated?.body ?? req.body;
+        const row = await getUserByEmailSvc(email)
+        if (!row) return res.status(401).json({ error: "Invalid credentials"})
+        const password = req.body
+        if (checkPassword(password, row.password_hash)) sendToken()
+
+
+    } catch (err) {
+        
     }
 }
 
@@ -30,15 +47,20 @@ export async function getUserById(req, res){
 
 export async function getUserByEmail(req, res) {
     try {
-
+        const email = req.validated?.body ?? req.body;
+        const row = await getUserByEmailSvc(email);
+        if (!row) return res.status(404).json({ error : `User not found with email: ${email}` });
+        return res.json(row);
     } catch (error){
-        console.error('getUserByEmail', error)
+        console.error('getUserByEmailReq', error)
         return res.status(500).json({ error: 'Failed to fetch user'})
     }
 }
 
+
 export async function registerUser(req, res){
     try {
+        await lookForDuplicateEmail(req, res)
         const data = buildUserBody(req);
         const created = await registerUserSvc(data);
         return res.status(201).json(created);
@@ -81,9 +103,12 @@ function buildUserBody(req){
     return data;
 }
 
-function lookForDuplicateEmail (req) {
+function lookForDuplicateEmail (req, res) {
     const {email} = req.validated?.body ?? req.body;
-    const user = getUserByEmail(email);
-    if(user) return res.status(500).json({'Email already in use'})
-    return false
+    const user = getUserByEmailSvc(email);
+    if(user) return res.status(500).json({error: 'Email already in use'})
+}
+
+function sendToken() {
+
 }
