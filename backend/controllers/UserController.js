@@ -5,7 +5,7 @@ updateUserById as updateUserByIdSvc,
 deleteUserById as deleteUserByIdSvc,
 getUserByEmail as getUserByEmailSvc } from "../services/userService.js";
 import {checkPassword, hashPassword} from "../middleware/passHash.js";
-
+import{getToken} from "../middleware/tokenHandler.js";
 
 export async function getUsers(req, res){
     try {
@@ -17,8 +17,6 @@ export async function getUsers(req, res){
     }
 }
 
-
-
 export async function loginUser(req, res){
     try {
         const email = eq.validated?.body ?? req.body;
@@ -26,7 +24,8 @@ export async function loginUser(req, res){
         if (!row) return res.status(401).json({ error: "Invalid credentials"})
         const password = req.body
         if (checkPassword(password, row.password_hash)) {
-            return res.json({getToken(row)});
+            const token = getToken(row)
+            return res.json({token});
         }
         return res.status(401).json({error: "Invalid credentials"})
     } catch (err) {
@@ -58,7 +57,6 @@ export async function getUserByEmail(req, res) {
         return res.status(500).json({ error: 'Failed to fetch user'})
     }
 }
-
 
 export async function registerUser(req, res){
     try {
@@ -109,8 +107,4 @@ function lookForDuplicateEmail (req, res) {
     const {email} = req.validated?.body ?? req.body;
     const user = getUserByEmailSvc(email);
     if(user) return res.status(500).json({error: 'Email already in use'})
-}
-
-function getToken(row) {
-return jwt.sign({})
 }
