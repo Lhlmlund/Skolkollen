@@ -19,11 +19,11 @@ export async function getUsers(req, res){
 
 export async function loginUser(req, res){
     try {
-        const email = eq.validated?.body ?? req.body;
+        const email = req.validated?.body ?? req.body;
         const row = await getUserByEmailSvc(email)
         if (!row) return res.status(401).json({ error: "Invalid credentials"})
         const password = req.body
-        if (checkPassword(password, row.password_hash)) {
+        if (await checkPassword(password, row.password_hash)) {
             const token = getToken(row)
             return res.json({token});
         }
