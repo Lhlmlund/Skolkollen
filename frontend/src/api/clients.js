@@ -8,7 +8,7 @@ export async function getSchools() {
 }
 
 export async function getSchoolsWithPrograms() {
-  const res = await fetch(`${BASE}/api/schools-with-programs`);
+  const res = await fetch(`${BASE}/api/schools-with-programs`)
   if (!res.ok) {
     throw new Error('Failed to fetch schools with programs')
   }
