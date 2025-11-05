@@ -6,6 +6,7 @@
         <router-link to="/">Hem</router-link> |
         <router-link to="/about">Om</router-link> |
         <router-link to="/school-list">Alla skolor</router-link> |
+        <router-link to="/selected-schools">Utvalda skolor</router-link> |
         <router-link to="/login">Logga in</router-link>
       </nav>
     </header>
