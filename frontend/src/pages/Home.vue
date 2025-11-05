@@ -29,7 +29,6 @@
         </button>
       </div>
 
-      <!-- Dropdown for remaining filters -->
       <div class="filter-wrapper">
         <select
             v-model="dropdownValue"
@@ -51,23 +50,32 @@
     </section>
 
     <div class="content-layout">
-      <!-- Left column: school list -->
       <section class="school-list">
-        <div
+        <router-link
             v-for="school in filteredSchools"
             :key="school.id"
-            class="school-card"
+            :to="{ name: 'school-detail', params: { id: school.id } }"
+            class="school-card-link"
         >
-          <h3>{{ school.name }}</h3>
-          <div v-if="school.programs" class="program"><p><strong>Program:</strong></p>
-            <ul>
-              <li v-for="program in school.programs">{{ program }}</li>
-            </ul>
+          <div class="school-card">
+            <h3>{{ school.name }}</h3>
+
+            <div v-if="school.programs" class="program">
+              <p><strong>Program:</strong></p>
+              <ul>
+                <li v-for="program in school.programs" :key="program">{{ program }}</li>
+              </ul>
+            </div>
+
+            <p v-else class="program">
+              <strong>Program:</strong> Ingen information
+            </p>
+
+            <p class="school-city"><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
+
+            <p class="school-link">Klicka för mer info</p>
           </div>
-          <p v-else class="program"><strong>Program:</strong> Ingen information</p>
-          <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
-          <a :href="school.website" target="_blank" class="school-link">Besök hemsida</a>
-        </div>
+        </router-link>
 
         <div v-if="!loading && filteredSchools.length === 0" class="no-results">
           Inga skolor matchar din sökning.
@@ -77,7 +85,6 @@
         <div v-if="error" class="error">{{ error }}</div>
       </section>
 
-      <!-- Right column: open house card -->
       <aside class="openhouse-card">
         <h3>Öppet hus</h3>
 
@@ -213,12 +220,11 @@ function toggleOpenHouses() {
 
 onMounted(async () => {
   try {
-    // Load schools
+
     const schoolData = await getSchoolsWithPrograms()
     schools.value = schoolData
     filteredSchools.value = schoolData
 
-    // Try to load open house data from the backend
     const openHouseData = await getOpenHouses()
     if (openHouseData && openHouseData.length > 0) {
       openHouses.value = openHouseData
@@ -389,7 +395,6 @@ function filterSchools() {
   font-weight: 500;
 }
 
-
 .content-layout {
   display: grid;
   grid-template-columns: 1fr 300px;
@@ -399,7 +404,7 @@ function filterSchools() {
 
 .school-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.2rem;
 }
 
@@ -407,10 +412,23 @@ function filterSchools() {
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
-  text-align: center;
+  text-align: center; /* keep headings centered */
   border: none;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: 0.3s;
+}
+
+.school-card .program {
+  text-align: left;
+}
+.school-card h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .school-card:hover {
@@ -428,6 +446,24 @@ function filterSchools() {
 
 .school-link:hover {
   color: #ff8a00;
+}
+.school-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.school-card-link .school-card {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.school-card-link .school-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+.school-city {
+  text-align: left;
+  margin-top: 0.5rem;
 }
 
 .openhouse-card {
