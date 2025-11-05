@@ -4,8 +4,8 @@ registerUser as registerUserSvc,
 updateUserById as updateUserByIdSvc,
 deleteUserById as deleteUserByIdSvc,
 getUserByEmail as getUserByEmailSvc } from "../services/userService.js";
-import {checkPassword, hashPassword} from "../middleware/passHash.js";
-import{getToken} from "../middleware/authMiddleWare.js";
+import {checkPassword, hashPassword} from "../middleware/passHashMiddleware.js";
+import{getToken} from "../middleware/authMiddleware.js";
 
 export async function getUsers(req, res){
     try {
