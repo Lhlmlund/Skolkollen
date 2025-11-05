@@ -9,24 +9,37 @@ export function listSchools({ city } = {}) {
   });
 }
 
-export async function listSchoolsWithPrograms() {
+// NOTE: onlyGymnasium uses Prisma field name isGymnasium (camelCase)
+export async function listSchoolsWithPrograms({ onlyGymnasium = false } = {}) {
+  const where = onlyGymnasium ? { isGymnasium: true } : {};
+
   const schools = await prisma.school.findMany({
+    where,
     include: {
-      programs: {                 // this is SchoolProgram[]
-        include: {
-          program: true,          // include actual Program object
-        },
+      // join table + nested Program
+      SchoolPrograms: {
+        include: { Program: true },
       },
     },
     orderBy: { name: 'asc' },
   });
 
-  return schools.map(school => ({
-    id: school.id,
-    name: school.name,
-    city: school.city,
-    website: school.website,
-    programs: school.programs.map(sp => sp.program.name),
+  // Flatten to match the old API shape the frontend expects
+  return schools.map((s) => ({
+    id: s.id,
+    name: s.name,
+    city: s.city,
+    website: s.website,
+    // keep both for backward compat if your FE reads snake_case:
+    is_gymnasium: s.isGymnasium,
+    isGymnasium: s.isGymnasium,
+    programs: (s.SchoolPrograms ?? []).map((sp) => ({
+      id: sp.Program.id,
+      name: sp.Program.name,
+      // category/description exist in new schema; include if your UI uses them:
+      category: sp.Program.category ?? null,
+      description: sp.Program.description ?? null,
+    })),
   }));
 }
 
@@ -34,45 +47,49 @@ export function getSchoolById(id) {
   return prisma.school.findUnique({
     where: { id: Number(id) },
     include: {
-      programs: { include: { program: true } }, // SchoolProgram[] + nested Program
+      SchoolPrograms: { include: { Program: true } }, // join + nested Program
     },
   });
 }
 
-export async function createSchool(data, programIds) {
-  // If School.programs is the JOIN model, create join rows that connect to Program
-  if (programIds.length) {
-    data.programs = {
+// Create a school and (optionally) link programIds via join model
+export async function createSchool(data, programIds = []) {
+  const dataWithLinks = { ...data };
+
+  if (Array.isArray(programIds) && programIds.length) {
+    dataWithLinks.SchoolPrograms = {
       create: programIds.map((programId) => ({
-        program: { connect: { id: programId } },
+        Program: { connect: { id: Number(programId) } },
       })),
     };
   }
 
   return prisma.school.create({
-    data,
+    data: dataWithLinks,
     include: {
-      programs: { include: { program: true } },
+      SchoolPrograms: { include: { Program: true } },
     },
   });
 }
 
+// Update a school and (optionally) replace all program links
 export async function updateSchoolById(id, data, programIds) {
-  // Replace all links when programIds provided
+  const dataWithLinks = { ...data };
+
   if (Array.isArray(programIds)) {
-    data.programs = {
-      deleteMany: {}, // remove existing join rows
+    dataWithLinks.SchoolPrograms = {
+      deleteMany: {}, // remove all existing links
       create: programIds.map((programId) => ({
-        program: { connect: { id: programId } },
+        Program: { connect: { id: Number(programId) } },
       })),
     };
   }
 
   return prisma.school.update({
     where: { id: Number(id) },
-    data,
+    data: dataWithLinks,
     include: {
-      programs: { include: { program: true } },
+      SchoolPrograms: { include: { Program: true } },
     },
   });
 }
