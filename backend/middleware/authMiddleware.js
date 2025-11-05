@@ -14,8 +14,7 @@ export function authenticateToken(req, res, next) {
         return res.status(401).json({message: 'Access denied. No token provided.'});
     }
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // attach user data (userId, role)
+        req.user = jwt.verify(token, process.env.JWT_SECRET);// attach user data (userId, role)
         next();
     } catch (err) {
         return res.status(403).json({message: 'Invalid or expired token.'});
