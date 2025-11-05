@@ -63,7 +63,7 @@ export async function registerUser(req, res){
         await lookForDuplicateEmail(req, res)
         const data = buildUserBody(req);
         const created = await registerUserSvc(data);
-        return res.status(201).json(created);
+        return res.status(201).json({ message :"User registered successfully"});
     } catch (err) {
         console.error('registerUser error:', err);
         return res.status(500).json({ error: 'Failed to register user'});
