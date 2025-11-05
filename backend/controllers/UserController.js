@@ -112,5 +112,5 @@ function lookForDuplicateEmail (req, res) {
 }
 
 function getToken(row) {
-
+return jwt.sign({})
 }
