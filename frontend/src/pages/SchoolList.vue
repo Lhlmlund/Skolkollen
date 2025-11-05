@@ -7,47 +7,46 @@
     <div v-else-if="error" class="error">{{ error }}</div>
 
 <section v-else class="school-list">
-  <div
+  <router-link
     v-for="school in schools"
     :key="school.id"
-    class="school-card"
+    :to="{ name: 'school-detail', params: { id: school.id } }"
+    class="school-card-link"
   >
-    <h3>{{ school.name }}</h3>
+    <div class="school-card">
+      <h3>{{ school.name }}</h3>
 
-    <!-- Flatten nested programs to names -->
-    <div
-      v-if="Array.isArray(school.programs) &&
-            school.programs.some(sp => sp?.program?.name)"
-      class="program"
-    >
-      <p><strong>Program:</strong></p>
-      <ul>
-        <li
-          v-for="sp in school.programs"
-          :key="sp.program?.id || sp.program?.name"
-          v-if="sp?.program?.name"
-        >
-          {{ sp.program.name }}
-        </li>
-      </ul>
+      <!-- City -->
+      <p class="city"><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
+
+      <!-- Programs (supports both shapes: string[] or [{ program: {...} }]) -->
+      <div class="program" v-if="hasAnyProgram(school)">
+        <p><strong>Program:</strong></p>
+        <ul>
+          <li v-for="(p, i) in normalizedPrograms(school)" :key="p.id || p.name || i">
+            {{ p.name }}
+          </li>
+        </ul>
+      </div>
+      <p v-else class="program"><strong>Program:</strong> Ingen information</p>
+
+      <!-- Description: prefer school.description, else first non-empty program.description -->
+      <p class="desc">
+        {{
+          school.description
+            ?? firstProgramDescription(school)
+            ?? 'Ingen beskrivning tillgänglig.'
+        }}
+      </p>
     </div>
-    <p v-else class="program"><strong>Program:</strong> Ingen information</p>
-
-    <p class="city"><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
-
-    <!-- Try to show the first non-empty program description if school.description is empty -->
-    <p class="desc">
-      {{
-        school.description
-          || (school.programs?.find(sp => sp?.program?.description)?.program?.description ?? 'Ingen beskrivning tillgänglig.')
-      }}
-    </p>
-  </div>
+  </router-link>
 </section>
+
 
     <router-link to="/" class="back-link">⬅ Till startsidan</router-link>
   </main>
 </template>
+
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
@@ -56,6 +55,39 @@ import { fetchGymnasiumSchools } from '../api/clients.js' //keep relative path
 const schools = ref<any[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+const hasAnyProgram = (school) => {
+  const progs = school?.programs;
+  if (!Array.isArray(progs) || progs.length === 0) return false;
+  // strings OR objects with program.name
+  return progs.some(p => typeof p === 'string' || p?.program?.name || p?.name);
+};
+
+const normalizedPrograms = (school) => {
+  const progs = Array.isArray(school?.programs) ? school.programs : [];
+  // Normalize to { id?, name, description? }
+  return progs.map(p => {
+    if (typeof p === 'string') return { name: p };
+    if (p?.program) {
+      return {
+        id: p.program.id,
+        name: p.program.name,
+        description: p.program.description ?? null,
+      };
+    }
+    // already flat object { id?, name?, description? }
+    return {
+      id: p?.id,
+      name: p?.name ?? '',
+      description: p?.description ?? null,
+    };
+  }).filter(x => x.name);
+};
+
+const firstProgramDescription = (school) => {
+  const first = normalizedPrograms(school).find(p => p.description && p.description.trim().length > 0);
+  return first?.description ?? null;
+};
 
 onMounted(async () => {
   try {
@@ -100,7 +132,7 @@ onMounted(async () => {
 
 .school-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
@@ -116,10 +148,35 @@ onMounted(async () => {
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
+.school-card * {
+  box-shadow: none;
+  border: none;
+  background: transparent;
+}
 
 .school-card h3 {
   margin-top: 0;
-  color: #e52e71;
+  color: black;
+  border-bottom: 2px solid #e52e71!important;
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+.school-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.school-card,
+.school-card * {
+  border: none !important;
+  box-shadow: none !important;
+}
+.school-card a {
+  color: #3366cc !important;
+}
+.school-card a:hover {
+  color: #e52e71 !important;
+  text-decoration: underline !important;
 }
 
 .school-card p {

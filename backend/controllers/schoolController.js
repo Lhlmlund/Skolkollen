@@ -70,12 +70,16 @@ export async function deleteSchoolById(req, res) {
 }
 
 function checkRequestBody(req) {
-  const {name, city, website} = req.validated?.body ?? req.body;
+  const {name, city, website,image_url, student_count, merit_value, description } = req.validated?.body ?? req.body;
   const data = {};
 
   if (name !== undefined) data.name = name;
   if (city !== undefined) data.city = city;
   if (website !== undefined) data.website = website;
+  if (image_url !== undefined) data.image_url = image_url;
+  if (student_count !== undefined) data.student_count = student_count;
+  if (merit_value !== undefined) data.merit_value = merit_value;
+  if (description !== undefined) data.description = description;
 
   return data;
 }

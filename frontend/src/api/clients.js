@@ -45,3 +45,14 @@ export async function syncSusa() {
   if (!res.ok) throw new Error('Failed to sync SUSA data');
   return res.json();
 }
+
+export async function getSchoolById(id) {
+  const response = await fetch(`${BASE}/api/schools/${id}`)
+  if (!response.ok) {
+    const text = await response.text()
+    console.error('❌ API error:', text)
+    throw new Error('Kunde inte hämta skolinformation.')
+  }
+  return await response.json()
+}
+
