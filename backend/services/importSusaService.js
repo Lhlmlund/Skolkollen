@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import fetch from 'node-fetch';
 import { prisma } from '../prismaClient.js';
 
 const BASE_URL = "https://susanavet.skolverket.se/api/1.1";

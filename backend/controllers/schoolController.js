@@ -2,6 +2,7 @@
 import {
   listSchools,
   listSchoolsWithPrograms as listSchoolsWithProgramsSvc,
+  listGymSchoolsWithPrograms as listGymSchoolsWithProgramsSvc,
   getSchoolById as getSchoolByIdSvc,
   createSchool as createSchoolSvc,
   updateSchoolById as updateSchoolByIdSvc,
@@ -98,7 +99,7 @@ export async function getSchoolsWithPrograms(_req, res) {
 
 export async function getGymnasiumSchoolsWithPrograms(req, res) {
   try {
-    const rows = await listSchoolsWithProgramsSvc({ onlyGymnasium: true })
+    const rows = await listGymSchoolsWithProgramsSvc({ onlyGymnasium: true })
     res.json(rows)
   } catch (err) {
     console.error('Error fetching gymnasium schools:', err)

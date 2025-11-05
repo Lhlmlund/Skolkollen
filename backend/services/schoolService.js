@@ -8,9 +8,30 @@ export function listSchools({ city } = {}) {
     orderBy: { name: 'asc' },
   });
 }
+export async function listSchoolsWithPrograms() {
+  const schools = await prisma.school.findMany({
+    include: {
+
+      SchoolPrograms: {
+        include: { Program: true },
+      },
+    },
+    orderBy: { name: 'asc' },
+  });
+
+  // keep the same flattened shape Home.vue expects
+  return schools.map((s) => ({
+    id: s.id,
+    name: s.name,
+    city: s.city,
+    website: s.website,
+    // return program *names* just like before
+    programs: (s.SchoolPrograms ?? []).map((sp) => sp.Program.name),
+  }));
+}
 
 // NOTE: onlyGymnasium uses Prisma field name isGymnasium (camelCase)
-export async function listSchoolsWithPrograms({ onlyGymnasium = false } = {}) {
+export async function listGymSchoolsWithPrograms({ onlyGymnasium = false } = {}) {
   const where = onlyGymnasium ? { isGymnasium: true } : {};
 
   const schools = await prisma.school.findMany({
