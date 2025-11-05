@@ -95,3 +95,13 @@ export async function getSchoolsWithPrograms(_req, res) {
     res.status(500).json({ error: "Failed to fetch schools with programs" });
   }
 }
+
+export async function getGymnasiumSchoolsWithPrograms(req, res) {
+  try {
+    const rows = await listSchoolsWithProgramsSvc({ onlyGymnasium: true })
+    res.json(rows)
+  } catch (err) {
+    console.error('Error fetching gymnasium schools:', err)
+    res.status(500).json({ error: 'Failed to fetch gymnasium schools' })
+  }
+}
