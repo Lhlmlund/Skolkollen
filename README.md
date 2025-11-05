@@ -246,7 +246,13 @@ npm run import:schools -- ./path/to/custom-schools.json
 
 ```
 
-
-
-### 🧪 API Testing with Postman
+### 🧪 API & Testing with Postman
 You can find ready-to-use Postman requests for Schools and Programs APIs in [`docs/postman/`](docs/postman/README.md).
+
+
+## Importing schools from Skolverket
+
+importing schools from schoolvisit by visiting this address while backend is running:
+this will pull schools into the database:
+
+http://localhost:3000/admin/susa-sync
