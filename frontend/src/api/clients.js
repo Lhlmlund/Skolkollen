@@ -8,10 +8,16 @@ export async function getSchools() {
 }
 
 export async function getSchoolsWithPrograms() {
-  const res = await fetch(`${BASE}/api/schools-with-programs`)
+  const res = await fetch(`${BASE}/api/schools-with-programs`);
   if (!res.ok) {
     throw new Error('Failed to fetch schools with programs')
   }
+  return res.json()
+}
+
+export async function fetchGymnasiumSchools() {
+  const res = await fetch(`${BASE}/api/schools/gymnasium-with-programs`)
+  if (!res.ok) throw new Error('Failed to fetch gymnasium schools')
   return res.json()
 }
 
@@ -32,4 +38,10 @@ export async function login(login, password) {
     throw new Error('Failed to login')
   }
   return res.json()
+}
+
+export async function syncSusa() {
+  const res = await fetch(`${BASE}/admin/susa-sync`);
+  if (!res.ok) throw new Error('Failed to sync SUSA data');
+  return res.json();
 }
