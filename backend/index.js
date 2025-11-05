@@ -9,7 +9,7 @@ import cors from 'cors'
 import quizRoutes from "./routes/quizRoutes.js";
 import schoolRouter from './routes/schoolRoutes.js';
 import programRouter from './routes/programRoutes.js';
-import userRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
