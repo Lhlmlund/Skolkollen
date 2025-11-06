@@ -6,6 +6,17 @@
     <section class="content">
       <form @submit.prevent="handleRegister">
         <div class="form-group">
+          <label for="namn">Namn</label>
+          <input
+              type="text"
+              id="name"
+              v-model="name"
+              required
+              placeholder="john doe"
+          />
+        </div>
+
+        <div class="form-group">
           <label for="email">E-post (används som användarnamn)</label>
           <input
               type="email"
@@ -77,10 +88,13 @@
 </template>
 
 <script>
+import {register} from "../api/clients.js";
+
 export default {
   name: 'Register',
   data() {
     return {
+      name: '',
       email: '',
       password: '',
       age: '',
@@ -95,6 +109,7 @@ export default {
     },
     formValid() {
       return (
+          this.name &&
           this.email &&
           this.age &&
           this.city &&
@@ -110,13 +125,7 @@ export default {
       }
 
       // Example output (replace with API call)
-      console.log('Registrering:', {
-        email: this.email,
-        password: this.password,
-        age: this.age,
-        school: this.school,
-        city: this.city
-      })
+      register(this. name, this.email, this.password, this.age, this.school, this.city)
 
       alert('Registrering lyckades! Du kan nu logga in.')
       this.$router.push('/login')
