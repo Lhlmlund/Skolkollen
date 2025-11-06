@@ -19,10 +19,9 @@ export async function getUsers(req, res){
 
 export async function loginUser(req, res){
     try {
-        const email = req.validated?.body ?? req.body;
+        const {email, password} = req.validated?.body ?? req.body;
         const row = await getUserByEmailSvc(email)
         if (!row) return res.status(401).json({ error: "Invalid credentials"})
-        const password = req.body
         if (await checkPassword(password, row.password_hash)) {
             const token = getToken(row)
             return res.json({token});
@@ -48,7 +47,7 @@ export async function getUserById(req, res){
 
 export async function getUserByEmail(req, res) {
     try {
-        const email = req.validated?.body ?? req.body;
+        const {email} = req.validated?.body ?? req.body;
         const row = await getUserByEmailSvc(email);
         if (!row) return res.status(404).json({ error : `User not found with email: ${email}` });
         return res.json(row);
