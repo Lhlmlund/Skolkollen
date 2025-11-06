@@ -1,7 +1,8 @@
 import fetch from 'node-fetch';
 import { prisma } from '../prismaClient.js';
 
-const BASE_URL = "https://susanavet.skolverket.se/api/1.1";
+const BASE_URL = 'https://susanavet2.skolverket.se/api/1.1'; // their current base used in Swagger
+const PAGE_SIZE = 200;
 const PROGRAM_NAME_MAX = 200;
 const SCHOOL_NAME_MAX = 120;
 
@@ -30,15 +31,34 @@ function safeSchoolName(name) {
 
 const providerCache = new Map();
 
+const normalizeEmpty = v => {
+  if (v === undefined || v === null) return null;
+  const s = String(v).trim();
+  return s.length ? s : null;
+};
+
+// Format Swedish post code to "NNN NN" (6 chars) or return null
+const normalizeSEPostCode = (v) => {
+  if (v == null) return null;
+  const digits = String(v).replace(/\D/g, '');
+  if (digits.length < 5) return null;
+  const d = digits.slice(0, 5);
+  return `${d.slice(0, 3)} ${d.slice(3, 5)}`; // e.g. "181 32"
+};
+
+const toNumOrNull = v => (v === undefined || v === null || isNaN(Number(v)) ? null : Number(v));
+
 async function ensureSchoolForProvider(providerId) {
   if (!providerId) return null;
 
+  // ✅ 1) Try existing by susaProviderId FIRST → no extra HTTP if found
   const existing = await prisma.school.findUnique({
-    where: { susa_provider_id: providerId },
-    select: { id: true, name: true, city: true, website: true, is_gymnasium: true },
+    where: { susaProviderId: providerId },
+    select: { id: true, name: true, city: true, website: true, isGymnasium: true },
   });
   if (existing) return existing;
 
+  // 2) Fetch + cache provider payload only if we don't have the school
   if (!providerCache.has(providerId)) {
     const res = await fetch(`${BASE_URL}/educationProviders/${encodeURIComponent(providerId)}`);
     providerCache.set(providerId, res.ok ? await res.json() : null);
@@ -46,44 +66,88 @@ async function ensureSchoolForProvider(providerId) {
   const p = providerCache.get(providerId);
   if (!p) return null;
 
+  // --- extract & normalize (unchanged) ---
   const rawName = svText(p?.name) ?? null;
   const name    = safeSchoolName(rawName);
-  const city    = p?.visitAddress?.town ?? null;
-  const site    = Array.isArray(p?.url?.url)
-    ? (p.url.url.find(u => u?.lang?.toLowerCase() === 'sv')?.value ?? p.url.url[0]?.value ?? null)
-    : null;
-
   if (!name) return null;
+
+  const site  = normalizeEmpty(pickUrlSv(p?.url));
+  const email = normalizeEmpty(p?.emailAddress);
+
+  const cityNorm    = normalizeEmpty(p?.visitAddress?.town);
+  const countryNorm = normalizeEmpty(p?.visitAddress?.country);
+  const muniNorm    = normalizeEmpty(p?.visitAddress?.municipalityCode);
+  const streetNorm  = normalizeEmpty(p?.visitAddress?.streetAddress);
+  const postNorm    = normalizeSEPostCode(p?.visitAddress?.postCode);
+
+  const latNum = toNumOrNull(p?.visitAddress?.position?.lat);
+  const lonNum = toNumOrNull(p?.visitAddress?.position?.lon);
+
+  const rawPhones = Array.isArray(p?.phone) ? p.phone : (p?.phone ? [p.phone] : []);
+  const phoneClean = rawPhones
+    .map(ph => ({
+      function: normalizeEmpty(ph?.function ?? ph?.role),
+      number: normalizeEmpty(ph?.number),
+    }))
+    .filter(ph => ph.number);
+
+  const responsibleBodyStr = normalizeEmpty(svText(p?.responsibleBody?.name));
 
   const typeCode       = (p?.type?.code ?? '').toString().toLowerCase();
   const schoolYearCode = (p?.schoolYearCode?.code ?? '').toString().toLowerCase();
   const isGYProvider   = typeCode.includes('gy') || schoolYearCode.includes('gy');
 
   const excludeByName = /(komvux|vuxenutbildning|folkhögskola|universitet|högskola|arbetsförmedlingen)\b/i.test(name);
-  const gymFlag = excludeByName ? false : !!isGYProvider;
+  const gymHint = excludeByName ? false : !!isGYProvider;
 
-  return prisma.school.upsert({
-    where: { susa_provider_id: providerId },
-    update: {
-      name,
-      city,
-      website: site ?? undefined,
-      is_gymnasium: gymFlag,               // <-- Boolean
-    },
-    create: {
-      susa_provider_id: providerId,
-      name,
-      city,
-      website: site ?? null,
-      is_gymnasium: gymFlag,               // <-- Boolean
-    },
-    select: { id: true, name: true, city: true, website: true, is_gymnasium: true },
+  const lastEdited = toDate(p?.lastEdited);
+  const expiresAt  = toDate(p?.expires);
+
+  const dataCommon = {
+    name,
+    website: site,
+    email,
+    phoneJson: phoneClean.length ? phoneClean : null,
+    country: countryNorm,
+    municipalityCode: muniNorm,
+    city: cityNorm,
+    streetAddress: streetNorm,
+    postCode: postNorm,
+    lat: latNum,
+    lon: lonNum,
+    responsibleBody: responsibleBodyStr,
+    accreditation: normalizeEmpty(p?.accreditation?.code),
+    foundedYear: typeof p?.year === 'number' ? p?.year : null,
+    lastEdited,
+    expiresAt,
+    extraJson: p?.extension ?? null,
+    isGymnasium: gymHint, // final tagging still done post-link
+  };
+
+  // 3) Merge by (name, city) first to respect ux_school_name_city
+  const byComposite = await prisma.school.findFirst({
+    where: { name, city: cityNorm },
+    select: { id: true, susaProviderId: true },
+  });
+
+  if (byComposite) {
+    return prisma.school.update({
+      where: { id: byComposite.id },
+      data: { ...dataCommon, ...(byComposite.susaProviderId ? {} : { susaProviderId: providerId }) },
+      select: { id: true, name: true, city: true, website: true, isGymnasium: true },
+    });
+  }
+
+  // 4) No match → create new
+  return prisma.school.create({
+    data: { susaProviderId: providerId, ...dataCommon },
+    select: { id: true, name: true, city: true, website: true, isGymnasium: true },
   });
 }
 
 // ---------------------------------------------
 // Follow HAL-style pagination until there is no "next"
-async function fetchPagedStream(baseUrl, endpoint, pageSize, onPage, maxPages = 200) {
+async function fetchPagedStream(baseUrl, endpoint, pageSize, onPage, maxPages = 400) {
   let page = 0;
   let nextUrl = `${baseUrl}/${endpoint}?page=${page}&size=${pageSize}`;
 
@@ -95,6 +159,11 @@ async function fetchPagedStream(baseUrl, endpoint, pageSize, onPage, maxPages = 
     const items = Array.isArray(data?.content) ? data.content : [];
     await onPage(items, page);
 
+        if (page % 5 === 0) {   // every 5 pages — change to 1 if you want very frequent logs
+      console.log(`[${endpoint}] page=${page} items=${items.length}`);
+    }
+
+    // HAL-style
     const nextFromArray = Array.isArray(data?.links)
       ? data.links.find(l => l?.rel === 'next')?.href
       : null;
@@ -104,11 +173,11 @@ async function fetchPagedStream(baseUrl, endpoint, pageSize, onPage, maxPages = 
     if (nextUrl && !nextUrl.startsWith('http')) {
       nextUrl = new URL(nextUrl, baseUrl).href;
     }
-
     page++;
     if (!nextUrl) break;
   }
 }
+
 // ---------------------------------------------
 // small utilities
 const svText = (multi) => {
@@ -134,6 +203,8 @@ const svText = (multi) => {
   return null;
 };
 
+
+
 const cleanCdata = (htmlish) => {
   if (!htmlish) return null;
   return String(htmlish)
@@ -153,95 +224,93 @@ const safeTitle = (input, max = 120) => {
   return plain ? (plain.length > max ? plain.slice(0, max) : plain) : null;
 };
 
+const toDate = (s) => (s ? new Date(s) : null);
+
+const pickUrlSv = (urlNode) => {
+  // url can be { url: [{ lang, value }, ...] } or string-ish
+  if (Array.isArray(urlNode?.url)) {
+    const sv = urlNode.url.find(u => u?.lang?.toLowerCase() === 'sv');
+    return sv?.value ?? urlNode.url[0]?.value ?? null;
+  }
+  if (typeof urlNode === 'string') return urlNode;
+  return null;
+};
+
 async function importProviders() {
   let total = 0;
-
-  await fetchPagedStream(BASE_URL, 'educationProviders', 200, async (pageItems, page) => {
-    for (const p of pageItems) {
-      const id    = p?.identifier ?? null;
-
-      const rawName = svText(p?.name) ?? null;
-      const name    = safeSchoolName(rawName);            // clamp to SCHOOL_NAME_MAX
-      const city    = p?.visitAddress?.town ?? null;
-      const site    = Array.isArray(p?.url?.url)
-        ? (p.url.url.find(u => u?.lang?.toLowerCase() === 'sv')?.value ?? p.url.url[0]?.value ?? null)
-        : null;
-
-      if (!name) continue;
-
-      // Provider-level classification (authoritative)
-      const typeCode       = (p?.type?.code ?? '').toString().toLowerCase();
-      const schoolYearCode = (p?.schoolYearCode?.code ?? '').toString().toLowerCase();
-      const isGYProvider   = typeCode.includes('gy') || schoolYearCode.includes('gy');
-
-      // Explicit exclusions by name (optional)
-      const excludeByName = /(komvux|vuxenutbildning|folkhögskola|universitet|högskola|arbetsförmedlingen)\b/i.test(name);
-
-      const gymFlag = excludeByName ? false : !!isGYProvider;
-
-      await prisma.school.upsert({
-        where: id ? { susa_provider_id: id } : { name }, // fallback by name only if no id
-        update: {
-          name,
-          city,
-          website: site ?? undefined,
-          is_gymnasium: gymFlag,                          // <-- Boolean, not 0/1
-        },
-        create: Object.assign(
-          id ? { susa_provider_id: id } : {},
-          {
-            name,
-            city,
-            website: site ?? null,
-            is_gymnasium: gymFlag,                        // <-- Boolean
-          },
-        ),
-      });
-
+  await fetchPagedStream(BASE_URL, 'educationProviders', PAGE_SIZE, async (providers, page) => {
+    for (const p of providers) {
+      const id = p?.identifier ?? null;
+      if (!id) continue;
+      await ensureSchoolForProvider(id);
       total++;
     }
-  }, 200);
-
+  }, 400);
   console.log(`Imported ${total} providers → schools`);
 }
 
-function categoryFromInfo(info) {
+// ---------- Infos → Program ----------
+const categoryFromInfo = (info) => {
   const v = info?.isVocational;
-  if (v === true)  return 'Yrkesutbildning';
-  if (v === false) return 'Studieförberedande';
+  if (v === true)  return true;
+  if (v === false) return false;
   return null;
-}
+};
 
-export async function importInfos() {
+async function importInfos() {
   let total = 0, itemErrors = 0;
 
-  await fetchPagedStream(BASE_URL, 'educationInfos', 200, async (infos, page) => {
+  await fetchPagedStream(BASE_URL, 'educationInfos', PAGE_SIZE, async (infos, page) => {
     for (const info of infos) {
       try {
         const id = info?.identifier;
         if (!id) continue;
 
-        const name = safeTitle(svText(info?.title), PROGRAM_NAME_MAX); // clamp to DB size
+        const name     = safeTitle(svText(info?.title), PROGRAM_NAME_MAX);
         if (!name) continue;
-
         const desc     = cleanCdata(svText(info?.description));
-        const category = categoryFromInfo(info);
         const isGym    = isGymnasiumProgramFromInfo(info);
+        const isVoc    = categoryFromInfo(info);
+
+        const levels   = Array.isArray(info?.educationLevel) ? info.educationLevel : null;
+        const orients  = Array.isArray(info?.orientation) ? info.orientation : null;
+        const subjects = Array.isArray(info?.subject) ? info.subject : null;
+        const keywords = Array.isArray(info?.keyword) ? info.keyword : null;
 
         await prisma.program.upsert({
-          where:  { susa_education_id: id },
+          where:  { susaEducationId: id },
           update: {
-            name,                                  // do update to keep latest official title
+            name,
             description: desc ?? undefined,
-            category:    category ?? undefined,
-            is_gymnasium: isGym,                   // authoritative from Info
+            isGymnasium: isGym,
+            isVocational: isVoc,
+            educationLevels: levels ?? undefined,
+            orientationsJson: orients ?? undefined,
+            subjectsJson: subjects ?? undefined,
+            qualification: info?.qualificationLevel?.code ?? undefined,
+            resultDegree: info?.degree?.code ?? undefined,
+            credits: info?.credits?.value ?? undefined,
+            keywordsJson: keywords ?? undefined,
+            lastEdited: toDate(info?.lastEdited) ?? undefined,
+            expiresAt: toDate(info?.expires) ?? undefined,
+            extraJson: info?.extension ?? undefined,
           },
           create: {
-            susa_education_id: id,
+            susaEducationId: id,
             name,
             description: desc ?? null,
-            category,
-            is_gymnasium: isGym,
+            isGymnasium: isGym,
+            isVocational: isVoc,
+            educationLevels: levels ?? null,
+            orientationsJson: orients ?? null,
+            subjectsJson: subjects ?? null,
+            qualification: info?.qualificationLevel?.code ?? null,
+            resultDegree: info?.degree?.code ?? null,
+            credits: info?.credits?.value ?? null,
+            keywordsJson: keywords ?? null,
+            lastEdited: toDate(info?.lastEdited),
+            expiresAt: toDate(info?.expires),
+            extraJson: info?.extension ?? null,
           },
         });
 
@@ -251,22 +320,19 @@ export async function importInfos() {
         if (itemErrors <= 10) console.warn('info item error:', e?.message ?? e);
       }
     }
-  }, /*maxPages*/ 400);
+  }, 400);
 
   console.log(`Imported/updated ${total} programs from Infos`);
 }
 
-// 2. Import programs + link schools ↔ programs from /educationEvents
+// ---------- Events → Links + Event rows ----------
 function extractProviderIdsFromEvent(ev) {
   // provider can be a list of strings, or via _links
   const ids = new Set();
 
   // direct field (array of strings)
-  if (Array.isArray(ev?.provider)) {
-    ev.provider.forEach(p => { if (typeof p === 'string' && p) ids.add(p); });
-  } else if (typeof ev?.provider === 'string' && ev.provider) {
-    ids.add(ev.provider);
-  }
+  if (Array.isArray(ev?.provider)) ev.provider.forEach(p => { if (typeof p === 'string' && p) ids.add(p); });
+  else if (typeof ev?.provider === 'string' && ev.provider) ids.add(ev.provider);
 
   // HAL links
   const fromArray = Array.isArray(ev?.links)
@@ -284,83 +350,181 @@ function extractProviderIdsFromEvent(ev) {
   return [...ids];
 }
 
-export async function importProgramsAndLinks() {
-  let linked = 0, eventsSeen = 0, itemErrors = 0;
+function extractEventDates(exe) {
+  // execution: { condition, start, end }
+  const start = exe?.start ?? null;
+  const end   = exe?.end ?? null;
+  return { start: start ? start.substring(0,10) : null, end: end ? end.substring(0,10) : null };
+}
 
-  await fetchPagedStream(BASE_URL, "educationEvents", 200, async (events, page) => {
+async function importProgramsAndLinksAndEvents() {
+  let linked = 0, eventsSeen = 0, eventRows = 0, itemErrors = 0;
+
+  await fetchPagedStream(BASE_URL, 'educationEvents', PAGE_SIZE, async (events, page) => {
     for (const ev of events) {
       try {
         eventsSeen++;
 
-        // 1) Resolve program (by EducationInfo identifier)
+        // 1) Resolve the referenced education info (program)
         const infoId = ev?.education ?? null;
         if (!infoId) continue;
 
-        // Ensure the Program exists (use event title/desc only as fallback)
-        const fallbackName = safeTitle(svText(ev?.title) ?? null, PROGRAM_NAME_MAX);
-        const fallbackDesc = cleanCdata(svText(ev?.description) ?? null);
+        // ensure the Program exists (fallback from event if Info pass missed it)
+        const fallbackName = safeTitle(svText(ev?.title), PROGRAM_NAME_MAX) ?? '(utan namn)';
+        const fallbackDesc = cleanCdata(svText(ev?.description));
 
         await prisma.program.upsert({
-          where: { susa_education_id: infoId },
+          where: { susaEducationId: infoId },
           update: {
-            // Don't overwrite good data with nulls
-            name:        fallbackName ?? undefined,
+            name: fallbackName ?? undefined,
             description: fallbackDesc ?? undefined,
           },
           create: {
-            susa_education_id: infoId,
-            name:        fallbackName ?? "(utan namn)",
+            susaEducationId: infoId,
+            name: fallbackName,
             description: fallbackDesc ?? null,
           },
         });
 
-        // Fetch program id + gymnasium flag once
-        const prog = await prisma.program.findUnique({
-          where: { susa_education_id: infoId },
-          select: { id: true, is_gymnasium: true },
+        const program = await prisma.program.findUnique({
+          where: { susaEducationId: infoId },
+          select: { id: true, isGymnasium: true },
         });
-        if (!prog) continue; // extremely unlikely right after upsert
+        if (!program) continue;
 
-        // 2) Link to all providers present on the event
+        // 2) Resolve/ensure providers (schools) referenced by the event
         const providerIds = extractProviderIdsFromEvent(ev);
         if (!providerIds.length) continue;
 
+        // 3) Common event fields (same for all providers in this event)
+        const title   = safeTitle(svText(ev?.title), 200);
+        const url     = pickUrlSv(ev?.url);
+        const langs   = Array.isArray(ev?.languageOfInstruction) ? ev.languageOfInstruction : null;
+
+        const exe = ev?.execution ?? null;
+        const { start, end } = extractEventDates(exe); // "YYYY-MM-DD" or null
+        const timeOfStudy   = ev?.timeOfStudy?.code ?? null;
+        const paceOfStudy   = ev?.paceOfStudy?.code ?? null;
+        const isApprentice  = ev?.isApprenticeship ?? null;
+
+        const feeJson       = ev?.fee ?? null;
+        const placesJson    = ev?.places ?? null;
+        const distanceJson  = ev?.distance ?? null;
+        const appJson       = ev?.application ?? null;
+        const appHist       = ev?.applicationHistory ?? null;
+        const locationJson  = ev?.location ?? null;
+
+        const lastEdited    = toDate(ev?.lastEdited);
+        const expiresAt     = toDate(ev?.expires);
+
+        // 4) For each provider: ensure school, link school↔program, and upsert the event
         for (const pid of providerIds) {
           const school = await ensureSchoolForProvider(pid);
           if (!school) continue;
 
-          // Upsert the link
+          // Link M:N (dedupe-safe)
           await prisma.schoolProgram.upsert({
-            where: { school_id_program_id: { school_id: school.id, program_id: prog.id } },
-            create: { school_id: school.id, program_id: prog.id },
+            where: { schoolId_programId: { schoolId: school.id, programId: program.id } },
             update: {},
+            create: { schoolId: school.id, programId: program.id },
           });
           linked++;
 
-          // Immediate authoritative tagging: if program is gymnasium, mark school as gymnasium
-          if (prog.is_gymnasium === true) {
+          // If program is gymnasium, tag the school (seed; final tagging happens later via SQL)
+          if (program.isGymnasium === true && school.isGymnasium !== true) {
             await prisma.school.update({
               where: { id: school.id },
-              data: { is_gymnasium: true },
+              data: { isGymnasium: true },
             });
           }
-        }
-      } catch (e) {
-        itemErrors++;
-        if (itemErrors <= 10) {
-          console.warn("event item error:", e?.message ?? e);
-        }
-      }
-    }
-  });
 
-  console.log(`Linked ${linked} school↔program pairs from ${eventsSeen} events`);
+const startDateVal = start ? new Date(start) : null;
+const endDateVal   = end   ? new Date(end)   : null;
+
+// Prefer the API identifier, else synth
+const evId = (ev?.identifier && String(ev.identifier).trim())
+  ? String(ev.identifier).trim()
+  : `ev:${infoId}:${pid}:${start || ''}`;
+
+// 1) Try by susaEventId first
+let existing = evId
+  ? await prisma.event.findUnique({
+      where: { susaEventId: evId },
+      select: { id: true, susaEventId: true }
+    })
+  : null;
+
+if (!existing) {
+  // 2) Fallback: try existing row by composite (program, provider, start)
+  // Note: equals: null works for nullable columns in Prisma where filters
+  existing = await prisma.event.findFirst({
+    where: {
+      programId: program.id,
+      providerSchoolId: school.id,
+      ...(startDateVal ? { startDate: startDateVal } : { startDate: null }),
+    },
+    select: { id: true, susaEventId: true }
+  });
 }
 
+const eventData = {
+  programId: program.id,
+  providerSchoolId: school.id,
+
+  title: title ?? null,
+  url: url ?? null,
+  languageJson: langs ?? null,
+
+  startDate: startDateVal,
+  endDate: endDateVal,
+  timeOfStudy: timeOfStudy ?? null,
+  paceOfStudy: paceOfStudy ?? null,
+  isApprenticeship: isApprentice ?? null,
+
+  feeJson:      feeJson ?? null,
+  placesJson:   placesJson ?? null,
+  distanceJson: distanceJson ?? null,
+  applicationJson: appJson ?? null,
+  applicationHist: appHist ?? null,
+  locationJson:  locationJson ?? null,
+
+  lastEdited: lastEdited,
+  expiresAt:  expiresAt,
+  extraJson:  ev?.extension ?? null,
+};
+
+if (existing) {
+  // If that row has no susaEventId yet, attach this one (avoid changing if it’s already different)
+  const safeData =
+    !existing.susaEventId && evId ? { ...eventData, susaEventId: evId } : eventData;
+
+  await prisma.event.update({
+    where: { id: existing.id },
+    data: safeData,
+  });
+} else {
+  await prisma.event.create({
+    data: {
+      susaEventId: evId, // may be synthetic if API id missing
+      ...eventData,
+    },
+  });
+}
+eventRows++;
+        }
+
+      } catch (e) {
+        itemErrors++;
+        if (itemErrors <= 10) console.warn('event item error:', e?.message ?? e);
+      }
+    }
+  }, 400);
+
+  console.log(`Linked ${linked} school↔program pairs from ${eventsSeen} events; upserted ${eventRows} event rows`);
+}
 // STEP 4: Tag schools with gymnasium programs (authoritative, link-based)
 async function tagGymnasiumSchoolsSQL() {
-
-  // 2) tag by links to gymnasium programs
+  // tag by links to gymnasium programs
   await prisma.$executeRawUnsafe(`
     UPDATE school s
     SET s.is_gymnasium = EXISTS (
@@ -372,35 +536,27 @@ async function tagGymnasiumSchoolsSQL() {
     )
   `);
 
-  // 3) (optional) hard exclusions AFTER tagging (keeps Kommun/uni out)
+  // Exclude authorities/kommun/universities by name (belt & suspenders)
   await prisma.$executeRawUnsafe(`
     UPDATE school
     SET is_gymnasium = 0
     WHERE name REGEXP '(\\\\bkommun\\\\b|\\\\bstad\\\\b|komvux|vuxenutbildning|folkhögskola|universitet|högskola|arbetsförmedlingen)'
   `);
-
-  // 4) Soft promotion by name (if any genuine gymnasiums slipped through)
- // await prisma.$executeRawUnsafe(`
- //   UPDATE school
- //   SET is_gymnasium = TRUE
- //   WHERE is_gymnasium = FALSE
- //     AND name REGEXP '(gymnas(ium|iet)\\\\b)'
- //     AND name NOT REGEXP '(\\\\bkommun\\\\b|\\\\bstad\\\\b|komvux|vuxenutbildning|folkhögskola|universitet|högskola|arbetsförmedlingen)'
- // `);
 }
-// Master sync function
+
+// ---------- Master sync ----------
 export async function syncFromSusa() {
-  console.log("STEP 1: Providers → schools");
+  console.log('STEP 1: Providers → schools');
   await importProviders();
 
-  console.log("STEP 2: Infos → programs (+ gymnasium flag)");
+  console.log('STEP 2: Infos → programs (+ gymnasium flag)');
   await importInfos();
 
-  console.log("STEP 3: Events → school_program links");
-  await importProgramsAndLinks();
+  console.log('STEP 3: Events → links + event rows');
+  await importProgramsAndLinksAndEvents();
 
-  console.log("STEP 4: Tag schools with gymnasium programs");
+  console.log('STEP 4: Tag schools with gymnasium programs');
   await tagGymnasiumSchoolsSQL();
 
-  console.log("✅ SUSA sync done");
+  console.log('✅ SUSA sync done');
 }
