@@ -118,6 +118,7 @@ export default {
     return {
       name: 'alex',
       email: '',
+      password:'',
       age: '',
       school: '',
       city: '',
@@ -134,12 +135,12 @@ export default {
       this.edit = !this.edit
     },
     async getProfile() {
-      const {name, email, age, school, city} = getMe()
-      this.name = name;
-      this.email = email;
-      this.age = age;
-      this.school = school;
-      this.city = city;
+      const user = await getMe()
+      this.name = user.name;
+      this.email = user.email;
+      this.age = user.age;
+      this.school = user.school;
+      this.city = user.city;
       return (
           this.name &&
           this.email &&

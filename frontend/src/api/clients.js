@@ -101,7 +101,6 @@ export async function getSchoolById(id) {
         }
     })
     const data = await res.json().catch(() => null)
-      console.log(data)
     if (!res.ok) throw new Error(data?.error || 'Failed to fetch current user')
     return data
   }
