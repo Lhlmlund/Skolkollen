@@ -257,6 +257,8 @@ http://localhost:3000/admin/susa-sync
 
 # SQL Static presentation Code
 
+```bash
+
 UPDATE school s
 JOIN (
   SELECT id
@@ -275,3 +277,5 @@ JOIN (
   LIMIT 50
 ) pick ON pick.id = s.id
 SET s.is_gymnasium = 1;
+
+```
