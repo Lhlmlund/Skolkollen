@@ -108,7 +108,6 @@ async function buildUserBody(req){
     if (name !== undefined) data.name = name;
     if (email !== undefined) data.email = email;
     if (password !== undefined) data.password_hash = await hashPassword(password);
-    console.log(data)
     return data;
 }
 
