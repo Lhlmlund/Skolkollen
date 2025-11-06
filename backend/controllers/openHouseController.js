@@ -3,8 +3,8 @@ import {
     listOpenHouseEvents,
     getOpenHouseEventById as getOpenHouseEventByIdSvc,
     createOpenHouseEvent as createOpenHouseEventSvc,
-    deleteProgramById as deleteProgramByIdSvc,
-    updateProgramById as updateProgramByIdSvc,
+    deleteOpenHouseEventById as deleteOpenHouseEventByIdSvc,
+    updateOpenHouseEventById as updateOpenHouseEventByIdSvc,
 } from "../services/openHouseService.js";
 
 export async function getOpenHouseEvents(_req, res) {
@@ -53,22 +53,22 @@ export async function updateOpenHouseEventById(req, res) {
     try {
         const id = Number(req.validated?.params?.id ?? req.params.id);
         const data = buildOpenHouseEventBody(req);
-        const updated = await updateProgramByIdSvc(id, data);
+        const updated = await updateOpenHouseEventByIdSvc(id, data);
         return res.json(updated);
     } catch (err) {
-        console.error('updateProgramById error:', err);
-        return res.status(500).json({ error: 'Failed to update program' });
+        console.error('updateOpenHouseEventById error:', err);
+        return res.status(500).json({ error: 'Failed to update OpenHouseEvent' });
     }
 }
 
-export async function deleteProgramById(req, res) {
+export async function deleteOpenHouseEventById(req, res) {
     try {
         const id = Number(req.validated?.params?.id ?? req.params.id);
-        await deleteProgramByIdSvc(id);
+        await deleteOpenHouseEventByIdSvc(id);
         return res.status(204).send();
     } catch (err) {
-        console.error('deleteProgramById error:', err);
-        return res.status(500).json({ error: 'Failed to delete program' });
+        console.error('deleteOpenHouseEventById error:', err);
+        return res.status(500).json({ error: 'Failed to delete OpenHouseEvent' });
     }
 }
 

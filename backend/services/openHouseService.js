@@ -18,15 +18,15 @@ export async function createOpenHouseEvent(data){
     })
 }
 
-export function updateProgramById(id, data) {
-    return prisma.program.update({
-        where: { id: Number(id) },
-        data,
-    });
+export function updateOpenHouseEventById(id, data) {
+  return prisma.openHouseEvent.update({
+    where: { id: Number(id) },
+    data,
+  });
 }
 
-export function deleteProgramById(id) {
-    return prisma.program.delete({
-        where: { id: Number(id) },
-    });
+export function deleteOpenHouseEventById(id) {
+  return prisma.openHouseEvent.delete({
+    where: { id: Number(id) },
+  });
 }
