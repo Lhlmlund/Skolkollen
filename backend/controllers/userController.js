@@ -93,12 +93,12 @@ export async function deleteUserById(req, res){
 
 }
 
-function buildUserBody(req){
+async function buildUserBody(req){
     const {name, email, password} = req.validated?.body ?? req.body;
     const data = {};
     if (name !== undefined) data.name = name;
     if (email !== undefined) data.email = email;
-    if (password !== undefined) data.password_hash = hashPassword(password);
+    if (password !== undefined) data.password_hash = await hashPassword(password);
     return data;
 }
 
