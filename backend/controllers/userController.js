@@ -69,16 +69,25 @@ export async function registerUser(req, res){
     }
 }
 
-export async function updateUserById(req, res){
-    try {
-        const id = Number(req.validated?.params?.id ?? req.params.id);
-        const data = buildUserBody(req);
-        const updated = await updateUserByIdSvc(id, data);
-        return res.json(updated);
-    } catch (err) {
-        console.error('updateUserById error:', err);
-        return res.status(500).json({ error: 'Failed to update user' });
+export async function updateUserById(req, res) {
+  try {
+    // if :id missing (PUT /auth/update), fall back to the token user id
+    const idFromParams = req.validated?.params?.id ?? req.params?.id;
+    const id = Number(idFromParams ?? req.user?.id);
+
+    if (!id || Number.isNaN(id)) {
+      return res.status(400).json({ error: "Invalid or missing user id" });
     }
+
+
+    const data = await buildUserBody(req);
+
+    const updated = await updateUserByIdSvc(id, data);
+    return res.json(updated);
+  } catch (err) {
+    console.error("updateUserById error:", err);
+    return res.status(500).json({ error: "Failed to update user" });
+  }
 }
 
 export async function deleteUserById(req, res){
