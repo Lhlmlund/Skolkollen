@@ -9,7 +9,7 @@
         <router-link to="/selected-schools">Utvalda skolor</router-link> |
         <router-link v-if="isUser" to="/profil">Profile</router-link>
         <router-link v-if="!isUser" to="/login">Logga in</router-link> |
-        <a v-if="isUser"  @click="logOut" > logga ut </a>
+        <a v-if="isUser"  @click="logOut" > Logga ut </a>
       </nav>
     </header>
 
@@ -94,6 +94,7 @@ nav a {
 nav a:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
+  cursor: pointer;
 }
 
 /* Main content grows to fill space */
