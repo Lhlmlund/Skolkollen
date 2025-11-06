@@ -3,8 +3,8 @@ import {deleteUserById, getUserById, getUsers} from "../controllers/userControll
 const router = express.Router();
 
 router.get('/users', getUsers)
-router.get('/users:id', getUserById)
-router.delete('/users:id', deleteUserById)
+router.get('/users/:id', getUserById)
+router.delete('/users/:id', deleteUserById)
 
 
 export default router;
