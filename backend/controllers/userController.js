@@ -102,8 +102,10 @@ function buildUserBody(req){
     return data;
 }
 
-function lookForDuplicateEmail (req, res) {
+async function lookForDuplicateEmail (req,) {
     const {email} = req.validated?.body ?? req.body;
-    const user = getUserByEmailSvc(email);
-    if(user) return res.status(500).json({error: 'Email already in use'})
+    const user = await getUserByEmailSvc(email);
+    if(user) {
+        throw new Error('Email already in use')
+    }
 }
