@@ -2,7 +2,8 @@ import jwt from 'jsonwebtoken'
 
 export function getToken(row) {
     return jwt.sign({
-        userId: row.userId, role: row.role
+        userId: row.id,
+         role: row.role ?? 'STUDENT',
     }, process.env.JWT_SECRET, {expiresIn: '1d'})
 }
 
@@ -14,7 +15,8 @@ export function authenticateToken(req, res, next) {
         return res.status(401).json({message: 'Access denied. No token provided.'});
     }
     try {
-        req.user = jwt.verify(token, process.env.JWT_SECRET);// attach user data (userId, role)
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);// attach user data (userId, role)
+          req.user = { id: decoded.userId, role: decoded.role };
         next();
     } catch (err) {
         return res.status(403).json({message: 'Invalid or expired token.'});
