@@ -1,13 +1,16 @@
 {
-  "name": "skolkollen-root",
+  "name": "skolkollen",
   "private": true,
-  "scripts": {
-    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
-    "dev:backend": "npm run dev --prefix backend",
-    "dev:frontend": "npm run dev --prefix frontend",
-    "import:schools": "npm run import:schools --prefix backend"
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.1"
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+"scripts": {
+  "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+  "frontend": "npm start --prefix frontend",
+  "backend": "npm run dev --prefix backend"
+},
+  "dependencies": {
+    "concurrently": "^8.2.2"
   }
 }

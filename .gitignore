@@ -18,7 +18,7 @@ frontend/dist-ssr/
 frontend/.env
 frontend/.cache/
 frontend/.vite/
-
+frontend/*.local
 
 # Frontend logs
 frontend/logs/
@@ -77,3 +77,6 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# Local JSON data (not for version control)
+backend/scripts/schools.json

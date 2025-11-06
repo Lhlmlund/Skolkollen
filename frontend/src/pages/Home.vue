@@ -4,248 +4,90 @@
       <p>Välj rätt, börja rätt – din väg till gymnasiet</p>
     </section>
 
+    <!-- Quiz-teaser (demo-läge = ingen backend krävs) -->
+    <QuizTeaser />
+
     <section class="search">
       <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="Sök gymnasium, program eller stad..."
-          @input="filterSchools"
+        type="text"
+        v-model="searchQuery"
+        placeholder="Sök gymnasium, program eller stad..."
+        @input="filterSchools"
       />
       <button class="search-btn" @click="filterSchools">Sök</button>
     </section>
 
     <section class="filters">
-      <!-- First 4 filters as buttons -->
-      <div
-          v-for="filter in visibleFilters"
-          :key="filter.name"
-          class="filter-wrapper"
-      >
-        <button
-            :class="{ active: activeFilter === filter.name }"
-            @click="setFilter(filter.name)"
-        >
-          {{ filter.name }}
-        </button>
-      </div>
-
-      <!-- Dropdown for remaining filters -->
-      <div class="filter-wrapper">
-        <select
-            v-model="dropdownValue"
-            @change="handleDropdownChange"
-            class="program-dropdown"
-            :class="{ active: dropdownFilters.some(f => f.name === activeFilter) }"
-        >
-          <option disabled value="">Fler program</option>
-          <option
-              v-for="filter in dropdownFilters"
-              :key="filter.name"
-              :value="filter.name"
-          >
-            {{ filter.name }}
-          </option>
-        </select>
-      </div>
-
+      <button
+        v-for="f in quickFilters"
+        :key="f"
+        :class="{ active: activeFilter === f }"
+        @click="setFilter(f)"
+      >{{ f }}</button>
     </section>
 
-    <div class="content-layout">
-      <!-- Left column: school list -->
-      <section class="school-list">
-        <div
-            v-for="school in filteredSchools"
-            :key="school.id"
-            class="school-card"
-        >
-          <h3>{{ school.name }}</h3>
-          <div v-if="school.programs" class="program"><p><strong>Program:</strong></p>
-            <ul>
-              <li v-for="program in school.programs">{{ program }}</li>
-            </ul>
-          </div>
-          <p v-else class="program"><strong>Program:</strong> Ingen information</p>
-          <p><strong>Stad:</strong> {{ school.city || 'Okänd' }}</p>
-          <a :href="school.website" target="_blank" class="school-link">Besök hemsida</a>
-        </div>
+    <section class="school-list" style="margin-top: 12px;">
+      <div
+        v-for="s in filteredSchools"
+        :key="s.id"
+        class="school-card"
+        style="background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.06);"
+      >
+        <h3 style="margin: 0 0 6px 0">{{ s.name }}</h3>
+        <p style="margin: 0 0 6px 0"><strong>Stad:</strong> {{ s.city }}</p>
+        <p style="margin: 0"><strong>Program:</strong> {{ s.programs.join(', ') }}</p>
+      </div>
 
-        <div v-if="!loading && filteredSchools.length === 0" class="no-results">
-          Inga skolor matchar din sökning.
-        </div>
-
-        <div v-if="loading" class="loading">Laddar skolor...</div>
-        <div v-if="error" class="error">{{ error }}</div>
-      </section>
-
-      <!-- Right column: open house card -->
-      <aside class="openhouse-card">
-        <h3>Öppet hus</h3>
-
-        <ul>
-          <transition-group name="fold" tag="li">
-            <li v-for="event in visibleOpenHouses" :key="event.school + event.date">
-              <strong>{{ event.school }}</strong><br />
-              {{ event.date }} – {{ event.time }}
-            </li>
-          </transition-group>
-        </ul>
-
-        <button class="toggle-btn" @click="toggleOpenHouses">
-          {{ showAllOpenHouses ? 'Visa färre' : 'Visa alla' }}
-        </button>
-      </aside>
-
-    </div>
+      <div v-if="!filteredSchools.length" class="no-results">
+        Inga skolor matchar din sökning.
+      </div>
+    </section>
   </main>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { getSchoolsWithPrograms, getOpenHouses } from '../api/clients.js'
+import { ref } from 'vue'
+import QuizTeaser from '../components/QuizTeaser.vue' // byt till '@/components/QuizTeaser.vue' om du har '@' alias
 
-const schools = ref([])
-const filteredSchools = ref([])
+// 🔒 Offline-data (ingen fetch)
+const SCHOOLS = [
+  { id: 3, name: 'Göta Akademi', city: 'Göteborg', programs: ['Naturvetenskapsprogrammet', 'Teknikprogrammet'] },
+  { id: 8, name: 'Helsingborg Kreativa Skola', city: 'Helsingborg', programs: ['Samhällsvetenskapsprogrammet', 'Estetiska programmet'] },
+  { id: 6, name: 'Karlstad Kunskapsgymnasiet', city: 'Karlstad', programs: ['Samhällsvetenskapsprogrammet', 'Ekonomiprogrammet'] },
+  { id: 2, name: 'Norrby Tekniska', city: 'Uppsala', programs: ['Teknikprogrammet', 'Industritekniska programmet'] },
+  { id: 5, name: 'Skåne Framtidsgymnasium', city: 'Malmö', programs: ['Vård- och omsorgsprogrammet', 'Barn- och fritidsprogrammet'] },
+  { id: 1, name: 'Södra Gymnasiet', city: 'Stockholm', programs: ['Naturvetenskapsprogrammet', 'Samhällsvetenskapsprogrammet'] },
+  { id: 7, name: 'Västerås Gymnasium', city: 'Västerås', programs: ['El- och energiprogrammet', 'Fordons- och transportprogrammet'] },
+  { id: 4, name: 'Östra Real', city: 'Stockholm', programs: ['Humanistiska programmet', 'Ekonomiprogrammet'] },
+]
+
+const schools = ref([...SCHOOLS])
+const filteredSchools = ref([...SCHOOLS])
 const searchQuery = ref('')
 const activeFilter = ref('Alla')
-const dropdownValue = ref('') // was null
-const filters = [
-  {
-    name: 'Alla',
-    programs: []
-  },
-  {
-    name: 'Natur',
-    programs: ['Naturvetenskapsprogrammet']
-  },
-  {
-    name: 'Teknik',
-    programs: ['Teknikprogrammet']
-  },
-  {
-    name: 'Samhäll',
-    programs: ['Samhällsvetenskapsprogrammet', 'Ekonomiprogrammet', 'Humanistiska programmet']
-  },
-  {
-    name: 'Estet',
-    programs: ['Estetiska programmet']
-  },
-  {
-    name: 'Barn och fritid',
-    programs: ['Barn- och fritidsprogrammet']
-  },
-  {
-    name: 'Bygg',
-    programs: ['Bygg- och anläggningsprogrammet']
-  },
-  {
-    name: 'El',
-    programs: ['El- och energiprogrammet', 'Industritekniska programmet']
-  },
-  {
-    name: 'Fordon',
-    programs: ['Fordons- och transportprogrammet']
-  },
-  {
-    name: 'Försäljning & service',
-    programs: ['Försäljnings- och serviceprogrammet']
-  },
-  {
-    name: 'Frisör & stylist',
-    programs: ['Frisör- och stylistprogrammet']
-  },
-  {
-    name: 'Hotell & turism',
-    programs: ['Hotell- och turismprogrammet']
-  },
-  {
-    name: 'Naturbruk',
-    programs: ['Naturbruksprogrammet']
-  },
-  {
-    name: 'Restaurang',
-    programs: ['Restaurang- och livsmedelsprogrammet']
-  },
-  {
-    name: 'Vård & omsorg',
-    programs: ['Vård- och omsorgsprogrammet']
-  },
-  {
-    name: 'VVS',
-    programs: ['VVS- och fastighetsprogrammet']
-  },
-];
-const visibleFilters = [filters[0], ...filters.slice(1, 4)]
-const dropdownFilters = filters.slice(4)
+const quickFilters = ['Alla', 'Natur', 'Teknik', 'Samhäll']
 
-function handleDropdownChange(event) {
-  const selected = event.target.value
-  setFilter(selected)
-}
-
-function resetDropdown() {
-  if (dropdownValue.value) {
-    dropdownValue.value = ''
-  }
-}
-
-const loading = ref(true)
-const error = ref(null)
-
-// Default placeholders (visible until real data is fetched)
-const openHouses = ref([
-  { school: 'Södra Gymnasiet', date: '25 okt', time: '17:00–19:00' },
-  { school: 'Karlstad Kunskapsgymnasiet', date: '2 nov', time: '18:00–20:00' },
-  { school: 'Östra Real', date: '5 nov', time: '16:30–18:30' },
-  {school: "gymnasiet", date: '17 nov', time: '17:00–19:00'}
-])
-const showAllOpenHouses = ref(false)
-
-const visibleOpenHouses = computed(() => {
-  return showAllOpenHouses.value
-      ? openHouses.value
-      : openHouses.value.slice(0, 3)
-})
-
-function toggleOpenHouses() {
-  showAllOpenHouses.value = !showAllOpenHouses.value
-}
-
-
-onMounted(async () => {
-  try {
-    // Load schools
-    const schoolData = await getSchoolsWithPrograms()
-    schools.value = schoolData
-    filteredSchools.value = schoolData
-
-    // Try to load open house data from the backend
-    const openHouseData = await getOpenHouses()
-    if (openHouseData && openHouseData.length > 0) {
-      openHouses.value = openHouseData
-    }
-  } catch (err) {
-    error.value = err.message || 'Kunde inte hämta data.'
-  } finally {
-    loading.value = false
-  }
-})
-
-function setFilter(filterOrProgram) {
-  activeFilter.value = filterOrProgram
+function setFilter(f) {
+  activeFilter.value = f
   filterSchools()
 }
 
 function filterSchools() {
-  const query = searchQuery.value.toLowerCase()
-  filteredSchools.value = schools.value.filter((school) => {
-    const matchesFilter =
-        activeFilter.value === 'Alla' ||
-        (school.program && school.program.toLowerCase().includes(activeFilter.value.toLowerCase()))
-    const matchesSearch =
-        school.name.toLowerCase().includes(query) ||
-        (school.city && school.city.toLowerCase().includes(query)) ||
-        (school.program && school.program.toLowerCase().includes(query))
-    return matchesFilter && matchesSearch
+  const q = searchQuery.value.trim().toLowerCase()
+  filteredSchools.value = schools.value.filter((s) => {
+    const matchText =
+      !q ||
+      s.name.toLowerCase().includes(q) ||
+      s.city.toLowerCase().includes(q) ||
+      s.programs.some(p => p.toLowerCase().includes(q))
+
+    const matchFilter =
+      activeFilter.value === 'Alla' ||
+      (activeFilter.value === 'Natur'   && s.programs.some(p => p.includes('Naturvetenskaps'))) ||
+      (activeFilter.value === 'Teknik'  && s.programs.some(p => p.includes('Teknik'))) ||
+      (activeFilter.value === 'Samhäll' && s.programs.some(p => p.includes('Samhäll') || p.includes('Ekonomi') || p.includes('Humanist')))
+
+    return matchText && matchFilter
   })
 }
 </script>
@@ -389,7 +231,6 @@ function filterSchools() {
   font-weight: 500;
 }
 
-
 .content-layout {
   display: grid;
   grid-template-columns: 1fr 300px;
@@ -399,7 +240,7 @@ function filterSchools() {
 
 .school-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.2rem;
 }
 
@@ -407,10 +248,23 @@ function filterSchools() {
   background: white;
   border-radius: 16px;
   padding: 1.5rem;
-  text-align: center;
+  text-align: center; /* keep headings centered */
   border: none;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: 0.3s;
+}
+
+.school-card .program {
+  text-align: left;
+}
+.school-card h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .school-card:hover {
@@ -428,6 +282,24 @@ function filterSchools() {
 
 .school-link:hover {
   color: #ff8a00;
+}
+.school-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.school-card-link .school-card {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.school-card-link .school-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+.school-city {
+  text-align: left;
+  margin-top: 0.5rem;
 }
 
 .openhouse-card {
@@ -564,3 +436,4 @@ function filterSchools() {
 }
 
 </style>
+

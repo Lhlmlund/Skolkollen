@@ -1,33 +1,30 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-//  Importera sidor
+// Sidor (RELATIVA sökvägar från src/router/)
 import Home from '../pages/Home.vue'
 import About from '../pages/About.vue'
-import AddSchool from "../pages/AddSchool.vue";
-import SchoolList from "../pages/SchoolList.vue";
-import Login from "../pages/Login.vue";
-import Register from "../pages/Register.vue";
-import QuizView from '../pages/QuizView.vue';
-import ResultsView from '../pages/ResultsView.vue';
+import SchoolList from '../pages/SchoolList.vue'
+import SelectedSchools from '../pages/SelectedSchools.vue'
+import Login from '../pages/Login.vue'
+import QuizView from '../pages/QuizView.vue'
+import ResultsView from '../pages/ResultsView.vue'
 
 
-
-
-// Definiera routes
 const routes = [
   { path: '/', name: 'home', component: Home },
   { path: '/about', name: 'about', component: About },
-  { path: '/add-school', name: 'addSchool', component: AddSchool },
-  { path: '/school-list', name: 'schoolList', component: SchoolList },
-  { path: '/Login', name: 'login', component: Login },
-  { path: '/Register', name: 'register', component: Register },
+  { path: '/school-list', name: 'school-list', component: SchoolList },
+  { path: '/selected-schools', name: 'selected-schools', component: SelectedSchools },
+  { path: '/login', name: 'login', component: Login },
+
+  // Quiz + Resultat
   { path: '/quiz', name: 'quiz', component: QuizView },
   { path: '/results', name: 'results', component: ResultsView },
-
 ]
 
-//  Exportera router
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
+
+export default router

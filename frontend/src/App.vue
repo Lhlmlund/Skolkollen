@@ -1,114 +1,89 @@
 <template>
   <div id="app">
-    <header>
+    <header class="site-header">
       <h1>Skolkollen</h1>
-      <nav>
-        <router-link to="/">Hem</router-link>
-        <router-link to="/about">Om</router-link>
-        <router-link to="/school-list">Alla skolor</router-link>
-        <router-link to="/quiz">Quiz</router-link>
-        <router-link to="/login">Logga in</router-link>
+      <nav class="site-nav" aria-label="Huvudnavigation">
+        <router-link to="/" exact-active-class="active" class="nav-link">Hem</router-link>
+        <router-link to="/about" exact-active-class="active" class="nav-link">Om</router-link>
+        <router-link to="/school-list" exact-active-class="active" class="nav-link">Alla skolor</router-link>
+        <router-link to="/selected-schools" exact-active-class="active" class="nav-link">Utvalda skolor</router-link>
+        <!-- ✅ Quiz-knappen i samma stil -->
+        <router-link to="/quiz" exact-active-class="active" class="nav-link">Quiz</router-link>
+        <router-link to="/login" exact-active-class="active" class="nav-link">Logga in</router-link>
       </nav>
     </header>
 
-    <!-- Main content area -->
-    <main>
+    <main class="site-main">
       <router-view />
     </main>
 
-    <footer>
+    <footer class="site-footer">
       <p>© 2025 Skolkollen</p>
     </footer>
   </div>
 </template>
 
-<script>
-export default {
-  name: "App",
-};
+<script setup>
+// RouterLink/RouterView är globala – inget behövs här
 </script>
 
-<style>
-body {
-  font-family: "Poppins", sans-serif;
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-  color: #2b2b2b;
-}
-
-#app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* Header */
-header {
+<style scoped>
+/* —— Header + titel —— */
+.site-header {
   background: linear-gradient(90deg, #ff8a00, #e52e71);
-  color: white;
+  color: #fff;
   text-align: center;
-  padding: 1.2rem 0;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+  padding: 28px 16px 36px;
+}
+.site-header h1 {
+  margin: 0 0 12px 0;
+  font-size: 2.75rem;
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: .5px;
+  color: #fff;
 }
 
-header h1 {
-  font-size: 1.8rem;
-  margin: 0 0 0.5rem 0;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-/* Navigation */
-nav {
+/* —— Navbar: pillerknappar, samma känsla som tidigare —— */
+.site-nav {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.7rem;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;               /* gör att inget klipps bort om det blir trångt */
+  margin: 6px auto 0;
 }
-
-nav a {
-  color: white;
+.nav-link {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 999px;
   text-decoration: none;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 0.4rem 0.8rem;
-  border-radius: 9999px;
-  transition: all 0.3s;
+  color: #ffffff;
+  background: rgba(255,255,255,0.28);
+  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+  transition: transform .15s ease, background .15s ease, color .15s ease;
+}
+.nav-link:hover {
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.38);
+}
+/* aktiv: fylld knapp med varmare ton (som dina tidigare knappar) */
+.nav-link.active {
+  color: #fff;
+  background: linear-gradient(45deg, #ff9a3d, #ff4f7a);
 }
 
-nav a:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
+/* —— Main + footer —— */
+.site-main {
+  min-height: 60vh;
+  background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  padding: 12px 16px 28px;
 }
-
-/* Main content layout */
-main {
-  flex: 1;
-  padding: 2rem;
-}
-
-/* Footer */
-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: linear-gradient(90deg, #e52e71, #ff8a00);
-  color: white;
+.site-footer {
   text-align: center;
-  padding: 1rem;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  font-size: 0.95rem;
-  z-index: 10;
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+  padding: 14px 10px;
+  color: #fff;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
 }
-
-footer p {
-  margin: 0;
-  opacity: 0.9;
-}
+.site-footer p { margin: 0; }
 </style>
