@@ -35,7 +35,7 @@ export async function loginUser(req, res){
 
 export async function getUserById(req, res){
     try {
-        const id = Number(req.validated?.params?.id ?? req.params.id);
+        const id = Number(req.validated?.params?.id ?? req.params.id) || req.user.id;
         const row = await getUserByIdSvc(id);
         if (!row) return res.status(404).json({ error: `User not found with id: ${id}` });
         return res.json(row);

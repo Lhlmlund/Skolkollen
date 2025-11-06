@@ -126,7 +126,18 @@ export default {
   },computed: {
     getProfile() {
       const {name, email, age, school, city} = getMe()
-
+      this.name = name;
+      this.email = email;
+      this.age = age;
+      this.school = school;
+      this.city = city;
+      return(
+          this.name &&
+          this.email &&
+              this.age &&
+              this.school &&
+              this.city
+      );
     }
   }, methods: {
     sendEdit(){
