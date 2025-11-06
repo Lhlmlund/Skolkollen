@@ -7,7 +7,9 @@
         <router-link to="/about">Om</router-link> |
         <router-link to="/school-list">Alla skolor</router-link> |
         <router-link to="/selected-schools">Utvalda skolor</router-link> |
-        <router-link to="/login">Logga in</router-link>
+        <router-link v-if="isUser" to="/profil">Profile</router-link>
+        <router-link v-if="!isUser" to="/login">Logga in</router-link> |
+        <a v-if="isUser"  @click="logOut" > logga ut </a>
       </nav>
     </header>
 
@@ -25,7 +27,17 @@
 <script>
 export default {
   name: 'App',
+  data() {
+    return {
+      isUser : true
+    }
+  },methods: {
+    logOut(){
+
+    }
+  }
 }
+
 </script>
 
 <style>

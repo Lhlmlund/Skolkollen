@@ -3,6 +3,9 @@
 </script>
 
 <template>
+  <main class="profile-page">
+
+  </main>
 
 </template>
 
