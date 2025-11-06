@@ -79,29 +79,26 @@
     </section>
 
         <section v-else class="content">
-          <form>
-            <div class="form-group">
-              <label for="name">{{name}}</label>
-            </div>
+          <div class="profile-header">
+            <img :src="avatarUrl" alt="User avatar" class="avatar" />
+            <h2>{{ name }}</h2>
+          </div>
 
-            <div class="form-group">
-              <label for="email">{{email}}</label>
-            </div>
-
-            <div class="form-group">
-              <label for="age">{{age}}</label>
-            </div>
-
-            <div class="form-group">
-              <label for="school">{{school}}</label>
-            </div>
+          <div class="info-card">
+            <h3>Information</h3>
+            <ul>
+              <li><strong>E-post:</strong> {{ email }}</li>
+              <li><strong>Ålder:</strong> {{ age }}</li>
+              <li><strong>Skola:</strong> {{ school || 'Ej angiven' }}</li>
+              <li><strong>Stad:</strong> {{ city }}</li>
+            </ul>
+          </div>
 
             <div class="form-group">
               <label for="city">{{city}}</label>
             </div>
 
             <button @click="toggleEdit">Ändra</button>
-          </form>
         </section>
     <section v-if="!edit">
       <h2> Sparade skolor</h2>
@@ -123,6 +120,7 @@ export default {
       school: '',
       city: '',
       edit: false,
+      avatarUrl: '',
     }
   }, mounted() {
     this.getProfile()
@@ -141,12 +139,14 @@ export default {
       this.age = user.age;
       this.school = user.school;
       this.city = user.city;
+      this.avatarUrl = `https://ui-avatars.com/api/?name=${this.name}&background=ff8a00&color=fff`
       return (
           this.name &&
           this.email &&
           this.age &&
           this.school &&
-          this.city
+          this.city &&
+          this.avatarUrl
       );
     }
   }
@@ -214,5 +214,21 @@ button {
 button:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  object-fit: cover;
+}
+
+.info-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  padding: 1.5rem;
+  animation: fadeIn 0.5s ease-in-out;
 }
 </style>
