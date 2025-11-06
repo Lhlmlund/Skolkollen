@@ -60,7 +60,7 @@ export async function getUserByEmail(req, res) {
 export async function registerUser(req, res){
     try {
         await lookForDuplicateEmail(req, res)
-        const data = buildUserBody(req);
+        const data = await buildUserBody(req);
         await registerUserSvc(data);
         return res.status(201).json({ message :"User registered successfully"});
     } catch (err) {
@@ -95,10 +95,11 @@ export async function deleteUserById(req, res){
 
 async function buildUserBody(req){
     const {name, email, password} = req.validated?.body ?? req.body;
-    const data = {};
+    let data = {};
     if (name !== undefined) data.name = name;
     if (email !== undefined) data.email = email;
     if (password !== undefined) data.password_hash = await hashPassword(password);
+    console.log(data)
     return data;
 }
 
