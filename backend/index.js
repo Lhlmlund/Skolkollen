@@ -9,6 +9,8 @@ import cors from 'cors'
 import quizRoutes from "./routes/quizRoutes.js";
 import schoolRouter from './routes/schoolRoutes.js';
 import programRouter from './routes/programRoutes.js';
+import userRoutes from "./routes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -18,6 +20,8 @@ const ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
 // If FRONTEND_ORIGIN="*" → allow all (handy when Vite jumps to 5174/5175)
 const corsOrigin = ORIGIN === "*" ? true : ORIGIN;
+
+
 
 app.use(
   cors({
@@ -30,6 +34,9 @@ app.use(
 
 app.use(express.json());
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
 
 // --- Health checks ---
 app.get("/health", (_req, res) => res.send("OK"));
@@ -50,7 +57,8 @@ app.get("/health/db", async (_req, res) => {
 app.use("/api", schoolRouter);    // /api/schools
 app.use("/api/quiz", quizRoutes); // /api/quiz/questions, /api/quiz/submit
 app.use('/api', programRouter)
-
+app.use("/api/auth", authRoutes)
+app.use("/api", userRoutes) // for dev purposes
 
 // --- Error handler (JSON) ---
 app.use((err, _req, res, _next) => {
