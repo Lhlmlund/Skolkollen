@@ -121,7 +121,6 @@ async function ensureSchoolForProvider(providerId) {
     lastEdited,
     expiresAt,
     extraJson: p?.extension ?? null,
-    isGymnasium: gymHint, // final tagging still done post-link
   };
 
   // 3) Merge by (name, city) first to respect ux_school_name_city
@@ -430,14 +429,6 @@ async function importProgramsAndLinksAndEvents() {
           });
           linked++;
 
-          // If program is gymnasium, tag the school (seed; final tagging happens later via SQL)
-          if (program.isGymnasium === true && school.isGymnasium !== true) {
-            await prisma.school.update({
-              where: { id: school.id },
-              data: { isGymnasium: true },
-            });
-          }
-
 const startDateVal = start ? new Date(start) : null;
 const endDateVal   = end   ? new Date(end)   : null;
 
@@ -544,6 +535,42 @@ async function tagGymnasiumSchoolsSQL() {
   `);
 }
 
+async function resetAllSchoolGymnasiumFlags() {
+ 
+ await prisma.$executeRawUnsafe(`UPDATE school SET is_gymnasium = 0`);
+
+}
+
+async function autoTagGymnasium() {
+  // 1) Reset (deterministic)
+  await prisma.$executeRawUnsafe(`UPDATE school SET is_gymnasium = 0`);
+
+  // 2) Tag schools that look like real gymnasiums based on their linked program names
+  //    - has ≥ 3 linked programs
+  //    - at least 1 program name matches common gymnasium tracks
+  //    - school name does NOT look like kommun/AF/komvux/folkhögskola
+  await prisma.$executeRawUnsafe(`
+    UPDATE school s
+    JOIN (
+      SELECT sp.school_id,
+             COUNT(*) AS total_links,
+             SUM(
+               p.name REGEXP
+               '(teknik|natur|samh(ä|a)ll|ekonomi|estet|bygg|fordon|el( |-|/)|industri|vård|omtanke|barn|fritid|handel|administration|hotell|restaurang|turism|humanist|medie|musik|dans|teater|design|sjöfart|flyg|fastighet)'
+             ) AS gym_hits
+      FROM school_program sp
+      JOIN program p ON p.id = sp.program_id
+      GROUP BY sp.school_id
+    ) stats ON stats.school_id = s.id
+    SET s.is_gymnasium =
+      (stats.total_links >= 3
+       AND stats.gym_hits >= 1
+       AND s.name NOT REGEXP '(kommun|stad|arbetsförmedlingen|komvux|vuxenutbildning|folkh(ö|o)gskola)'
+      )
+  `);
+}
+
+
 // ---------- Master sync ----------
 export async function syncFromSusa() {
   console.log('STEP 1: Providers → schools');
@@ -555,8 +582,11 @@ export async function syncFromSusa() {
   console.log('STEP 3: Events → links + event rows');
   await importProgramsAndLinksAndEvents();
 
-  console.log('STEP 4: Tag schools with gymnasium programs');
-  await tagGymnasiumSchoolsSQL();
+  console.log('STEP 4: Reset school gymnasium flags to 0');
+  await resetAllSchoolGymnasiumFlags();
 
+  console.log('STEP 4: Auto-tag gymnasiums with 3 programs or more');
+  await autoTagGymnasium();
   console.log('✅ SUSA sync done');
+
 }
