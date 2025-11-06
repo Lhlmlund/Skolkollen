@@ -6,7 +6,7 @@ export async function listUsers(){
 
 export async function getUserById(id){
     return await prisma.user.findUnique({
-        where: { id }
+        where: { id: Number(id) }
     })
 }
 
@@ -31,6 +31,6 @@ export function deleteUserById(id) {
 
 export function getUserByEmail(email){
     return prisma.user.findUnique({
-        where : {email}
+        where : {email: email}
     });
 }
