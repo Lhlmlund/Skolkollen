@@ -1,5 +1,6 @@
-import {loginUser, registerUser, updateUserById} from "../controllers/userController.js";
+
 import express from "express"
+import {loginUser, registerUser, updateUserById} from "../controllers/userController.js";
 import {authenticateToken} from "../middleware/authMiddleware.js";
 const router = express.Router();
 
