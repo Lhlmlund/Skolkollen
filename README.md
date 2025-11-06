@@ -9,6 +9,22 @@ Syftet är att hjälpa niondeklassare att fatta ett välgrundat beslut inför gy
 npm run dev
 
 
+### 1️⃣ Install all dependencies (root)
+
+```bash
+npm install
+
+```
+
+Start both backend + frontend together:
+npm run dev
+
+
+Backend: http://localhost:3000
+
+Frontend: http://localhost:5173
+
+
 ## Project Structure
 
 ```
@@ -78,19 +94,6 @@ MYSQL_USER:sk_user
 MYSQL_PASSWORD:k_pwd
 
 
-```
-replace *** with actual values.
-
-```bash
-cd backend
-docker compose up
-npm install dotenv mysql2
-npm run dev:backend
-# Backend: http://localhost:3000
-# Health check: http://localhost:3000/health
-
-
-```
 
 # Step 2: Start MySQL + Adminer (auto-initialized)
 
@@ -112,13 +115,30 @@ This will:
 * Adminer (a database editor) or (DB UI) runs on http://localhost:8080
 
 
+Login info:(or the environment variables you choose in .env)
+
+Field	    Value
+System	    MySQL
+Server	    mysql
+Username	sk_user
+Password	sk_pwd
+Database	skolkollen
+
+### You can:
+
+* View and edit data directly
+
+* Verify CRUD operations
+
+* Run custom SQL queries for debugging
+
+
 
 
 # Step 3: Run(use) the backend 
 
 ```bash
 
-cd backend
 npm install
 npm run dev:backend
 
@@ -131,7 +151,6 @@ npm run dev:backend
 
 ```bash
 
-cd ../frontend
 npm install
 npm run dev:frontend
 
@@ -165,31 +184,6 @@ Check that your backend CRUD operations are working
 
 Manually test queries during development
 
-## Accessing Adminer
-after 
-
-```bash
-docker compose up -d
-```
-
- open http://localhost:8080
-
-Login info:(or the environment variables you choose in .env)
-
-Field	    Value
-System	    MySQL
-Server	    mysql
-Username	sk_user
-Password	sk_pwd
-Database	skolkollen
-
-### You can:
-
-* View and edit data directly
-
-* Verify CRUD operations
-
-* Run custom SQL queries for debugging
 
 
 ## Test backend health and database connectivity - US2
