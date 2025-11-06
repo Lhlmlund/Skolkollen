@@ -1,4 +1,10 @@
 const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+
+function authHeaders() {
+    const token = localStorage.getItem('token');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 export async function getSchools() {
   const res = await fetch(`${BASE}/api/schools`)
   if (!res.ok) {
@@ -43,7 +49,8 @@ export async function login(email, password) {
 
     if (data.token) {
       localStorage.setItem('token', data.token);
-      console.log('Login success:', data);
+      console.log('Login success:');
+      return data;
     } else {
       console.warn('No token received from server');
     }
@@ -53,8 +60,7 @@ export async function register(name, email, password, age, school, city){
     const res = await fetch(`${BASE}/api/auth/register`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-      },
+        'Content-Type': 'application/json', },
       body: JSON.stringify({
         name: name,
         email: email,
@@ -71,7 +77,8 @@ export async function register(name, email, password, age, school, city){
     }
 
     const data = await res.json();
-    console.log('Registration success:', data);
+    console.log('Registration success:');
+    return data;
 }
 
 export async function getSchoolById(id) {
@@ -82,5 +89,15 @@ export async function getSchoolById(id) {
     throw new Error('Kunde inte hämta skolinformation.')
   }
   return await response.json()
+
 }
+
+  export async function getMe() {
+    const res = await fetch(`${BASE}/api/auth/me`, {
+      headers: { ...authHeaders() },
+    })
+    const data = await res.json().catch(() => null)
+    if (!res.ok) throw new Error(data?.error || 'Failed to fetch current user')
+    return data
+  }
 
