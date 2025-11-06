@@ -21,6 +21,8 @@ const ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 // If FRONTEND_ORIGIN="*" → allow all (handy when Vite jumps to 5174/5175)
 const corsOrigin = ORIGIN === "*" ? true : ORIGIN;
 
+
+
 app.use(
   cors({
     origin: corsOrigin,
@@ -32,6 +34,9 @@ app.use(
 
 app.use(express.json());
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
+}
 
 // --- Health checks ---
 app.get("/health", (_req, res) => res.send("OK"));
