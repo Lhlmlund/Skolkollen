@@ -29,9 +29,16 @@ export default {
   name: 'App',
   data() {
     return {
-      isUser : true
+      isUser : false
     }
-  },methods: {
+  },computed: {
+    isLoggedIn(){
+      return !!localStorage.getItem("token");
+    }
+  }, mounted() {
+    this.isUser = this.isLoggedIn
+  },
+  methods: {
     logOut(){
       localStorage.clear()
       this.$router.push('/')

@@ -100,7 +100,7 @@
               <label for="city">{{city}}</label>
             </div>
 
-            <button>Ändra</button>
+            <button @click="toggleEdit">Ändra</button>
           </form>
         </section>
     <section v-if="!edit">
@@ -121,30 +121,32 @@ export default {
       age: '',
       school: '',
       city: '',
-      edit: true,
+      edit: false,
     }
-  },computed: {
-    getProfile() {
+  }, mounted() {
+    this.getProfile()
+
+  }, methods: {
+    sendEdit() {
+      this.edit = false;
+    },
+    toggleEdit() {
+      this.edit = !this.edit
+    },
+    async getProfile() {
       const {name, email, age, school, city} = getMe()
       this.name = name;
       this.email = email;
       this.age = age;
       this.school = school;
       this.city = city;
-      return(
+      return (
           this.name &&
           this.email &&
-              this.age &&
-              this.school &&
-              this.city
+          this.age &&
+          this.school &&
+          this.city
       );
-    }
-  }, methods: {
-    sendEdit(){
-      this.edit = false;
-    },
-    toggleEdit(){
-      this.edit = !this.edit
     }
   }
 }

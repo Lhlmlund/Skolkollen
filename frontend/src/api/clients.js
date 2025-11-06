@@ -94,9 +94,14 @@ export async function getSchoolById(id) {
 
   export async function getMe() {
     const res = await fetch(`${BASE}/api/auth/me`, {
-      headers: { ...authHeaders() },
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem('token')}`
+        }
     })
     const data = await res.json().catch(() => null)
+      console.log(data)
     if (!res.ok) throw new Error(data?.error || 'Failed to fetch current user')
     return data
   }
