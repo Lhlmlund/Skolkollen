@@ -121,6 +121,7 @@ export default {
       city: '',
       edit: false,
       avatarUrl: '',
+      createdAt: '',
     }
   }, mounted() {
     this.getProfile()
@@ -222,6 +223,12 @@ button:hover {
   border-radius: 50%;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   object-fit: cover;
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .info-card {
