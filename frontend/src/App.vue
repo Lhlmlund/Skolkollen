@@ -33,7 +33,7 @@ export default {
     }
   },methods: {
     logOut(){
-
+      localStorage.clear()
     }
   }
 }
