@@ -6,13 +6,13 @@
     <section class="content">
       <form @submit.prevent="handleRegister">
         <div class="form-group">
-          <label for="namn">Namn</label>
+          <label for="name">Namn</label>
           <input
               type="text"
               id="name"
               v-model="name"
               required
-              placeholder="john doe"
+              placeholder="john doe" autocomplete="name"
           />
         </div>
 
@@ -23,7 +23,7 @@
               id="email"
               v-model="email"
               required
-              placeholder="din@epost.se"
+              placeholder="din@epost.se" autocomplete="email"
           />
         </div>
 
@@ -35,6 +35,9 @@
               v-model="password"
               required
               placeholder="Minst 8 tecken, 1 versal, 1 siffra"
+              autocomplete="new-password"
+              pattern="(?=.*[A-Z])(?=.*\d).{8,}"
+              title="Minst 8 tecken, 1 versal, 1 siffra"
           />
           <p v-if="password && !isPasswordValid" class="error">
             Lösenordet måste innehålla minst 8 tecken, en versal och en siffra.
@@ -43,14 +46,11 @@
 
         <div class="form-group">
           <label for="age">Ålder</label>
-          <input
-              type="number"
-              id="age"
-              v-model="age"
-              required
-              placeholder="Ange din ålder"
-              min="1"
-          />
+            <input 
+            type="number" 
+            id="age" 
+            v-model.number="age"
+            required placeholder="Ange din ålder" min="1" />
         </div>
 
         <div class="form-group">
@@ -74,7 +74,8 @@
           />
         </div>
 
-        <button type="submit" :disabled="!formValid">Registrera</button>
+        <button type="submit" :disabled="loading || !formValid">Registrera</button>
+        <p v-if="errorMsg" class="error" aria-live="polite" style="margin-top:.75rem">{{ errorMsg }}</p>
       </form>
 
       <p class="login-link">
@@ -88,7 +89,7 @@
 </template>
 
 <script>
-import {register} from "../api/clients.js";
+import { register, login } from "../api/clients.js"; // login now imported
 
 export default {
   name: 'Register',
@@ -99,36 +100,60 @@ export default {
       password: '',
       age: '',
       school: '',
-      city: ''
+      city: '',
+      loading: false,
+      errorMsg: ''
     }
   },
   computed: {
+    // If your policy requires a symbol, use the next regex (see comment below)
+    // pattern with symbol: /^(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/
     isPasswordValid() {
-      const pattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/
-      return pattern.test(this.password)
+      const pattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+      return pattern.test(this.password);
     },
     formValid() {
       return (
-          this.name &&
-          this.email &&
-          this.age &&
-          this.city &&
-          this.isPasswordValid
-      )
+        this.name &&
+        this.email &&
+        this.age &&
+        this.city &&
+        this.isPasswordValid
+      );
     }
   },
   methods: {
-    handleRegister() {
-      if (!this.formValid) {
-        alert('Vänligen fyll i alla obligatoriska fält korrekt.')
-        return
+    async handleRegister() {
+      if (!this.formValid || this.loading) {
+        alert('Vänligen fyll i alla obligatoriska fält korrekt.');
+        return;
       }
+      this.errorMsg = '';
+      this.loading = true;
+      try {
+        // 1) register
+          await register(
+            this.name.trim(),
+            this.email.trim(),
+            this.password,
+            Number(this.age),
+            this.school?.trim() || '',
+            this.city.trim()
+);
 
-      // Example output (replace with API call)
-      register(this. name, this.email, this.password, this.age, this.school, this.city)
+        // 2) auto-login (clients.js returns data and stores token)
+        const data = await login(this.email, this.password);
+        if (!data?.token) {
+          throw new Error('Ingen token mottagen från servern.');
+        }
 
-      alert('Registrering lyckades! Du kan nu logga in.')
-      this.$router.push('/login')
+        // 3) navigate
+        this.$router.push('/');
+      } catch (e) {
+        this.errorMsg = e instanceof Error ? e.message : 'Något gick fel.';
+      } finally {
+        this.loading = false;
+      }
     }
   }
 }
