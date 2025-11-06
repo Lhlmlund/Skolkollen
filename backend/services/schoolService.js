@@ -37,7 +37,6 @@ export async function listGymSchoolsWithPrograms({ onlyGymnasium = false } = {})
   const schools = await prisma.school.findMany({
     where,
     include: {
-      // join table + nested Program
       SchoolPrograms: {
         include: { Program: true },
       },
@@ -45,19 +44,43 @@ export async function listGymSchoolsWithPrograms({ onlyGymnasium = false } = {})
     orderBy: { name: 'asc' },
   });
 
-  // Flatten to match the old API shape the frontend expects
+  const mapPhone = (json) => {
+    try {
+      if (!json) return [];
+      // json is stored as JSON in DB; Prisma returns JS object already
+      const arr = Array.isArray(json) ? json : [];
+      return arr
+        .map(p => {
+          const num = (p?.number ?? '').toString().trim();
+          const fn  = (p?.function ?? '')?.toString().trim();
+          if (!num) return null;
+          return fn ? `${fn}: ${num}` : num;
+        })
+        .filter(Boolean);
+    } catch {
+      return [];
+    }
+  };
+
   return schools.map((s) => ({
     id: s.id,
     name: s.name,
-    city: s.city,
-    website: s.website,
-    // keep both for backward compat if your FE reads snake_case:
+    website: s.website ?? null,
+    email: s.email ?? null,
+    phone: mapPhone(s.phoneJson),               // <- nice, flat array of strings
+    country: s.country ?? null,
+    municipality_code: s.municipalityCode ?? null,
+    city: s.city ?? null,
+    street_address: s.streetAddress ?? null,
+    post_code: s.postCode ?? null,
+
+    // keep both for FE compatibility
     is_gymnasium: s.isGymnasium,
     isGymnasium: s.isGymnasium,
+
     programs: (s.SchoolPrograms ?? []).map((sp) => ({
       id: sp.Program.id,
       name: sp.Program.name,
-      // category/description exist in new schema; include if your UI uses them:
       category: sp.Program.category ?? null,
       description: sp.Program.description ?? null,
     })),
