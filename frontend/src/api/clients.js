@@ -24,7 +24,6 @@ export async function getOpenHouses() {
 }
 
 export async function login(email, password) {
-  try {
     const res = await fetch(`${BASE}/api/auth/login`, {
       method: 'POST',
       headers: {
@@ -36,20 +35,21 @@ export async function login(email, password) {
     }),
     });
 
+    const data = await res.json()
+
     if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || 'Login failed');
+      throw new Error(data.error || 'Login failed');
     }
 
-    const data = await res.json();
-    console.log('Login success:', data);
-  } catch (err) {
-    console.error('Login error:', err.message);
-  }
+    if (data.token) {
+      localStorage.setItem('token', data.token);
+      console.log('Login success:', data);
+    } else {
+      console.warn('No token received from server');
+    }
 }
 
 export async function register(name, email, password, age, school, city){
-  try {
     const res = await fetch(`${BASE}/api/auth/register`, {
       method: 'POST',
       headers: {
@@ -72,9 +72,6 @@ export async function register(name, email, password, age, school, city){
 
     const data = await res.json();
     console.log('Registration success:', data);
-  } catch (err) {
-    console.error('Registration error:', err.message);
-  }
 }
 
 export async function getSchoolById(id) {
