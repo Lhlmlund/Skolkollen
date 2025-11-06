@@ -21,6 +21,12 @@ export async function getSchoolsWithPrograms() {
   return res.json()
 }
 
+export async function fetchGymnasiumSchools() {
+  const res = await fetch(`${BASE}/api/schools/gymnasium-with-programs`)
+  if (!res.ok) throw new Error('Failed to fetch gymnasium schools')
+  return res.json()
+}
+
 export async function getOpenHouses() {
   const res = await fetch(`${BASE}/api/openhouses`)
   if (!res.ok) {
@@ -79,6 +85,12 @@ export async function register(name, email, password, age, school, city){
     const data = await res.json();
     console.log('Registration success:');
     return data;
+}
+
+export async function syncSusa() {
+  const res = await fetch(`${BASE}/admin/susa-sync`);
+  if (!res.ok) throw new Error('Failed to sync SUSA data');
+  return res.json();
 }
 
 export async function getSchoolById(id) {

@@ -240,7 +240,38 @@ npm run import:schools -- ./path/to/custom-schools.json
 
 ```
 
-
-
-### 🧪 API Testing with Postman
+### 🧪 API & Testing with Postman
 You can find ready-to-use Postman requests for Schools and Programs APIs in [`docs/postman/`](docs/postman/README.md).
+
+
+## Importing schools from Skolverket
+
+importing schools from schoolvisit by visiting this address while backend is running:
+this will pull schools into the database:
+
+http://localhost:3000/admin/susa-sync
+
+
+
+
+
+# SQL Static presentation Code
+
+UPDATE school s
+JOIN (
+  SELECT id
+  FROM school
+  WHERE
+    name               IS NOT NULL AND TRIM(name)               <> '' AND
+    website            IS NOT NULL AND TRIM(website)            <> '' AND
+    email              IS NOT NULL AND TRIM(email)              <> '' AND
+    JSON_TYPE(phone_json) = 'ARRAY' AND JSON_LENGTH(phone_json) > 0 AND
+    municipality_code  IS NOT NULL AND TRIM(municipality_code)  <> '' AND
+    city               IS NOT NULL AND TRIM(city)               <> '' AND
+    street_address     IS NOT NULL AND TRIM(street_address)     <> '' AND
+    post_code          IS NOT NULL AND TRIM(post_code)          <> '' AND
+    name NOT REGEXP '(kommun|stad|arbetsförmedlingen|komvux|vuxenutbildning|folkh(ö|o)gskola)'
+  ORDER BY name
+  LIMIT 50
+) pick ON pick.id = s.id
+SET s.is_gymnasium = 1;

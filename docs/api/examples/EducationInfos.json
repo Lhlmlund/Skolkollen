@@ -1,0 +1,195 @@
+{
+  "links": [
+    {
+      "rel": "first",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationInfos?page=0&size=20"
+    },
+    {
+      "rel": "self",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationInfos"
+    },
+    {
+      "rel": "next",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationInfos?page=1&size=20"
+    },
+    {
+      "rel": "last",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationInfos?page=19772&size=20"
+    }
+  ],
+  "content": [
+    {
+      "identifier": "string",
+      "educationBase": "string",
+      "educationMandatory": "string",
+      "educationOptional": "string",
+      "educationNext": "string",
+      "code": "string",
+      "lastEdited": "2024-10-29T09:57:24.607Z",
+      "expires": "2024-10-29T09:57:24.607Z",
+      "title": {
+        "string": [
+          {
+            "lang": "string",
+            "value": "string"
+          }
+        ]
+      },
+      "description": {
+        "string": [
+          {
+            "lang": "string",
+            "value": "string"
+          }
+        ]
+      },
+      "url": {
+        "url": [
+          {
+            "lang": "string",
+            "value": "string"
+          }
+        ]
+      },
+      "form": {
+        "type": "string",
+        "code": "string"
+      },
+      "educationLevel": [
+        {
+          "type": "string",
+          "code": "string"
+        }
+      ],
+      "orientation": {
+        "type": "string",
+        "code": "string"
+      },
+      "audience": {
+        "type": "string",
+        "code": "string"
+      },
+      "configuration": {
+        "type": "string",
+        "code": "string"
+      },
+      "subject": [
+        {
+          "type": "string",
+          "code": "string"
+        }
+      ],
+      "isVocational": true,
+      "resultIsDegree": true,
+      "degree": {
+        "string": [
+          {
+            "lang": "string",
+            "value": "string"
+          }
+        ]
+      },
+      "qualificationLevel": {
+        "type": "string",
+        "code": "string"
+      },
+      "extent": {
+        "length": 0,
+        "max": 0,
+        "unit": {
+          "type": "string",
+          "code": "string"
+        },
+        "note": {
+          "string": [
+            {
+              "lang": "string",
+              "value": "string"
+            }
+          ]
+        }
+      },
+      "credits": {
+        "system": {
+          "type": "string",
+          "code": "string"
+        },
+        "credits": 0,
+        "min": 0
+      },
+      "eligibility": {
+        "code": {
+          "type": "string",
+          "code": "string"
+        },
+        "eligibilityDescription": {
+          "string": [
+            {
+              "lang": "string",
+              "value": "string"
+            }
+          ]
+        },
+        "exceptionCode": {
+          "type": "string",
+          "code": "string"
+        },
+        "exceptionDescription": {
+          "string": [
+            {
+              "lang": "string",
+              "value": "string"
+            }
+          ]
+        },
+        "additionCode": {
+          "type": "string",
+          "code": "string"
+        },
+        "additionDescription": {
+          "string": [
+            {
+              "lang": "string",
+              "value": "string"
+            }
+          ]
+        }
+      },
+      "recommendedPriorKnowledge": {
+        "string": [
+          {
+            "lang": "string",
+            "value": "string"
+          }
+        ]
+      },
+      "eligibleForStudentAid": {
+        "type": "string",
+        "code": "string"
+      },
+      "extension": [
+        {
+          "type": "string",
+          "id": "string",
+          "mapExtension": {
+            "additionalProp1": "string",
+            "additionalProp2": "string",
+            "additionalProp3": "string"
+          }
+        }
+      ],
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://susanavet.skolverket.se/api/1.1/educationInfos/string"
+        }
+      ]
+    }
+  ],
+  "page": {
+    "size": 0,
+    "totalElements": 0,
+    "totalPages": 0,
+    "number": 0
+  }
+}

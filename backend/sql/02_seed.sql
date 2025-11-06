@@ -1,44 +1,103 @@
 SET NAMES utf8mb4 COLLATE utf8mb4_swedish_ci;
 
-INSERT INTO program (name, category, description) VALUES
-('Teknikprogrammet', 'Teknik', 'Fokus på teknik, programmering och design.'),
-('Naturvetenskapsprogrammet', 'Naturvetenskap', 'Studera biologi, fysik, kemi och matematik.'),
-('Ekonomiprogrammet', 'Ekonomi', 'Lär dig om företagande, marknadsföring och finans.'),
-('Estetiska programmet', 'Estetik', 'Kreativ utbildning med musik, teater och bild.'),
-('Vård- och omsorgsprogrammet', 'Vård', 'Utbildning inom hälsa, omsorg och vårdyrken.');
+-- =========================
+-- Seed: Programs (EducationInfo)
+-- =========================
+INSERT INTO program
+  (susa_education_id, name, description, is_vocational, is_gymnasium, education_levels, orientations_json, subjects_json, keywords_json)
+VALUES
+  ('demo:prog:teknik',        'Teknikprogrammet',        'Fokus på teknik, programmering och design.',            0, 1, JSON_ARRAY('ISCED 3'), NULL, JSON_ARRAY('Teknik','IT','Design'), JSON_ARRAY('teknik','programmering')),
+  ('demo:prog:natur',         'Naturvetenskapsprogrammet','Biologi, fysik, kemi och matematik på fördjupad nivå.',0, 1, JSON_ARRAY('ISCED 3'), NULL, JSON_ARRAY('Biologi','Fysik','Kemi','Matematik'), JSON_ARRAY('natur','lab')),
+  ('demo:prog:ekonomi',       'Ekonomiprogrammet',       'Företagande, marknadsföring och finans.',               0, 1, JSON_ARRAY('ISCED 3'), NULL, JSON_ARRAY('Ekonomi','Företag'), JSON_ARRAY('ekonomi','entreprenörskap')),
+  ('demo:prog:estet',         'Estetiska programmet',    'Kreativ inriktning med musik, teater och bild.',        0, 1, JSON_ARRAY('ISCED 3'), JSON_ARRAY('Musik','Teater','Bild'), JSON_ARRAY('Estetik','Kultur'), JSON_ARRAY('estet','kreativitet')),
+  ('demo:prog:vard',          'Vård- och omsorgsprogrammet','Utbildning inom hälsa, omsorg och vårdyrken.',      1, 1, JSON_ARRAY('ISCED 3'), NULL, JSON_ARRAY('Vård','Omsorg','Hälsa'), JSON_ARRAY('vård','omsorg'));
 
-INSERT INTO school (name, city, website) VALUES
-('Södra Gymnasiet', 'Stockholm', 'https://sodragymnasiet.se'),
-('Norrby Tekniska', 'Uppsala', 'https://norrbytekniska.se'),
-('Göta Akademi', 'Göteborg', 'https://gotaakademi.se'),
-('Östra Real', 'Stockholm', 'https://ostrereal.se'),
-('Skåne Framtidsgymnasium', 'Malmö', 'https://framtidsgymnasium.se'),
-('Karlstad Kunskapsgymnasiet', 'Karlstad', 'https://kunskapkarlstad.se'),
-('Västerås Gymnasium', 'Västerås', 'https://vgym.se'),
-('Helsingborg Kreativa Skola', 'Helsingborg', 'https://helsingkreativ.se');
+-- =========================
+-- Seed: Schools (EducationProvider)
+-- =========================
+INSERT INTO school
+  (susa_provider_id, name, website, email, city, municipality_code, is_gymnasium, is_showcase, showcase_rank)
+VALUES
+  ('demo:prov:sodra',     'Södra Gymnasiet',                 'https://sodragymnasiet.se',          'info@sodragymnasiet.se',        'Stockholm', '0180', 1, 1, 10),
+  ('demo:prov:norrby',    'Norrby Tekniska',                 'https://norrbytekniska.se',          'info@norrbytekniska.se',        'Uppsala',   '0380', 1, 1, 20),
+  ('demo:prov:gota',      'Göta Akademi',                    'https://gotaakademi.se',             'hej@gotaakademi.se',            'Göteborg',  '1480', 1, 1, 30),
+  ('demo:prov:ostra',     'Östra Real',                      'https://ostrereal.se',               'info@ostrereal.se',             'Stockholm', '0180', 1, 1, 40),
+  ('demo:prov:skane',     'Skåne Framtidsgymnasium',         'https://framtidsgymnasium.se',       'kontakt@framtidsgymnasium.se',  'Malmö',     '1280', 1, 1, 50),
+  ('demo:prov:kunskap',   'Karlstad Kunskapsgymnasiet',      'https://kunskapkarlstad.se',         'info@kunskapkarlstad.se',       'Karlstad',  '1780', 1, 1, 60),
+  ('demo:prov:vgym',      'Västerås Gymnasium',              'https://vgym.se',                    'info@vgym.se',                  'Västerås',  '1980', 1, 1, 70),
+  ('demo:prov:kreativ',   'Helsingborg Kreativa Skola',      'https://helsingkreativ.se',          'hej@helsingkreativ.se',         'Helsingborg','1283',1, 1, 80);
 
+-- Optional tags for curated labels
+INSERT INTO school_tag (school_id, tag)
+SELECT id, 'Showcase'
+FROM school
+WHERE is_showcase = 1;
+
+-- =========================
+-- Seed: School ↔ Program links
+-- =========================
+-- Map names to IDs for convenience
+SET @p_teknik := (SELECT id FROM program WHERE susa_education_id = 'demo:prog:teknik' LIMIT 1);
+SET @p_natur  := (SELECT id FROM program WHERE susa_education_id = 'demo:prog:natur'  LIMIT 1);
+SET @p_eko    := (SELECT id FROM program WHERE susa_education_id = 'demo:prog:ekonomi'LIMIT 1);
+SET @p_estet  := (SELECT id FROM program WHERE susa_education_id = 'demo:prog:estet'  LIMIT 1);
+SET @p_vard   := (SELECT id FROM program WHERE susa_education_id = 'demo:prog:vard'   LIMIT 1);
+
+SET @s_sodra   := (SELECT id FROM school WHERE name = 'Södra Gymnasiet'                LIMIT 1);
+SET @s_norrby  := (SELECT id FROM school WHERE name = 'Norrby Tekniska'                LIMIT 1);
+SET @s_gota    := (SELECT id FROM school WHERE name = 'Göta Akademi'                   LIMIT 1);
+SET @s_ostral  := (SELECT id FROM school WHERE name = 'Östra Real'                     LIMIT 1);
+SET @s_skane   := (SELECT id FROM school WHERE name = 'Skåne Framtidsgymnasium'        LIMIT 1);
+SET @s_kunskap := (SELECT id FROM school WHERE name = 'Karlstad Kunskapsgymnasiet'     LIMIT 1);
+SET @s_vgym    := (SELECT id FROM school WHERE name = 'Västerås Gymnasium'             LIMIT 1);
+SET @s_kreativ := (SELECT id FROM school WHERE name = 'Helsingborg Kreativa Skola'     LIMIT 1);
+
+-- Södra Gymnasiet: Teknik, Natur, Ekonomi
 INSERT INTO school_program (school_id, program_id) VALUES
-(1, 1), (1, 2), (1, 3),        -- Södra Gymnasiet offers Teknik, Natur, Ekonomi
-(2, 1), (2, 3),                -- Norrby Tekniska: Teknik, Ekonomi
-(3, 2), (3, 4),                -- Göta Akademi: Natur, Estetik
-(4, 2), (4, 3), (4, 5),        -- Östra Real: Natur, Ekonomi, Vård
-(5, 1), (5, 5),                -- Skåne Framtidsgymnasium: Teknik, Vård
-(6, 2), (6, 4),                -- Karlstad Kunskapsgymnasiet: Natur, Estetik
-(7, 1), (7, 3), (7, 4),        -- Västerås Gymnasium: Teknik, Ekonomi, Estetik
-(8, 4), (8, 5);                -- Helsingborg Kreativa: Estetik, Vård
+(@s_sodra, @p_teknik), (@s_sodra, @p_natur), (@s_sodra, @p_eko);
 
+-- Norrby Tekniska: Teknik, Ekonomi
+INSERT INTO school_program (school_id, program_id) VALUES
+(@s_norrby, @p_teknik), (@s_norrby, @p_eko);
 
-INSERT INTO open_house_event (school_id, starts_at, info_url, notes) VALUES
-(1, '2025-11-10 17:00:00', 'https://sodragymnasiet.se/oppet-hus', 'Träffa lärare och elever'),
-(2, '2025-11-12 18:00:00', 'https://norrbytekniska.se/info', 'Teknikdemo och rundvandring'),
-(3, '2025-11-15 16:00:00', 'https://gotaakademi.se/oppet-hus', 'Musikframträdande och fika'),
-(4, '2025-11-17 17:30:00', 'https://ostrereal.se/oppet-hus', 'Information om natur- och ekonomiprogrammen'),
-(5, '2025-11-19 18:00:00', 'https://framtidsgymnasium.se/info', 'Prova-på lektioner'),
-(6, '2025-11-20 17:00:00', 'https://kunskapkarlstad.se/oppet-hus', 'Öppet hus för hela familjen'),
-(7, '2025-11-21 17:00:00', 'https://vgym.se/oppet-hus', 'Möt våra mentorer'),
-(8, '2025-11-22 18:00:00', 'https://helsingkreativ.se/info', 'Kreativa workshops och musik');
+-- Göta Akademi: Natur, Estetik
+INSERT INTO school_program (school_id, program_id) VALUES
+(@s_gota, @p_natur), (@s_gota, @p_estet);
 
+-- Östra Real: Natur, Ekonomi, Vård
+INSERT INTO school_program (school_id, program_id) VALUES
+(@s_ostral, @p_natur), (@s_ostral, @p_eko), (@s_ostral, @p_vard);
 
+-- Skåne Framtidsgymnasium: Teknik, Vård
+INSERT INTO school_program (school_id, program_id) VALUES
+(@s_skane, @p_teknik), (@s_skane, @p_vard);
+
+-- Karlstad Kunskapsgymnasiet: Natur, Estetik
+INSERT INTO school_program (school_id, program_id) VALUES
+(@s_kunskap, @p_natur), (@s_kunskap, @p_estet);
+
+-- Västerås Gymnasium: Teknik, Ekonomi, Estetik
+INSERT INTO school_program (school_id, program_id) VALUES
+(@s_vgym, @p_teknik), (@s_vgym, @p_eko), (@s_vgym, @p_estet);
+
+-- Helsingborg Kreativa Skola: Estetik, Vård
+INSERT INTO school_program (school_id, program_id) VALUES
+(@s_kreativ, @p_estet), (@s_kreativ, @p_vard);
+
+-- =========================
+-- Seed: Events (EducationEvent)
+-- =========================
+-- A couple of upcoming offerings with dates/URLs
+INSERT INTO event
+  (susa_event_id, program_id, provider_school_id, title, url, language_json, start_date, end_date, time_of_study, pace_of_study, is_apprenticeship)
+VALUES
+  ('demo:event:1', @p_teknik, @s_sodra,  'HT 2026 – Teknik', 'https://sodragymnasiet.se/teknik', JSON_ARRAY('sv'), '2026-08-20','2029-06-10','Dag','Heltid', 0),
+  ('demo:event:2', @p_natur,  @s_ostral, 'HT 2026 – Natur',  'https://ostrereal.se/natur',       JSON_ARRAY('sv'), '2026-08-20','2029-06-10','Dag','Heltid', 0),
+  ('demo:event:3', @p_estet,  @s_kreativ,'HT 2026 – Estet',  'https://helsingkreativ.se/estet', JSON_ARRAY('sv'), '2026-08-20','2029-06-10','Dag','Heltid', 0);
+
+-- =========================
+-- Seed: Quiz system (same spirit as your old seed)
+-- =========================
 INSERT INTO quiz_question (prompt, order_index) VALUES
 ('Vilket ämne tycker du mest om?', 1),
 ('Hur gillar du att arbeta?', 2),

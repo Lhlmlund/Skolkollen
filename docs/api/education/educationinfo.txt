@@ -1,0 +1,41 @@
+Key data points:
+
+identifier – Unique ID
+
+educationBase, Mandatory, Optional, Next – Curriculum elements
+
+code – Education code
+
+lastEdited, expires
+
+title, description – Localized text
+
+url – Localized URL
+
+form – Program form (e.g., distance, on-site)
+
+educationLevel[] – Level (e.g., upper-secondary)
+
+orientation, audience, configuration – Type/audience details
+
+subject[] – Subject area(s)
+
+isVocational, resultIsDegree – Flags
+
+degree – Localized result degree title
+
+qualificationLevel – Qualification level code
+
+extent, credits – Duration and credit info
+
+eligibility – Entry requirements:
+
+code, descriptions, exceptions, additions
+
+recommendedPriorKnowledge – Free text recommendations
+
+eligibleForStudentAid
+
+extension[]
+
+links[] – Self-link
