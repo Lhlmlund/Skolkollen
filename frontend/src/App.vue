@@ -32,6 +32,7 @@ export default {
       isUser: ''
     }
   },mounted() {
+    // this should in the future check for a valid token and not just a token
     const token = localStorage.getItem("token");
     if (token) {
       this.isUser = true;
