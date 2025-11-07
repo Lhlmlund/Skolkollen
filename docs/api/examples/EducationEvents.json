@@ -1,0 +1,332 @@
+{
+  "links": [
+    {
+      "rel": "first",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationEvents?page=0&size=20"
+    },
+    {
+      "rel": "self",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationEvents"
+    },
+    {
+      "rel": "next",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationEvents?page=1&size=20"
+    },
+    {
+      "rel": "last",
+      "href": "https://susanavet.skolverket.se/api/1.1/educationEvents?page=20761&size=20"
+    }
+  ],
+  "content": [
+    {
+      "identifier": "string",
+      "education": "string",
+      "provider": "string",
+      "examiningBody": "string",
+      "orderer": "string",
+      "lastEdited": "2024-10-28T08:03:20.902Z",
+      "expires": "2024-10-28T08:03:20.902Z",
+      "title": {
+        "string": [
+          {
+            "lang": "string",
+            "value": "string"
+          }
+        ]
+      },
+      "url": {
+        "url": [
+          {
+            "lang": "string",
+            "value": "string"
+          }
+        ]
+      },
+      "location": [
+        {
+          "country": "string",
+          "municipalityCode": "string",
+          "town": "string",
+          "postCode": "string",
+          "streetAddress": "string",
+          "position": "string"
+        }
+      ],
+      "languageOfInstruction": [
+        "string"
+      ],
+      "execution": {
+        "condition": 0,
+        "start": "2024-10-28T08:03:20.902Z",
+        "end": "2024-10-28T08:03:20.902Z"
+      },
+      "isCancelled": true,
+      "fee": [
+        {
+          "amount": "string",
+          "currency": "string",
+          "condition": {
+            "string": [
+              {
+                "lang": "string",
+                "value": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "places": [
+        {
+          "selectionGroup": {
+            "type": "string",
+            "code": "string"
+          },
+          "plannedPlaces": 0,
+          "plannedPlacesShare": 0,
+          "actualPlaces": 0
+        }
+      ],
+      "timeOfStudy": {
+        "type": "string",
+        "code": "string"
+      },
+      "paceOfStudy": {
+        "percentage": 0,
+        "note": {
+          "string": [
+            {
+              "lang": "string",
+              "value": "string"
+            }
+          ]
+        }
+      },
+      "isApprenticeship": true,
+      "distance": {
+        "mandatory": {
+          "frame": {
+            "length": 0,
+            "max": 0,
+            "unit": {
+              "type": "string",
+              "code": "string"
+            },
+            "note": {
+              "string": [
+                {
+                  "lang": "string",
+                  "value": "string"
+                }
+              ]
+            }
+          },
+          "count": 0,
+          "duration": {
+            "length": 0,
+            "max": 0,
+            "unit": {
+              "type": "string",
+              "code": "string"
+            },
+            "note": {
+              "string": [
+                {
+                  "lang": "string",
+                  "value": "string"
+                }
+              ]
+            }
+          }
+        },
+        "optional": {
+          "frame": {
+            "length": 0,
+            "max": 0,
+            "unit": {
+              "type": "string",
+              "code": "string"
+            },
+            "note": {
+              "string": [
+                {
+                  "lang": "string",
+                  "value": "string"
+                }
+              ]
+            }
+          },
+          "count": 0,
+          "duration": {
+            "length": 0,
+            "max": 0,
+            "unit": {
+              "type": "string",
+              "code": "string"
+            },
+            "note": {
+              "string": [
+                {
+                  "lang": "string",
+                  "value": "string"
+                }
+              ]
+            }
+          }
+        },
+        "mandatoryNet": {
+          "frame": {
+            "length": 0,
+            "max": 0,
+            "unit": {
+              "type": "string",
+              "code": "string"
+            },
+            "note": {
+              "string": [
+                {
+                  "lang": "string",
+                  "value": "string"
+                }
+              ]
+            }
+          },
+          "count": 0,
+          "duration": {
+            "length": 0,
+            "max": 0,
+            "unit": {
+              "type": "string",
+              "code": "string"
+            },
+            "note": {
+              "string": [
+                {
+                  "lang": "string",
+                  "value": "string"
+                }
+              ]
+            }
+          }
+        },
+        "optionalNet": {
+          "frame": {
+            "length": 0,
+            "max": 0,
+            "unit": {
+              "type": "string",
+              "code": "string"
+            },
+            "note": {
+              "string": [
+                {
+                  "lang": "string",
+                  "value": "string"
+                }
+              ]
+            }
+          },
+          "count": 0,
+          "duration": {
+            "length": 0,
+            "max": 0,
+            "unit": {
+              "type": "string",
+              "code": "string"
+            },
+            "note": {
+              "string": [
+                {
+                  "lang": "string",
+                  "value": "string"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "application": {
+        "code": "string",
+        "instruction": {
+          "string": [
+            {
+              "lang": "string",
+              "value": "string"
+            }
+          ]
+        },
+        "url": {
+          "url": [
+            {
+              "lang": "string",
+              "value": "string"
+            }
+          ]
+        },
+        "first": "2024-10-28T08:03:20.902Z",
+        "last": "2024-10-28T08:03:20.902Z",
+        "email": "string",
+        "address": {
+          "country": "string",
+          "town": "string",
+          "postCode": "string",
+          "postBox": "string",
+          "streetAddress": "string",
+          "organization": "string",
+          "department": "string"
+        }
+      },
+      "applicationHistory": {
+        "year": "2024",
+        "semester": 0,
+        "selectionGroup": {
+          "selectionGroup": {
+            "type": "string",
+            "code": "string"
+          },
+          "plannedPlaces": 0,
+          "plannedPlacesShare": 0,
+          "actualPlaces": 0
+        },
+        "tariffPoints": {
+          "system": {
+            "type": "string",
+            "code": "string"
+          },
+          "credits": 0,
+          "min": 0
+        }
+      },
+      "extension": [
+        {
+          "type": "string",
+          "id": "string",
+          "mapExtension": {
+            "additionalProp1": "string",
+            "additionalProp2": "string",
+            "additionalProp3": "string"
+          }
+        }
+      ],
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://susanavet.skolverket.se/api/1.1/educationEvents/string"
+        },
+        {
+          "rel": "educationInfo",
+          "href": "https://susanavet.skolverket.se/api/1.1/educationInfos/string"
+        },
+        {
+          "rel": "educationProvider",
+          "href": "https://susanavet.skolverket.se/api/1.1/educationProviders/string"
+        }
+      ]
+    }
+  ],
+  "page": {
+    "size": 0,
+    "totalElements": 0,
+    "totalPages": 0,
+    "number": 0
+  }
+}

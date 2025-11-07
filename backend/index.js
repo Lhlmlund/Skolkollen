@@ -1,67 +1,87 @@
-// backend/index.js (ESM)
-import express from 'express'
+import { prisma } from './prismaClient.js';
+import adminRouter from "./routes/adminRoutes.js";
+
+
+// Routers
+
+import express from 'express';
+import dotenv from 'dotenv';
 import cors from 'cors'
-import dotenv from 'dotenv'
 
-dotenv.config()
+import quizRoutes from "./routes/quizRoutes.js";
+import schoolRouter from './routes/schoolRoutes.js';
+import programRouter from './routes/programRoutes.js';
+import userRoutes from "./routes/userRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
-// Fallback så servern kan starta även om .env saknar JWT_SECRET
-if (!process.env.JWT_SECRET) process.env.JWT_SECRET = 'dev-temp-secret'
+dotenv.config();
 
-const app = express()
-const PORT = process.env.PORT || 3000
+const app = express();
+const PORT = process.env.PORT || 3000;
+const ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:5173";
 
-// ✅ CORS måste ligga före routes
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-}))
-app.use(express.json())
+// If FRONTEND_ORIGIN="*" → allow all (handy when Vite jumps to 5174/5175)
+const corsOrigin = ORIGIN === "*" ? true : ORIGIN;
 
-// --- Health check (måste alltid svara) ---
-app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, ts: new Date().toISOString() })
-})
 
-// --- Safe route mounting (mont. bara om filen finns) ---
-const safeMount = async (path, file) => {
-  try {
-    const mod = await import(file)
-    app.use(path, mod.default || mod.router || mod)
-    console.log(`Mounted ${file} at ${path}`)
-  } catch (err) {
-    console.warn(`(info) Skipping ${file} – not found or failed to load.`)
-  }
+
+app.use(
+  cors({
+    origin: corsOrigin,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: false,
+  })
+);
+
+app.use(express.json());
+app.use("/admin", adminRouter);
+
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is required');
 }
 
-// Montera backend-routes (om de finns)
-await safeMount('/api/quiz', './routes/quizRoutes.js')
-await safeMount('/api', './routes/schoolRoutes.js')
-await safeMount('/api', './routes/programRoutes.js')
-await safeMount('/api/users', './routes/userRoutes.js')
-await safeMount('/api/auth', './routes/authRoutes.js')
 
-
-
-// ✅ Fallback för /api/schools om din riktiga route inte finns
-app.get('/api/schools', (req, res, next) => {
-  // Om riktig /schools-route redan är monterad → låt den ta över
-  if (app._router?.stack?.some(l => l.route?.path === '/schools' && l.route?.methods?.get)) {
-    return next()
+// --- Health checks ---
+app.get("/health", (_req, res) => res.send("OK"));
+app.get("/health/db", async (_req, res) => {
+  try {
+    // MySQL ping via Prisma (return may differ by driver/platform)
+    const rows = await prisma.$queryRawUnsafe("SELECT 1 AS ok");
+    const row = Array.isArray(rows) ? rows[0] : rows;
+    if (row && (row.ok === 1 || row.ok === "1")) return res.json({ db: "OK" });
+    return res.status(500).json({ db: "Unexpected result" });
+  } catch (e) {
+    console.error("DB health error:", e);
+    return res.status(500).json({ db: "ERROR", message: e.message });
   }
+});
 
-  // Annars: skicka basdata så frontend fungerar
-  res.json([
-    { id: 1, name: 'Göta Akademi', city: 'Göteborg', programs: ['Natur', 'Teknik'] },
-    { id: 2, name: 'Helsingborg Kreativa Skola', city: 'Helsingborg', programs: ['Samhäll'] },
-    { id: 3, name: 'Karlstad Kunskapsgymnasiet', city: 'Karlstad', programs: ['Natur'] },
-  ])
-})
+// --- API routes ---
+app.use("/api", schoolRouter);    // /api/schools
+app.use("/api/quiz", quizRoutes); // /api/quiz/questions, /api/quiz/submit
+app.use('/api', programRouter)
+app.use("/api/auth", authRoutes)
+app.use("/api", userRoutes) // for dev purposes
 
+// --- Error handler (JSON) ---
+app.use((err, _req, res, _next) => {
+  console.error(err);
+  res.status(500).json({ error: "Internal Server Error" });
+});
 
-// 404 som sista middleware
-app.use((req, res) => res.status(404).json({ error: 'Not found', path: req.path }))
-
+// --- Start server ---
 app.listen(PORT, () => {
-  console.log(`✅ Backend running on http://localhost:${PORT}`)
-})
+  console.log(`Backend running on http://localhost:${PORT}`);
+});
+
+// Graceful shutdown for Prisma
+const shutdown = async () => {
+  try {
+    await prisma.$disconnect();
+  } finally {
+    process.exit(0);
+  }
+};
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);

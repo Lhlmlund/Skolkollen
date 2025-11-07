@@ -22,7 +22,7 @@ export async function loginUser(req, res){
         const {email, password} = req.validated?.body ?? req.body;
         const row = await getUserByEmailSvc(email)
         if (!row) return res.status(401).json({ error: "Invalid credentials"})
-        if (await checkPassword(password, row.password_hash)) {
+        if (await checkPassword(password, row.passwordHash)) {
             const token = getToken(row)
             return res.json({token});
         }
@@ -35,7 +35,7 @@ export async function loginUser(req, res){
 
 export async function getUserById(req, res){
     try {
-        const id = Number(req.validated?.params?.id ?? req.params.id);
+        const id = Number(req.validated?.params?.id ?? req.params.id) || req.user.id;
         const row = await getUserByIdSvc(id);
         if (!row) return res.status(404).json({ error: `User not found with id: ${id}` });
         return res.json(row);
@@ -107,7 +107,7 @@ async function buildUserBody(req){
     let data = {};
     if (name !== undefined) data.name = name;
     if (email !== undefined) data.email = email;
-    if (password !== undefined) data.password_hash = await hashPassword(password);
+    if (password !== undefined) data.passwordHash = await hashPassword(password);
     return data;
 }
 

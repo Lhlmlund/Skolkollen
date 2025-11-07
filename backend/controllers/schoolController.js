@@ -2,6 +2,7 @@
 import {
   listSchools,
   listSchoolsWithPrograms as listSchoolsWithProgramsSvc,
+  listGymSchoolsWithPrograms as listGymSchoolsWithProgramsSvc,
   getSchoolById as getSchoolByIdSvc,
   createSchool as createSchoolSvc,
   updateSchoolById as updateSchoolByIdSvc,
@@ -97,5 +98,15 @@ export async function getSchoolsWithPrograms(_req, res) {
   } catch (error) {
     console.error("Error fetching schools with programs:", error);
     res.status(500).json({ error: "Failed to fetch schools with programs" });
+  }
+}
+
+export async function getGymnasiumSchoolsWithPrograms(req, res) {
+  try {
+    const rows = await listGymSchoolsWithProgramsSvc({ onlyGymnasium: true })
+    res.json(rows)
+  } catch (err) {
+    console.error('Error fetching gymnasium schools:', err)
+    res.status(500).json({ error: 'Failed to fetch gymnasium schools' })
   }
 }

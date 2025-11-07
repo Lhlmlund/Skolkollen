@@ -21,6 +21,12 @@ export async function getSchoolsWithPrograms() {
   return res.json()
 }
 
+export async function fetchGymnasiumSchools() {
+  const res = await fetch(`${BASE}/api/schools/gymnasium-with-programs`)
+  if (!res.ok) throw new Error('Failed to fetch gymnasium schools')
+  return res.json()
+}
+
 export async function getOpenHouses() {
   const res = await fetch(`${BASE}/api/openhouses`)
   if (!res.ok) {
@@ -81,6 +87,39 @@ export async function register(name, email, password, age, school, city){
     return data;
 }
 
+export async function updateUser(payload){
+        const res = await fetch(`${BASE}/api/auth/update`, {
+            method: 'PUT',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                name: payload.name,
+                email: payload.email,
+                password: payload.password,
+                age: payload.age,
+                school: payload.school,
+                city: payload.city,
+            }),
+        });
+
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Update failed');
+    }
+
+    const data = await res.json();
+    console.log('Update success:');
+    return data;
+}
+
+export async function syncSusa() {
+  const res = await fetch(`${BASE}/admin/susa-sync`);
+  if (!res.ok) throw new Error('Failed to sync SUSA data');
+  return res.json();
+}
+
 export async function getSchoolById(id) {
   const response = await fetch(`${BASE}/api/schools/${id}`)
   if (!response.ok) {
@@ -94,7 +133,8 @@ export async function getSchoolById(id) {
 
   export async function getMe() {
     const res = await fetch(`${BASE}/api/auth/me`, {
-      headers: { ...authHeaders() },
+        method: "GET",
+        headers: { ...authHeaders() },
     })
     const data = await res.json().catch(() => null)
     if (!res.ok) throw new Error(data?.error || 'Failed to fetch current user')
