@@ -163,21 +163,24 @@ export default {
       this.errorMsg = '';
       this.loading = true;
       try {
+        const payload = {
+          name: this.name?.trim(),
+          email: this.email?.trim(),
+          age: this.age ? Number(this.age) : undefined,
+          school: this.school?.trim() || undefined,
+          city: this.city?.trim()}
 
-        await updateUser(
-            this.name.trim(),
-            this.email.trim(),
-            this.password,
-            Number(this.age),
-            this.school?.trim() || '',
-            this.city.trim()
-        );
+        if (this.password) {
+          payload.password = this.password;
+        }
+
+        await updateUser(payload);
       } catch (e) {
       this.errorMsg = e instanceof Error ? e.message : 'Något gick fel.';
     } finally {
       this.loading = false;
       this.toggleEdit();
-      window.location.reload();
+      await this.getMe()
     }
     }
   }

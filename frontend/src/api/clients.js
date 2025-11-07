@@ -81,7 +81,7 @@ export async function register(name, email, password, age, school, city){
     return data;
 }
 
-export async function updateUser(name, email, password, age, school, city){
+export async function updateUser(payload){
         const res = await fetch(`${BASE}/api/auth/update`, {
             method: 'PUT',
             headers: {
@@ -89,12 +89,12 @@ export async function updateUser(name, email, password, age, school, city){
                 "Authorization": `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({
-                name: name,
-                email: email,
-                password: password,
-                age: age,
-                school: school,
-                city: city,
+                name: payload.name,
+                email: payload.email,
+                password: payload.password,
+                age: payload.age,
+                school: payload.school,
+                city: payload.city,
             }),
         });
 
