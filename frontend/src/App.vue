@@ -7,7 +7,9 @@
         <router-link to="/about">Om</router-link> |
         <router-link to="/school-list">Alla skolor</router-link> |
         <router-link to="/selected-schools">Utvalda skolor</router-link> |
-        <router-link to="/login">Logga in</router-link>
+        <router-link v-if="isUser" to="/profile">Mina sidor</router-link>
+        <router-link v-if="!isUser" to="/login">Logga in</router-link> |
+        <a v-if="isUser"  @click="logOut" > Logga ut </a>
       </nav>
     </header>
 
@@ -25,7 +27,26 @@
 <script>
 export default {
   name: 'App',
+  data() {
+    return {
+      isUser: ''
+    }
+  },mounted() {
+    // this should in the future check for a valid token and not just a token
+    const token = localStorage.getItem("token");
+    if (token) {
+      this.isUser = true;
+    }
+  },
+  methods: {
+    logOut() {
+      localStorage.clear()
+      this.$router.push('/')
+      this.isUser = false
+    },
+  }
 }
+
 </script>
 
 <style>
@@ -82,6 +103,7 @@ nav a {
 nav a:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
+  cursor: pointer;
 }
 
 /* Main content grows to fill space */

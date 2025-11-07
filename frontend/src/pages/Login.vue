@@ -52,10 +52,20 @@ export default {
     }
   },
   methods: {
-    handleLogin() {
-      console.log('Login with', this.email, this.password)
-      login(this.email, this.password)
-      this.$router.push('/')
+    async handleLogin() {
+      try {
+        const data = await login(this.email, this.password);
+
+        if (data && data.token) {
+          this.$router.push('/').then(() => {
+            window.location.reload();
+          });
+        }
+      } catch (err) {
+
+        alert(err.message || 'Login failed. Kontrollera dina uppgifter.');
+        console.error('Login error:', err);
+      }
     }
   }
 }

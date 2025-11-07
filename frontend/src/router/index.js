@@ -9,6 +9,7 @@ import SchoolDetail from '../pages/SchoolDetail.vue'
 import Login from "../pages/Login.vue";
 import Register from "../pages/Register.vue";
 import QuizView from '../pages/QuizView.vue';
+import Profile from "../pages/Profile.vue";
 
 // Definiera routes
 const routes = [
@@ -19,7 +20,8 @@ const routes = [
   { path: '/school/:id', name: 'school-detail', component: SchoolDetail, props: true },
   { path: '/Login', name: 'login', component: Login },
   { path: '/Register', name: 'register', component: Register },
-  { path: '/quiz', name: 'quiz', component: QuizView }
+  { path: '/quiz', name: 'quiz', component: QuizView },
+    {path: '/profile', name: 'profile', component: Profile}
 
 ]
 
