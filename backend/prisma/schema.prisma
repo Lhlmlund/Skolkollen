@@ -1,3 +1,5 @@
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,133 +10,224 @@ datasource db {
 }
 
 model User {
-  id            Int                   @id @default(autoincrement())
-  name          String?               @db.VarChar(100)
-  email         String                @unique @db.VarChar(100)
-  password_hash String                @db.VarChar(255)
-  role          Role                  @default(STUDENT)
-  created_at    DateTime?             @default(now()) @db.Timestamp(0)
+  id           Int      @id @default(autoincrement())
+  name         String?  @db.VarChar(100)
+  email        String   @unique @db.VarChar(100)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         Role     @default(STUDENT)
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  submissions   QuizSubmission[]      // quiz history
-  favorites     UserFavoriteSchool[]  // <-- add this
+  QuizSubmissions QuizSubmission[]
+  FavoriteSchools UserFavoriteSchool[]
 
   @@map("user")
-}
-
-model UserFavoriteSchool {
-  user_id   Int
-  school_id Int
-
-  user   User   @relation(fields: [user_id], references: [id])
-  school School @relation(fields: [school_id], references: [id])
-
-  @@id([user_id, school_id])
-  @@map("user_favorite_school")
-}
-
-model Program {
-  id          Int              @id @default(autoincrement())
-  name        String           @db.VarChar(100)
-  category    String?          @db.VarChar(50)
-  description String?          @db.Text
-  created_at  DateTime?        @default(now()) @db.Timestamp(0)
-  suggestedIn QuizSubmission[] @relation("SuggestedProgram")
-  schools     SchoolProgram[]
-
-  @@map("program")
-}
-
-model School {
-  id         Int              @id @default(autoincrement())
-  name       String           @db.VarChar(120)
-  city       String?          @db.VarChar(60)
-  website    String?          @db.VarChar(255)
-  created_at DateTime?        @default(now()) @db.Timestamp(0)
-  events     OpenHouseEvent[]
-  programs   SchoolProgram[]
-  favoritedBy UserFavoriteSchool[]
-
-  @@map("school")
-}
-
-model SchoolProgram {
-  school_id  Int
-  program_id Int
-  school     School  @relation(fields: [school_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "school_program_ibfk_1")
-  program    Program @relation(fields: [program_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "school_program_ibfk_2")
-
-  @@id([school_id, program_id])
-  @@index([program_id], map: "program_id")
-  @@map("school_program")
-}
-
-model OpenHouseEvent {
-  id        Int      @id @default(autoincrement())
-  school_id Int
-  starts_at DateTime @db.DateTime(0)
-  info_url  String?  @db.VarChar(255)
-  notes     String?  @db.VarChar(255)
-  school    School   @relation(fields: [school_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "open_house_event_ibfk_1")
-
-  @@index([school_id], map: "school_id")
-  @@map("open_house_event")
-}
-
-model QuizQuestion {
-  id               Int                @id @default(autoincrement())
-  prompt           String             @db.VarChar(255)
-  order_index      Int
-  options          QuizOption[]
-  SubmissionAnswer SubmissionAnswer[]
-
-  @@map("quiz_question")
-}
-
-model QuizOption {
-  id           Int                @id @default(autoincrement())
-  question_id  Int
-  label        String             @db.VarChar(255)
-  program_hint String?            @db.VarChar(50)
-  weight       Int?               @default(1)
-  question     QuizQuestion       @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "quiz_option_ibfk_1")
-  answers      SubmissionAnswer[]
-
-  @@index([question_id], map: "question_id")
-  @@map("quiz_option")
-}
-
-model QuizSubmission {
-  id                     String             @id @default(uuid()) @db.Char(36)
-  created_at             DateTime?          @default(now()) @db.Timestamp(0)
-
-  suggested_program_id   Int?
-  suggestedProgram       Program?           @relation(name: "SuggestedProgram", fields: [suggested_program_id], references: [id])
-
-  user_id                Int?
-  user                   User?              @relation(fields: [user_id], references: [id])
-
-  answers                SubmissionAnswer[]
-
-  @@index([suggested_program_id], map: "suggested_program_id")
-  @@index([user_id], map: "quiz_submission_user_id_idx")
-  @@map("quiz_submission")
-}
-
-model SubmissionAnswer {
-  submission_id String         @db.Char(36)
-  question_id   Int
-  option_id     Int
-  submission    QuizSubmission @relation(fields: [submission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "submission_answer_ibfk_1")
-  question      QuizQuestion   @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "submission_answer_ibfk_2")
-  option        QuizOption     @relation(fields: [option_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "submission_answer_ibfk_3")
-
-  @@id([submission_id, question_id])
-  @@index([option_id], map: "option_id")
-  @@index([question_id], map: "question_id")
-  @@map("submission_answer")
 }
 
 enum Role {
   STUDENT
   ADMIN
+}
+
+model Program {
+  id              Int     @id @default(autoincrement())
+  susaEducationId String  @unique @map("susa_education_id") @db.VarChar(250)
+  name            String  @db.VarChar(200)
+  description     String? @db.MediumText
+
+  isVocational     Boolean? @map("is_vocational")
+  isGymnasium      Boolean  @default(false) @map("is_gymnasium")
+  educationLevels  Json?    @map("education_levels")
+  orientationsJson Json?    @map("orientations_json")
+  subjectsJson     Json?    @map("subjects_json")
+  qualification    String?  @db.VarChar(120)
+  resultDegree     String?  @map("result_degree") @db.VarChar(120)
+  credits          String?  @db.VarChar(60)
+  keywordsJson     Json?    @map("keywords_json")
+
+  lastEdited DateTime? @map("last_edited")
+  expiresAt  DateTime? @map("expires_at")
+  extraJson  Json?     @map("extra_json")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  SchoolPrograms SchoolProgram[]  @relation("ProgramToSchools")
+  Events         Event[]
+  SuggestedIn    QuizSubmission[] @relation("SuggestedProgram")
+
+  @@map("program")
+}
+
+model School {
+  id               Int      @id @default(autoincrement())
+  susaProviderId   String?  @unique @map("susa_provider_id") @db.VarChar(250)
+  name             String   @db.VarChar(120)
+  website          String?  @db.VarChar(512)
+  email            String?  @db.VarChar(255)
+  phoneJson        Json?    @map("phone_json")
+  country          String?  @db.VarChar(60)
+  municipalityCode String?  @map("municipality_code") @db.Char(4)
+  city             String?  @db.VarChar(80)
+  streetAddress    String?  @map("street_address") @db.VarChar(255)
+  postCode         String?  @map("post_code") @db.Char(6)
+  lat              Decimal? @db.Decimal(10, 7)
+  lon              Decimal? @db.Decimal(10, 7)
+  responsibleBody  String?  @map("responsible_body") @db.VarChar(255)
+  accreditation    String?  @db.VarChar(120)
+  foundedYear      Int?     @map("founded_year")
+
+  isGymnasium  Boolean @default(false) @map("is_gymnasium")
+  isShowcase   Boolean @default(false) @map("is_showcase")
+  showcaseRank Int?    @unique @map("showcase_rank")
+
+  lastEdited DateTime? @map("last_edited")
+  expiresAt  DateTime? @map("expires_at")
+  extraJson  Json?     @map("extra_json")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  SchoolPrograms   SchoolProgram[]      @relation("SchoolToPrograms")
+  Events           Event[]              @relation("ProviderEvents")
+  Tags             SchoolTag[]
+  FavoriteSchools  UserFavoriteSchool[]
+  FanoutFromKommun ProviderFanout[]     @relation("KommunToSchools")
+  FanoutToSchool   ProviderFanout[]     @relation("SchoolFromKommun")
+
+  @@map("school")
+}
+
+model SchoolProgram {
+  schoolId  Int @map("school_id")
+  programId Int @map("program_id")
+
+  School  School  @relation("SchoolToPrograms", fields: [schoolId], references: [id], onDelete: Cascade, map: "fk_sp_school")
+  Program Program @relation("ProgramToSchools", fields: [programId], references: [id], onDelete: Cascade, map: "fk_sp_program")
+
+  @@id([schoolId, programId])
+  @@map("school_program")
+}
+
+model Event {
+  id          Int    @id @default(autoincrement())
+  susaEventId String @unique @map("susa_event_id") @db.VarChar(250)
+
+  programId        Int @map("program_id")
+  providerSchoolId Int @map("provider_school_id")
+
+  title            String?   @db.VarChar(200)
+  url              String?   @db.VarChar(512)
+  languageJson     Json?     @map("language_json")
+  startDate        DateTime? @map("start_date")
+  endDate          DateTime? @map("end_date")
+  timeOfStudy      String?   @map("time_of_study") @db.VarChar(100)
+  paceOfStudy      String?   @map("pace_of_study") @db.VarChar(100)
+  isApprenticeship Boolean?  @map("is_apprenticeship")
+
+  feeJson         Json? @map("fee_json")
+  placesJson      Json? @map("places_json")
+  distanceJson    Json? @map("distance_json")
+  applicationJson Json? @map("application_json")
+  applicationHist Json? @map("application_hist")
+  locationJson    Json? @map("location_json")
+
+  lastEdited DateTime? @map("last_edited")
+  expiresAt  DateTime? @map("expires_at")
+  extraJson  Json?     @map("extra_json")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  Program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  School  School  @relation("ProviderEvents", fields: [providerSchoolId], references: [id], onDelete: Cascade)
+
+  @@index([programId], map: "idx_event_program")
+  @@index([providerSchoolId], map: "idx_event_provider")
+  @@map("event")
+}
+
+model ProviderFanout {
+  id               Int    @id @default(autoincrement())
+  kommunProviderId String @map("kommun_provider_id") @db.VarChar(250)
+  schoolProviderId String @map("school_provider_id") @db.VarChar(250)
+
+  // Both fields reference School.susa_provider_id (unique)
+  Kommun School @relation("KommunToSchools", fields: [kommunProviderId], references: [susaProviderId], onDelete: Cascade)
+  School School @relation("SchoolFromKommun", fields: [schoolProviderId], references: [susaProviderId], onDelete: Cascade)
+
+  @@unique([kommunProviderId, schoolProviderId], map: "ux_pf_pair")
+  @@map("provider_fanout")
+}
+
+model SchoolTag {
+  schoolId Int
+  tag      String @db.VarChar(60)
+
+  School School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@id([schoolId, tag])
+  @@map("school_tag")
+}
+
+model UserFavoriteSchool {
+  userId   Int
+  schoolId Int
+
+  School School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, schoolId])
+  @@map("user_favorite_school")
+}
+
+model QuizQuestion {
+  id         Int    @id @default(autoincrement())
+  prompt     String @db.VarChar(255)
+  orderIndex Int    @map("order_index")
+
+  Options QuizOption[]
+  Answers SubmissionAnswer[]
+
+  @@map("quiz_question")
+}
+
+model QuizOption {
+  id          Int     @id @default(autoincrement())
+  questionId  Int     @map("question_id")
+  label       String  @db.VarChar(255)
+  programHint String? @map("program_hint") @db.VarChar(50)
+  weight      Int?    @default(1)
+
+  Question QuizQuestion       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  Answers  SubmissionAnswer[]
+
+  @@map("quiz_option")
+}
+
+model QuizSubmission {
+  id                 String   @id @db.Char(36)
+  createdAt          DateTime @default(now()) @map("created_at")
+  suggestedProgramId Int?     @map("suggested_program_id")
+  userId             Int?     @map("user_id")
+
+  SuggestedProgram Program?           @relation("SuggestedProgram", fields: [suggestedProgramId], references: [id])
+  User             User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  Answers          SubmissionAnswer[]
+
+  @@map("quiz_submission")
+}
+
+model SubmissionAnswer {
+  submissionId String @map("submission_id") @db.Char(36)
+  questionId   Int    @map("question_id")
+  optionId     Int    @map("option_id")
+
+  Submission QuizSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  Question   QuizQuestion   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  Option     QuizOption     @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@id([submissionId, questionId])
+  @@map("submission_answer")
 }

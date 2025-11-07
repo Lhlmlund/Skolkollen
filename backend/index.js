@@ -1,4 +1,6 @@
 import { prisma } from './prismaClient.js';
+import adminRouter from "./routes/adminRoutes.js";
+
 
 // Routers
 
@@ -33,10 +35,12 @@ app.use(
 );
 
 app.use(express.json());
+app.use("/admin", adminRouter);
 
 if (!process.env.JWT_SECRET) {
   throw new Error('JWT_SECRET is required');
 }
+
 
 // --- Health checks ---
 app.get("/health", (_req, res) => res.send("OK"));

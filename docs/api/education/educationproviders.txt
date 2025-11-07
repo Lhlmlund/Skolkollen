@@ -1,0 +1,27 @@
+Key data points:
+
+identifier
+
+lastEdited, expires
+
+name, description – Localized info
+
+url – External provider website
+
+visitAddress – Physical address:
+
+country, municipalityCode, town, streetAddress, postCode, position
+
+contactAddress – Mailing/contact address
+
+emailAddress
+
+phone – With function (localized string) and number
+
+responsibleBody – Governing body info
+
+accreditation, year
+
+extension[]
+
+links[] – Self-link
