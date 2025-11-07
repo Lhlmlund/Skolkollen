@@ -85,10 +85,7 @@ export async function updateUser(name, email, password, age, school, city){
     console.log('You here')
     const res = await fetch(`${BASE}/api/auth/update`, {
         method: 'PUT',
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem('token')}`
-        },
+            headers: { ...authHeaders() },
         body: JSON.stringify({
             name: name,
             email: email,
@@ -123,10 +120,7 @@ export async function getSchoolById(id) {
   export async function getMe() {
     const res = await fetch(`${BASE}/api/auth/me`, {
         method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: { ...authHeaders() },
     })
     const data = await res.json().catch(() => null)
     if (!res.ok) throw new Error(data?.error || 'Failed to fetch current user')
