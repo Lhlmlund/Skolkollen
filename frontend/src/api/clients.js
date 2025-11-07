@@ -85,7 +85,10 @@ export async function updateUser(name, email, password, age, school, city){
     console.log('You here')
     const res = await fetch(`${BASE}/api/auth/update`, {
         method: 'PUT',
-            headers: { ...authHeaders() },
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify({
             name: name,
             email: email,
