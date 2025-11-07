@@ -29,21 +29,20 @@ export default {
   name: 'App',
   data() {
     return {
-      isUser : false
+      isUser: ''
     }
-  },computed: {
-    isLoggedIn(){
-      return !!localStorage.getItem("token");
+  },mounted() {
+    const token = localStorage.getItem("token");
+    if (token) {
+      this.isUser = true;
     }
-  }, mounted() {
-    this.isUser = this.isLoggedIn
   },
   methods: {
-    logOut(){
+    logOut() {
       localStorage.clear()
       this.$router.push('/')
       this.isUser = false
-    }
+    },
   }
 }
 

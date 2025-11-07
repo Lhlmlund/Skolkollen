@@ -81,6 +81,34 @@ export async function register(name, email, password, age, school, city){
     return data;
 }
 
+export async function updateUser(name, email, password, age, school, city){
+    console.log('You here')
+    const res = await fetch(`${BASE}/api/auth/update`, {
+        method: 'PUT',
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+            name: name,
+            email: email,
+            password: password,
+            age: age,
+            school: school,
+            city: city,
+        }),
+    });
+
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Update failed');
+    }
+
+    const data = await res.json();
+    console.log('Update success:');
+    return data;
+}
+
 export async function getSchoolById(id) {
   const response = await fetch(`${BASE}/api/schools/${id}`)
   if (!response.ok) {

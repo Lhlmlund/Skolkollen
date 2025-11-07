@@ -3,7 +3,7 @@
 
 
     <section v-if="edit" class="content">
-      <form @submit.prevent="handleRegister">
+      <form @submit.prevent="handleUpdate">
         <div class="form-group">
           <label for="name">Namn</label>
           <input
@@ -32,7 +32,6 @@
               type="password"
               id="password"
               v-model="password"
-              required
               placeholder="Minst 8 tecken, 1 versal, 1 siffra"
               autocomplete="new-password"
               pattern="(?=.*[A-Z])(?=.*\d).{8,}"
@@ -73,8 +72,9 @@
           />
         </div>
 
-        <button @click="sendEdit">Skicka</button>
+        <button type="submit" :disabled="loading || !formValid">Skicka</button>
         <button @click="toggleEdit">Avbryt</button>
+        <p v-if="errorMsg" class="error" aria-live="polite" style="margin-top:.75rem">{{ errorMsg }}</p>
       </form>
     </section>
 
@@ -93,11 +93,6 @@
               <li><strong>Stad:</strong> {{ city }}</li>
             </ul>
           </div>
-
-            <div class="form-group">
-              <label for="city">{{city}}</label>
-            </div>
-
             <button @click="toggleEdit">Ändra</button>
         </section>
     <section v-if="!edit">
@@ -108,20 +103,33 @@
 </template>
 
 <script>
-import {getMe} from "../api/clients.js";
+import {getMe, updateUser} from "../api/clients.js";
 export default {
   name: 'Profile',
   data() {
     return {
       name: 'alex',
       email: '',
-      password:'',
+      password: '',
       age: '',
       school: '',
       city: '',
       edit: false,
+      loading: false,
+      errorMsg: '',
       avatarUrl: '',
       createdAt: '',
+    }
+  }, computed: {
+    // If your policy requires a symbol, use the next regex (see comment below)
+    // pattern with symbol: /^(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/
+    isPasswordValid() {
+      if (!this.password) return true
+      const pattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+      return pattern.test(this.password);
+    },
+    formValid() {
+      return this.isPasswordValid;
     }
   }, mounted() {
     this.getProfile()
@@ -149,6 +157,29 @@ export default {
           this.city &&
           this.avatarUrl
       );
+    }, async handleUpdate() {
+      if (!this.formValid || this.loading) {
+        alert('Vänligen fyll i alla obligatoriska fält korrekt.');
+        return;
+      }
+      this.errorMsg = '';
+      this.loading = true;
+      try {
+        await updateUser(
+            this.name.trim(),
+            this.email.trim(),
+            this.password,
+            Number(this.age),
+            this.school?.trim() || '',
+            this.city.trim()
+        );
+      } catch (e) {
+      this.errorMsg = e instanceof Error ? e.message : 'Något gick fel.';
+    } finally {
+      this.loading = false;
+      this.toggleEdit();
+      window.location.reload();
+    }
     }
   }
 }
