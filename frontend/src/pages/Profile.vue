@@ -11,7 +11,7 @@
               id="name"
               v-model="name"
               required
-              placeholder="{{name}}" autocomplete="name"
+              autocomplete="name"
           />
         </div>
 
@@ -22,7 +22,7 @@
               id="email"
               v-model="email"
               required
-              placeholder="{{email}}" autocomplete="email"
+              autocomplete="email"
           />
         </div>
 
@@ -48,7 +48,8 @@
               type="number"
               id="age"
               v-model.number="age"
-              required placeholder="{{age}}" min="1" />
+              required
+              min="1" />
         </div>
 
         <div class="form-group">
@@ -68,7 +69,6 @@
               id="city"
               v-model="city"
               required
-              placeholder="Staden du bor i"
           />
         </div>
 
@@ -108,7 +108,7 @@ export default {
   name: 'Profile',
   data() {
     return {
-      name: 'alex',
+      name: '',
       email: '',
       password: '',
       age: '',
@@ -135,11 +135,9 @@ export default {
     this.getProfile()
 
   }, methods: {
-    sendEdit() {
-      this.edit = false;
-    },
     toggleEdit() {
-      this.edit = !this.edit
+      this.edit = !this.edit;
+      if(!this.edit) window.location.reload()
     },
     async getProfile() {
       const user = await getMe()
