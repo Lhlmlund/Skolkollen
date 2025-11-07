@@ -163,6 +163,7 @@ export default {
       this.errorMsg = '';
       this.loading = true;
       try {
+
         await updateUser(
             this.name.trim(),
             this.email.trim(),
