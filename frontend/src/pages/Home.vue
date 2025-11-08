@@ -4,26 +4,59 @@
       <p>Välj rätt, börja rätt – din väg till gymnasiet</p>
     </section>
 
+    <!-- Senaste rekommendation (centrerad, kompakt) -->
+    <section class="latest-rec">
+      <h3>Senaste rekommendation</h3>
+
+      <div v-if="latestProgram" class="latest-rec__body">
+        <p class="latest-rec__title">
+          <strong>{{ latestProgram }}</strong>
+          <span v-if="latestCategory" class="latest-rec__muted"> ({{ latestCategory }})</span>
+        </p>
+
+        <p v-if="latestWhen" class="latest-rec__time">{{ latestWhen }}</p>
+
+        <div class="latest-rec__actions">
+          <router-link to="/results" class="latest-rec__link">Visa detaljer →</router-link>
+          <router-link to="/quiz" class="latest-rec__redo">Gör quizet igen</router-link>
+        </div>
+      </div>
+
+      <div v-else class="latest-rec__empty">
+        <p class="latest-rec__muted">Inget sparat resultat ännu.</p>
+        <router-link to="/quiz" class="latest-rec__link">Gör quizet</router-link>
+      </div>
+    </section>
+
     <section class="search">
       <input
-          type="text"
-          v-model="searchQuery"
-          placeholder="Sök gymnasium, program eller stad..."
-          @input="filterSchools"
+        type="text"
+        v-model="searchQuery"
+        placeholder="Sök gymnasium, program eller stad..."
+        @input="filterSchools"
       />
       <button class="search-btn" @click="filterSchools">Sök</button>
     </section>
 
+    <!-- CTA till quiz -->
+    <section class="quiz-cta" style="text-align:center; margin: 8px 0 16px;">
+      <router-link
+        to="/quiz"
+        style="display:inline-block;padding:10px 16px;border-radius:10px;border:1px solid #eee;text-decoration:none;"
+      >
+        Testa gymnasie-quizet →
+      </router-link>
+    </section>
+
     <section class="filters">
-      <!-- First 4 filters as buttons -->
       <div
-          v-for="filter in visibleFilters"
-          :key="filter.name"
-          class="filter-wrapper"
+        v-for="filter in visibleFilters"
+        :key="filter.name"
+        class="filter-wrapper"
       >
         <button
-            :class="{ active: activeFilter === filter.name }"
-            @click="setFilter(filter.name)"
+          :class="{ active: activeFilter === filter.name }"
+          @click="setFilter(filter.name)"
         >
           {{ filter.name }}
         </button>
@@ -31,31 +64,30 @@
 
       <div class="filter-wrapper">
         <select
-            v-model="dropdownValue"
-            @change="handleDropdownChange"
-            class="program-dropdown"
-            :class="{ active: dropdownFilters.some(f => f.name === activeFilter) }"
+          v-model="dropdownValue"
+          @change="handleDropdownChange"
+          class="program-dropdown"
+          :class="{ active: dropdownFilters.some(f => f.name === activeFilter) }"
         >
           <option disabled value="">Fler program</option>
           <option
-              v-for="filter in dropdownFilters"
-              :key="filter.name"
-              :value="filter.name"
+            v-for="filter in dropdownFilters"
+            :key="filter.name"
+            :value="filter.name"
           >
             {{ filter.name }}
           </option>
         </select>
       </div>
-
     </section>
 
     <div class="content-layout">
       <section class="school-list">
         <router-link
-            v-for="school in filteredSchools"
-            :key="school.id"
-            :to="{ name: 'school-detail', params: { id: school.id } }"
-            class="school-card-link"
+          v-for="school in filteredSchools"
+          :key="school.id"
+          :to="{ name: 'school-detail', params: { id: school.id } }"
+          class="school-card-link"
         >
           <div class="school-card">
             <h3>{{ school.name }}</h3>
@@ -101,7 +133,6 @@
           {{ showAllOpenHouses ? 'Visa färre' : 'Visa alla' }}
         </button>
       </aside>
-
     </div>
   </main>
 </template>
@@ -109,78 +140,47 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { getSchoolsWithPrograms, getOpenHouses } from '../api/clients.js'
+import { getLatestQuiz } from '../utils/quizStore'
 
 const schools = ref([])
 const filteredSchools = ref([])
 const searchQuery = ref('')
 const activeFilter = ref('Alla')
-const dropdownValue = ref('') // was null
+const dropdownValue = ref('')
+
+// Senaste quiz från localStorage + härledda fält för visning
+const latestQuiz = ref(getLatestQuiz())
+const latestProgram = computed(() =>
+  latestQuiz.value?.name ??
+  latestQuiz.value?.result ??
+  latestQuiz.value?.recommendation ??
+  null
+)
+const latestCategory = computed(() => latestQuiz.value?.category ?? null)
+const latestWhen = computed(() => {
+  const t = latestQuiz.value?.at ?? latestQuiz.value?.timestamp ?? latestQuiz.value?.date
+  return t ? new Date(t).toLocaleString() : null
+})
+
 const filters = [
-  {
-    name: 'Alla',
-    programs: []
-  },
-  {
-    name: 'Natur',
-    programs: ['Naturvetenskapsprogrammet']
-  },
-  {
-    name: 'Teknik',
-    programs: ['Teknikprogrammet']
-  },
-  {
-    name: 'Samhäll',
-    programs: ['Samhällsvetenskapsprogrammet', 'Ekonomiprogrammet', 'Humanistiska programmet']
-  },
-  {
-    name: 'Estet',
-    programs: ['Estetiska programmet']
-  },
-  {
-    name: 'Barn och fritid',
-    programs: ['Barn- och fritidsprogrammet']
-  },
-  {
-    name: 'Bygg',
-    programs: ['Bygg- och anläggningsprogrammet']
-  },
-  {
-    name: 'El',
-    programs: ['El- och energiprogrammet', 'Industritekniska programmet']
-  },
-  {
-    name: 'Fordon',
-    programs: ['Fordons- och transportprogrammet']
-  },
-  {
-    name: 'Försäljning & service',
-    programs: ['Försäljnings- och serviceprogrammet']
-  },
-  {
-    name: 'Frisör & stylist',
-    programs: ['Frisör- och stylistprogrammet']
-  },
-  {
-    name: 'Hotell & turism',
-    programs: ['Hotell- och turismprogrammet']
-  },
-  {
-    name: 'Naturbruk',
-    programs: ['Naturbruksprogrammet']
-  },
-  {
-    name: 'Restaurang',
-    programs: ['Restaurang- och livsmedelsprogrammet']
-  },
-  {
-    name: 'Vård & omsorg',
-    programs: ['Vård- och omsorgsprogrammet']
-  },
-  {
-    name: 'VVS',
-    programs: ['VVS- och fastighetsprogrammet']
-  },
-];
+  { name: 'Alla', programs: [] },
+  { name: 'Natur', programs: ['Naturvetenskapsprogrammet'] },
+  { name: 'Teknik', programs: ['Teknikprogrammet'] },
+  { name: 'Samhäll', programs: ['Samhällsvetenskapsprogrammet', 'Ekonomiprogrammet', 'Humanistiska programmet'] },
+  { name: 'Estet', programs: ['Estetiska programmet'] },
+  { name: 'Barn och fritid', programs: ['Barn- och fritidsprogrammet'] },
+  { name: 'Bygg', programs: ['Bygg- och anläggningsprogrammet'] },
+  { name: 'El', programs: ['El- och energiprogrammet', 'Industritekniska programmet'] },
+  { name: 'Fordon', programs: ['Fordons- och transportprogrammet'] },
+  { name: 'Försäljning & service', programs: ['Försäljnings- och serviceprogrammet'] },
+  { name: 'Frisör & stylist', programs: ['Frisör- och stylistprogrammet'] },
+  { name: 'Hotell & turism', programs: ['Hotell- och turismprogrammet'] },
+  { name: 'Naturbruk', programs: ['Naturbruksprogrammet'] },
+  { name: 'Restaurang', programs: ['Restaurang- och livsmedelsprogrammet'] },
+  { name: 'Vård & omsorg', programs: ['Vård- och omsorgsprogrammet'] },
+  { name: 'VVS', programs: ['VVS- och fastighetsprogrammet'] },
+]
+
 const visibleFilters = [filters[0], ...filters.slice(1, 4)]
 const dropdownFilters = filters.slice(4)
 
@@ -190,36 +190,31 @@ function handleDropdownChange(event) {
 }
 
 function resetDropdown() {
-  if (dropdownValue.value) {
-    dropdownValue.value = ''
-  }
+  if (dropdownValue.value) dropdownValue.value = ''
 }
 
 const loading = ref(true)
 const error = ref(null)
 
-// Default placeholders (visible until real data is fetched)
 const openHouses = ref([
   { school: 'Södra Gymnasiet', date: '25 okt', time: '17:00–19:00' },
   { school: 'Karlstad Kunskapsgymnasiet', date: '2 nov', time: '18:00–20:00' },
   { school: 'Östra Real', date: '5 nov', time: '16:30–18:30' },
-  {school: "gymnasiet", date: '17 nov', time: '17:00–19:00'}
+  { school: 'gymnasiet', date: '17 nov', time: '17:00–19:00' },
 ])
 const showAllOpenHouses = ref(false)
 
-const visibleOpenHouses = computed(() => {
-  return showAllOpenHouses.value
-      ? openHouses.value
-      : openHouses.value.slice(0, 3)
-})
+const visibleOpenHouses = computed(() =>
+  showAllOpenHouses.value ? openHouses.value : openHouses.value.slice(0, 3)
+)
 
 function toggleOpenHouses() {
   showAllOpenHouses.value = !showAllOpenHouses.value
 }
 
-
 onMounted(async () => {
   try {
+    latestQuiz.value = getLatestQuiz()
 
     const schoolData = await getSchoolsWithPrograms()
     schools.value = schoolData
@@ -245,12 +240,12 @@ function filterSchools() {
   const query = searchQuery.value.toLowerCase()
   filteredSchools.value = schools.value.filter((school) => {
     const matchesFilter =
-        activeFilter.value === 'Alla' ||
-        (school.program && school.program.toLowerCase().includes(activeFilter.value.toLowerCase()))
+      activeFilter.value === 'Alla' ||
+      (school.program && school.program.toLowerCase().includes(activeFilter.value.toLowerCase()))
     const matchesSearch =
-        school.name.toLowerCase().includes(query) ||
-        (school.city && school.city.toLowerCase().includes(query)) ||
-        (school.program && school.program.toLowerCase().includes(query))
+      school.name.toLowerCase().includes(query) ||
+      (school.city && school.city.toLowerCase().includes(query)) ||
+      (school.program && school.program.toLowerCase().includes(query))
     return matchesFilter && matchesSearch
   })
 }
@@ -598,5 +593,56 @@ function filterSchools() {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+.latest-rec {
+  margin: 12px auto 16px;         /* centrerad */
+  max-width: 820px;               /* rimlig bredd */
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+  padding: 14px 16px;
+}
 
+.latest-rec h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.latest-rec__body { margin-top: 2px; }
+
+.latest-rec__title {
+  margin: 0 0 2px;
+  line-height: 1.35;
+}
+
+.latest-rec__muted {
+  color: #6b7280;
+  margin-left: 2px;
+}
+
+.latest-rec__time {
+  color: #9ca3af;
+  font-size: .9rem;
+  margin: 0 0 8px;
+}
+
+.latest-rec__actions {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.latest-rec__link {
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.latest-rec__redo {
+  text-decoration: none;
+  font-weight: 600;
+  opacity: .85;
+}
+.latest-rec__redo:hover { opacity: 1; }
+
+.latest-rec__empty { margin-top: 4px; }
 </style>
