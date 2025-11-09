@@ -2,15 +2,20 @@
   <div id="app">
     <header>
       <h1>Skolkollen</h1>
-      <nav>
-        <router-link to="/">Hem</router-link> |
-        <router-link to="/about">Om</router-link> |
-        <router-link to="/school-list">Alla skolor</router-link> |
-        <router-link to="/selected-schools">Utvalda skolor</router-link> |
-        <router-link v-if="isUser" to="/profile">Mina sidor</router-link>
-        <router-link v-if="!isUser" to="/login">Logga in</router-link> |
-        <a v-if="isUser"  @click="logOut" > Logga ut </a>
-      </nav>
+     <nav class="navbar">
+  <div class="nav-list">
+    <router-link to="/" exact-active-class="active" class="pill">Hem</router-link>
+    <router-link to="/about" exact-active-class="active" class="pill">Om</router-link>
+    <router-link to="/school-list" exact-active-class="active" class="pill">Alla skolor</router-link>
+    <router-link to="/selected-schools" exact-active-class="active" class="pill">Utvalda skolor</router-link>
+    <router-link to="/quiz" exact-active-class="active" class="pill">Quiz</router-link>
+
+    <router-link v-if="isUser" to="/profile" exact-active-class="active" class="pill">Mina sidor</router-link>
+    <router-link v-if="!isUser" to="/login" exact-active-class="active" class="pill">Logga in</router-link>
+    <a v-if="isUser" @click="logOut" class="pill pill-outline">Logga ut</a>
+  </div>
+</nav>
+
     </header>
 
     <!-- Main content area that grows -->
@@ -82,31 +87,59 @@ header h1 {
   letter-spacing: 1px;
 }
 
-/* Navigation */
-nav {
+/* Navigation Pills */
+.navbar {
   display: flex;
   justify-content: center;
+  padding: 14px 12px;
+}
+
+.nav-list {
+  display: flex;
+  gap: 14px;
   flex-wrap: wrap;
-  gap: 1rem;
+  align-items: center;
 }
 
-nav a {
-  color: white;
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
   text-decoration: none;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 0.4rem 0.8rem;
-  border-radius: 9999px;
-  transition: all 0.3s;
+  font-weight: 600;
+  line-height: 1;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease, color .12s ease;
 }
 
-nav a:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
-  cursor: pointer;
+.pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+  background: rgba(255,255,255,0.28);
 }
 
-/* Main content grows to fill space */
+.pill.active {
+  border-color: transparent;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  box-shadow: 0 10px 22px rgba(229,46,113,.28);
+}
+
+.pill-outline {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.55);
+  color: #fff;
+}
+
+.pill-outline:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+/* Main */
 main {
   flex: 1;
   padding: 2rem;
